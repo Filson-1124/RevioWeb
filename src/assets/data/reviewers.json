@@ -1,0 +1,367 @@
+{
+  "folders": [
+    {
+      "id": "AcronymMnemonics",
+      "title": "Acronym Mnemonics Flashcards",
+      "Desc": "Flashcards using acronyms + key phrases",
+        "reviewers": [
+    {
+      "id": "ac1",
+      "title": "Tech and Management",
+      "Desc": "AcronymFlashcards",
+      "content": [
+        {
+          "id": "q1",
+          "title": "Phases of UP",
+          "contents": [
+            { "letter": "I", "word": "Inception" },
+            { "letter": "E", "word": "Elaboration" },
+            { "letter": "C", "word": "Construction" },
+            { "letter": "T", "word": "Transition" },
+            { "letter": "P", "word": "Production" }
+          ],
+          "keyPhrase": "Imagine Every Challenge Turns Possible"
+        },
+        {
+          "id": "q2",
+          "title": "Functions of Management",
+          "contents": [
+            { "letter": "P", "word": "Planning" },
+            { "letter": "O", "word": "Organizing" },
+            { "letter": "L", "word": "Leading" },
+            { "letter": "C", "word": "Controlling" }
+          ],
+          "keyPhrase": "Please Observe Leaders Closely"
+        },
+        {
+          "id": "q3",
+          "title": "SMART Goals",
+          "contents": [
+            { "letter": "S", "word": "Specific" },
+            { "letter": "M", "word": "Measurable" },
+            { "letter": "A", "word": "Achievable" },
+            { "letter": "R", "word": "Relevant" },
+            { "letter": "T", "word": "Time-bound" }
+          ],
+          "keyPhrase": "Set Meaningful Aims Reaching Timelines"
+        },
+        {
+          "id": "q4",
+          "title": "DMAIC Methodology",
+          "contents": [
+            { "letter": "D", "word": "Define" },
+            { "letter": "M", "word": "Measure" },
+            { "letter": "A", "word": "Analyze" },
+            { "letter": "I", "word": "Improve" },
+            { "letter": "C", "word": "Control" }
+          ],
+          "keyPhrase": "Don't Miss Analyzing Improvements Clearly"
+        },
+        {
+          "id": "q5",
+          "title": "SDLC Phases",
+          "contents": [
+            { "letter": "F", "word": "Feasibility Study" },
+            { "letter": "R", "word": "Requirements Analysis" },
+            { "letter": "D", "word": "Design" },
+            { "letter": "I", "word": "Implementation" },
+            { "letter": "T", "word": "Testing" },
+            { "letter": "M", "word": "Maintenance" }
+          ],
+          "keyPhrase": "FRaDIsTic Maintenance Plan"
+        }
+      ]
+    },
+    {
+      "id": "ac2",
+      "title": "Medicine",
+      "Desc": "AcronymFlashcards",
+      "content": [
+        {
+          "id": "q1",
+          "title": "Primary Survey (ABCs)",
+          "contents": [
+            { "letter": "A", "word": "Airway" },
+            { "letter": "B", "word": "Breathing" },
+            { "letter": "C", "word": "Circulation" },
+            { "letter": "D", "word": "Disability" },
+            { "letter": "E", "word": "Exposure" }
+          ],
+          "keyPhrase": "Always Be Calm During Emergencies"
+        },
+        {
+          "id": "q2",
+          "title": "Cranial Nerves (12 Pairs)",
+          "contents": [
+            { "letter": "O", "word": "Olfactory" },
+            { "letter": "O", "word": "Optic" },
+            { "letter": "O", "word": "Oculomotor" },
+            { "letter": "T", "word": "Trochlear" },
+            { "letter": "T", "word": "Trigeminal" },
+            { "letter": "A", "word": "Abducens" },
+            { "letter": "F", "word": "Facial" },
+            { "letter": "V", "word": "Vestibulocochlear" },
+            { "letter": "G", "word": "Glossopharyngeal" },
+            { "letter": "V", "word": "Vagus" },
+            { "letter": "A", "word": "Accessory" },
+            { "letter": "H", "word": "Hypoglossal" }
+          ],
+          "keyPhrase": "Oh Oh Oh To Touch And Feel Very Good Velvet AH!"
+        }
+      ]
+    },
+    {
+      "id": "ac3",
+      "title": "Language & Grammar",
+      "Desc": "AcronymFlashcards",
+      "content": [
+        {
+          "id": "q1",
+          "title": "FANBOYS (Coordinating Conjunctions)",
+          "contents": [
+            { "letter": "F", "word": "For" },
+            { "letter": "A", "word": "And" },
+            { "letter": "N", "word": "Nor" },
+            { "letter": "B", "word": "But" },
+            { "letter": "O", "word": "Or" },
+            { "letter": "Y", "word": "Yet" },
+            { "letter": "S", "word": "So" }
+          ],
+          "keyPhrase": "FANBOYS join equal parts"
+        },
+        {
+          "id": "q2",
+          "title": "DARE (Argument Writing)",
+          "contents": [
+            { "letter": "D", "word": "Devise a Claim" },
+            { "letter": "A", "word": "Assemble Evidence" },
+            { "letter": "R", "word": "Review Reasoning" },
+            { "letter": "E", "word": "Explain with Clarity" }
+          ],
+          "keyPhrase": "DARE to argue smartly"
+        }
+      ]
+    }
+  ]
+    },
+    {
+      "id": "TermsAndCondition",
+      "title": "Terms and Definitions",
+      "Desc": "Flashcards",
+      "reviewers": [
+        {
+          "id": "td1",
+          "title": "HTML Reviewer",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "What does HTML stand for?",
+              "answer": "HyperText Markup Language"
+            },
+            {
+              "id": "q2",
+              "question": "Which HTML tag is used to create a hyperlink?",
+              "answer": "<a>"
+            },
+            {
+              "id": "q3",
+              "question": "Which tag is used to insert an image in HTML?",
+              "answer": "<img>"
+            },
+            {
+              "id": "q4",
+              "question": "What is the purpose of the <head> tag in HTML?",
+              "answer": "It contains metadata and links to scripts and stylesheets."
+            },
+            {
+              "id": "q5",
+              "question": "What attribute is used to provide alternative text for an image?",
+              "answer": "alt"
+            }
+          ]
+        },
+        {
+          "id": "td2",
+          "title": "CSS Reviewer",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "What does CSS stand for?",
+              "answer": "Cascading Style Sheets"
+            },
+            {
+              "id": "q2",
+              "question": "Which property is used to change the text color in CSS?",
+              "answer": "color"
+            },
+            {
+              "id": "q3",
+              "question": "How do you select an element with the ID 'main' in CSS?",
+              "answer": "#main"
+            },
+            {
+              "id": "q4",
+              "question": "Which CSS property controls the size of text?",
+              "answer": "font-size"
+            },
+            {
+              "id": "q5",
+              "question": "How do you make all <p> elements have no margin?",
+              "answer": "p { margin: 0; }"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "SummarizedReviewers",
+      "title": "Summarized Reviewers",
+      "Desc": "Standard and AI Summarized Reviewers",
+      "reviewers": [
+        {
+          "id": "std1",
+          "title": "Web Development Reviewer",
+          "sections": [
+            {
+              "title": "JavaScript Overview",
+              "bullets": [
+                "JavaScript is primarily used to add interactivity and dynamic behavior to websites.",
+                "Common keywords for declaring variables: let, const, or var.",
+                "Expression '2' + 2 results in '22' due to string concatenation.",
+                "Functions can be defined using: function myFunction() { }",
+                "The addEventListener method attaches an event handler to an element."
+              ]
+            },
+            {
+              "title": "Web Accessibility Essentials",
+              "bullets": [
+                "WCAG stands for Web Content Accessibility Guidelines.",
+                "Alt text describes images for screen readers and improves accessibility.",
+                "The aria-label attribute helps screen readers understand the purpose of a link.",
+                "Use heading tags (h1–h6) in order to provide a logical structure for screen readers.",
+                "Color contrast ensures readability for users with visual impairments."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "std2",
+          "title": "Agile Development Reviewer",
+          "sections": [
+            {
+              "title": "The Agile Manifesto",
+              "bullets": [
+                "Individuals and interactions over processes and tools.",
+                "Working software over comprehensive documentation.",
+                "Customer collaboration over contract negotiation.",
+                "Responding to change over following a plan."
+              ]
+            },
+            {
+              "title": "Core Aspects of Agility",
+              "bullets": [
+                "Agility is the ability to respond rapidly and adaptively to change.",
+                "Encourages effective communication among stakeholders.",
+                "Involves the customer as part of the team.",
+                "Teams are self-organizing and in control of their work.",
+                "Focuses on rapid, incremental software delivery."
+              ]
+            }
+            
+          ]
+        },
+        {
+          "id": "std3",
+          "title": "Operating System Concepts (AI Summary)",
+          "sections": [
+            {
+              "title": "Process Management",
+              "bullets": [
+                "AI: A process is a program in execution, including program counter, registers, and variables.",
+                "The OS uses process scheduling to maximize CPU usage and reduce wait times.",
+                "Multitasking involves context switching between processes."
+              ]
+            },
+            {
+              "title": "Memory Management",
+              "bullets": [
+                "AI: Memory management ensures each process has enough memory and prevents overlap.",
+                "Paging and segmentation help divide memory into manageable sections.",
+                "Virtual memory allows larger programs by using disk space as RAM overflow."
+              ]
+            },
+            {
+              "title": "File Systems",
+              "bullets": [
+                "AI: File systems store and organize data on storage devices.",
+                "Common types include FAT, NTFS, ext4.",
+                "Each file has attributes like name, type, and access permissions."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "std4",
+          "title": "Storyboarding (AI Summary)",
+          "sections": [
+            {
+              "title": "What is a Storyboard?",
+              "bullets": [
+                "AI: A storyboard is a visual plan of a video or animation, showing scene-by-scene progression.",
+                "Traditionally hand-drawn but now often digital and more detailed.",
+                "It visually maps out the script and narrative flow."
+              ]
+            },
+            {
+              "title": "History of Storyboarding",
+              "bullets": [
+                "AI: Storyboarding originated in the 1930s at Walt Disney Studios.",
+                "Used in the 1933 Disney short 'Three Little Pigs' and the 1939 film 'Gone with the Wind'.",
+                "Animator Webb Smith is credited with the concept of storyboarding."
+              ]
+            },
+            {
+              "title": "Why Storyboard?",
+              "bullets": [
+                "AI: Storyboarding helps clearly communicate your video vision to others.",
+                "It streamlines production by planning shots, sequences, and visuals in advance.",
+                "Reduces revision time and increases production efficiency."
+              ]
+            },
+            {
+              "title": "Stages of Storyboarding",
+              "bullets": [
+                "AI: Storyboarding typically follows three stages: Planning, Production, and Revision.",
+                "Each stage helps refine visual storytelling before final production."
+              ]
+            },
+            {
+              "title": "Storyboard Do’s and Don’ts",
+              "bullets": [
+                "AI: Every scene must serve a purpose; avoid unnecessary camera movement.",
+                "Maintain clear animation and camera instructions; watch for jump cuts and composition.",
+                "Ensure strong posing, camera direction accuracy, and center-screen action.",
+                "Avoid complicated angles unless necessary; indicate light sources when relevant."
+              ]
+            },
+            {
+              "title": "Storyboard Software",
+              "bullets": [
+                "AI: Storyboarder is a free, open-source tool ideal for low-budget projects.",
+                "Plot is another fast, free storyboard tool used by companies like WeightWatchers and Vistaprint."
+              ]
+            },
+            {
+              "title": "Conclusion",
+              "bullets": [
+                "AI: Storyboarding is a crucial pre-production step that enhances communication, planning, and efficiency in video creation."
+              ]
+            }
+          ]
+        }
+        
+
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+@font-face{
+  font-family: Poppins;
+  src: url("../src/assets/font/Poppins-Regular.ttf")
+  
+}
+
+@font-face{
+  font-family: Poppins-Bold;
+  src:url("../src/assets/font/Poppins-Bold.ttf")
+}
+@import "tailwindcss";
+
+@theme{
+  --font-poppins: Poppins, "sans-serif";
+  --font-poppinsbold:Poppins-Bold, "sans-serif";
+}
+
+
+
+body{
+  background-color: #12121A;
+}
+
+.active{
+  @apply  bg-linear-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl
+}
+.perspective {
+  perspective: 1000px;
+}
+
+.transform-style {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+input{
+  @apply outline-0
+}
+input:focus {
+  border-color: #6F56AA !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(111, 86, 170, 0.5); /* glowing purple ring */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Chrome, Safari, Edge */
+.volume-slider::-webkit-slider-thumb {
+  @apply w-4 h-4 rounded-full bg-white shadow-md border-none;
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -6px; /* aligns thumb vertically */
+}
+
+/* Firefox */
+.volume-slider::-moz-range-thumb {
+  @apply w-4 h-4 rounded-full bg-white shadow-md border-none;
+}
+
+/*For Card Animation*/
+@keyframes tiltRightFadeOut {
+  0% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(20deg) translateX(50px);
+    opacity: 0;
+  }
+}
+/*For Card Animation*/
+@keyframes tiltLeftFadeOut {
+  0% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-20deg) translateX(-50px);
+    opacity: 0;
+  }
+}
+
+.tilt-right-fade-out {
+  animation: tiltRightFadeOut 0.5s forwards;
+}
+.tilt-left-fade-out{
+  animation: tiltLeftFadeOut 0.5s forwards;
+}
