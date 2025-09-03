@@ -257,7 +257,7 @@ const handleAddTD = () => {
 const handleAddAC = () => {
   setContent(prev => [
     ...prev,
-    { id: getNextId(prev), title: "", keyPhrase: "", contents: [] }
+    { id: getNextId(prev), title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: ""}] }
   ]);
 };
 
