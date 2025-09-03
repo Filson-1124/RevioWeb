@@ -2,7 +2,6 @@ import { db } from "../components/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 
 export async function loadAcronymMnemonics({ params, user }) {
-  
   const { reviewerId, id: folderId } = params;
 
   const reviewerRef = doc(
@@ -16,7 +15,6 @@ export async function loadAcronymMnemonics({ params, user }) {
   );
 
   const reviewerSnap = await getDoc(reviewerRef);
-
   const reviewerData = reviewerSnap.data();
 
   const contentCollectionRef = collection(
@@ -34,9 +32,8 @@ export async function loadAcronymMnemonics({ params, user }) {
 
   const content = await Promise.all(
     contentSnap.docs.map(async (contentDoc) => {
-      
       const contentData = contentDoc.data();
-      
+
       const contentsRef = collection(
         db,
         "users",
@@ -49,12 +46,18 @@ export async function loadAcronymMnemonics({ params, user }) {
         contentDoc.id,
         "contents"
       );
-      
+
       const contentsSnap = await getDocs(contentsRef);
-      const contents = contentsSnap.docs.map((d) => d.data());
+
+      const contents = contentsSnap.docs
+        .map((d) => ({
+          id: Number(d.data().id),
+          ...d.data(),
+        }))
+        .sort((a, b) => a.id - b.id);
 
       return {
-        id: contentDoc.id,
+        id: Number(contentDoc.id),
         title: contentData.title,
         keyPhrase: contentData.keyPhrase,
         contents,
@@ -62,7 +65,10 @@ export async function loadAcronymMnemonics({ params, user }) {
     })
   );
 
-  reviewerData.content = content;
+  //Sort outer content numerically by id
+  const sortedContent = content.sort((a, b) => a.id - b.id);
+
+  reviewerData.content = sortedContent;
   return {
     id: reviewerId,
     ...reviewerData,
