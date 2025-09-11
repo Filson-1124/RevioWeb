@@ -1,29 +1,28 @@
-@font-face{
+@font-face {
   font-family: Poppins;
   src: url("../src/assets/font/Poppins-Regular.ttf")
-  
 }
 
-@font-face{
+@font-face {
   font-family: Poppins-Bold;
-  src:url("../src/assets/font/Poppins-Bold.ttf")
+  src: url("../src/assets/font/Poppins-Bold.ttf")
 }
+
 @import "tailwindcss";
 
-@theme{
+@theme {
   --font-poppins: Poppins, "sans-serif";
-  --font-poppinsbold:Poppins-Bold, "sans-serif";
+  --font-poppinsbold: Poppins-Bold, "sans-serif";
 }
 
-
-
-body{
+body {
   background-color: #12121A;
 }
 
-.active{
-  @apply  bg-linear-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl
+.active {
+  @apply bg-linear-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl;
 }
+
 .perspective {
   perspective: 1000px;
 }
@@ -39,13 +38,14 @@ body{
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
-input{
-  @apply outline-0
+
+input {
+  @apply outline-0;
 }
 input:focus {
   border-color: #6F56AA !important;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(111, 86, 170, 0.5); /* glowing purple ring */
+  box-shadow: 0 0 0 3px rgba(111, 86, 170, 0.5);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -54,7 +54,7 @@ input:focus {
   @apply w-4 h-4 rounded-full bg-white shadow-md border-none;
   -webkit-appearance: none;
   appearance: none;
-  margin-top: -6px; /* aligns thumb vertically */
+  margin-top: -6px;
 }
 
 /* Firefox */
@@ -62,32 +62,122 @@ input:focus {
   @apply w-4 h-4 rounded-full bg-white shadow-md border-none;
 }
 
-/*For Card Animation*/
-@keyframes tiltRightFadeOut {
+/* --- Card Animations --- */
+
+/* Pop-up animation */
+@keyframes popUp {
   0% {
-    transform: rotate(0deg);
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
     opacity: 1;
   }
   100% {
-    transform: rotate(20deg) translateX(50px);
-    opacity: 0;
-  }
-}
-/*For Card Animation*/
-@keyframes tiltLeftFadeOut {
-  0% {
-    transform: rotate(0deg);
+    transform: scale(1);
     opacity: 1;
-  }
-  100% {
-    transform: rotate(-20deg) translateX(-50px);
-    opacity: 0;
   }
 }
 
-.tilt-right-fade-out {
-  animation: tiltRightFadeOut 0.5s forwards;
+.pop-up {
+  animation: popUp 0.4s ease-out forwards;
 }
-.tilt-left-fade-out{
-  animation: tiltLeftFadeOut 0.5s forwards;
+
+/* Shake animation */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-6px);
+  }
+  40%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+
+.choiceWrong{
+   border-color:#F14C4C;
+  background-color:#4c2121;
+}
+.choiceCorrect{
+  border: #4CAF50;
+  background-color: #214c25;
+}
+
+.flashcard-front {
+  width: 100%;                 /* w-full */
+  height: 100%;                /* h-full */
+  background-color: #8267B1;   /* bg-[#8267B1] */
+  border-radius: 0.75rem;      /* rounded-xl (12px) */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+  display: flex;               /* flex */
+  flex-direction: column;      /* flex-col */
+  align-items: center;         /* items-center */
+  justify-content: center;     /* justify-center */
+  padding: 1.5rem;             /* p-6 */
+  text-align: center;          /* text-center */
+}
+
+.mnemonics{
+  width: 100%;                 /* w-full */
+  height: 100%;                /* h-full */
+  background-color: #20202C;   /* bg-[#8267B1] */
+  border-radius: 0.75rem;      /* rounded-xl (12px) */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+  display: flex;               /* flex */
+  flex-direction: column;      /* flex-col */
+  align-items: center;         /* items-center */
+  justify-content: start;    
+  padding: 1.5rem;             /* p-6 */
+  text-align: center;          /* text-center */
+  overflow: auto;
+  padding: 2rem;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 8px;              /* slim scrollbar */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #20202C;      /* match div background */
+  border-radius: 10px;      /* round track */
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #4facfe;      /* blue thumb */
+  border-radius: 10px;
+  border: 2px solid #20202C; /* creates spacing inside */
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #00f2fe;
+}
+
+/* Firefox */
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #4facfe #20202C;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-float-breathe {
+  animation: float 3s ease-in-out infinite, breathe 4s ease-in-out infinite;
 }

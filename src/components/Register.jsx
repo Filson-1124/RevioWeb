@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth, db } from './firebase';
-import { setDoc, doc, query, where, getDocs } from "firebase/firestore";
+import { setDoc, doc, query, where, getDocs, deleteDoc } from "firebase/firestore";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
 import { collection } from 'firebase/firestore';
@@ -54,64 +54,67 @@ const Register = () => {
   }, [iniPassword, username, email, rePassword]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (iniPassword !== rePassword) {
-    toast.error("Passwords don't match");
-    return;
-  }
-
-  try {
-    // 🔍 First check if username is already taken
-    const q = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
-    const snapshot = await getDocs(q);
-
-    if (!snapshot.empty) {
-      toast.error("Username Taken, Please choose another one");
+    if (iniPassword !== rePassword) {
+      toast.error("Passwords don't match");
       return;
     }
 
-    // 🧑‍💻 Then proceed with account creation
-    const userCredential = await createUserWithEmailAndPassword(auth, email.toLowerCase(), iniPassword);
-    const user = userCredential.user;
+    try {
+      // 🧑‍💻 Step 1: Create the user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email.toLowerCase(), iniPassword);
+      const user = userCredential.user;
 
-    await sendEmailVerification(user);
+      // 📨 Send verification email
+      await sendEmailVerification(user);
 
-    await setDoc(doc(db, "users", user.uid), {
-      email: user.email,
-      username: username.toLowerCase()
-    });
+      // 🔍 Step 2: Now check if username is already taken
+      const q = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
+      const snapshot = await getDocs(q);
 
-    await Promise.all([
-      setDoc(doc(db, `users/${user.uid}/folders`, 'AcronymMnemonics'), {
-        id: 'AcronymMnemonics',
-        title: 'Acronym Mnemonics Flashcards',
-        Desc: 'This folder contains flashcards using acronyms + key phrases'
-      }),
-      setDoc(doc(db, `users/${user.uid}/folders`, 'TermsAndCondition'), {
-        id: 'TermsAndCondition',
-        title: 'Terms and Conditions Flashcards',
-        Desc: 'This folder contains flashcards using Terms and Conditions'
-      }),
-      setDoc(doc(db, `users/${user.uid}/folders`, 'SummarizedReviewers'), {
-        id: 'SummarizedReviewers',
-        title: 'Summarized Reviewers',
-        Desc: 'This folder contains Standard Summarized Reviewers'
-      }),
-      setDoc(doc(db, `users/${user.uid}/folders`, 'SummarizedAIReviewers'), {
-        id: 'SummarizedAIReviewers',
-        title: 'Summarized AI Reviewers',
-        Desc: 'This folder contains Summarized Reviewers with AI explanation'
-      })
-    ]);
+      if (!snapshot.empty) {
+        toast.error("Username Taken, Please choose another one");
+        await user.delete(); // cleanup newly created account
+        return;
+      }
 
-    toast.success("Account created! Verification email sent.");
-  } catch (error) {
-    console.error(error);
-    toast.error(error.message || "Something went wrong during registration.");
-  }
-};
+      // ✅ Step 3: Save user data
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        username: username.toLowerCase()
+      });
 
+      // 🗂️ Step 4: Pre-create default folders
+      await Promise.all([
+        setDoc(doc(db, `users/${user.uid}/folders`, 'AcronymMnemonics'), {
+          id: 'AcronymMnemonics',
+          title: 'Acronym Mnemonics Flashcards',
+          Desc: 'This folder contains flashcards using acronyms + key phrases'
+        }),
+        setDoc(doc(db, `users/${user.uid}/folders`, 'TermsAndCondition'), {
+          id: 'TermsAndCondition',
+          title: 'Terms and Conditions Flashcards',
+          Desc: 'This folder contains flashcards using Terms and Conditions'
+        }),
+        setDoc(doc(db, `users/${user.uid}/folders`, 'SummarizedReviewers'), {
+          id: 'SummarizedReviewers',
+          title: 'Summarized Reviewers',
+          Desc: 'This folder contains Standard Summarized Reviewers'
+        }),
+        setDoc(doc(db, `users/${user.uid}/folders`, 'SummarizedAIReviewers'), {
+          id: 'SummarizedAIReviewers',
+          title: 'Summarized AI Reviewers',
+          Desc: 'This folder contains Summarized Reviewers with AI explanation'
+        })
+      ]);
+
+      toast.success("Account created! Verification email sent.");
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Something went wrong during registration.");
+    }
+  };
 
   return (
     <>

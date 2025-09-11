@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react'
+import createLoadingScreen from '../assets/creationLoadingScreen.png'
 import { useSearchParams } from 'react-router-dom'
 import { CiCirclePlus } from "react-icons/ci"
 import { IoClose } from "react-icons/io5"
 import { useAuth } from '../components/AuthContext' // adjust path if needed --M.
+import LoadingBar from './LoadingBar'
 const API_URL = import.meta.env.VITE_API_URL; //M.
 
-
+//M. Loading bar component
 
 
 const CreateReviewer = () => {
   const [searchParams] = useSearchParams()
   const folderId = searchParams.get('folder'); // this gets the folderId from the URL --M.
-
   const type = searchParams.get('type')
 
   const [title, setTitle] = useState("")
@@ -21,67 +22,85 @@ const CreateReviewer = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [fileUrl, setFileUrl] = useState(null)
 
+  const [isCreating, setIsCreating] = useState(false) //M. default false
+  const [isDone, setIsDone] = useState(false) //M. controls loading bar
 
   //M. Backend function
   const { currentUser } = useAuth()
 
-
   const handleCreateReviewer = async () => {
-  if (!selectedFile || !currentUser) {
-    alert("An error occured. There was a problem processing the file.")
-    return
-  }
-  try {
-    // 1. Get Firebase ID token
-    const idToken = await currentUser.getIdToken();
+    if (!selectedFile || !currentUser) {
+      alert("An error occured. There was a problem processing the file.")
+      return
+    }
 
-    // 2. Prepare form data
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('uid', currentUser.uid);         // pass UID from Firebase Auth
-    formData.append('folderId', folderId);
+    setIsCreating(true) //M. show loading screen
 
-    const routeMap = {
-      acronym: "acronyms",
-      terms: "terms",
-      summarization: "summarize",
-      ai: "explain",
-    };
+    try {
+      // 1. Get Firebase ID token
+      const idToken = await currentUser.getIdToken();
 
-    const route = routeMap[type];
+      // 2. Prepare form data
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('uid', currentUser.uid);         // pass UID from Firebase Auth
+      formData.append('folderId', folderId);
+
+      const routeMap = {
+        acronym: "acronyms",
+        terms: "terms",
+        summarization: "summarize",
+        ai: "explain",
+      };
+
+      const route = routeMap[type];
       if (!route) {
         alert("Invalid reviewer type.");
         return;
-    }
+      }
 
-    // 3. Call backend API
-    const response = await fetch(`${API_URL}/feature/${route}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${idToken}`, // ✅ Pass token to backend
-      },
-      body: formData,
-    });
+      // 3. Call backend API
+      const response = await fetch(`${API_URL}/feature/${route}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`, // ✅ Pass token to backend
+        },
+        body: formData,
+      });
 
+      if (!response.ok) {
+        const error = await response.text()
+        throw new Error(error)
+      }
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(error)
-    }
+      const data = await response.json()
+      console.log("Reviewer created:", data)
+  
 
-    const data = await response.json()
-    console.log("Reviewer created:", data)
-    alert("Reviewer created successfully!")
-    // optionally do something with 'data', like setState or redirect
-    // after creation add page redirection sa flashcard or summarization
+      //M. trigger bar to 100%
+      setIsDone(true)
 
-  } catch (err) {
-    console.error("Error creating reviewer:", err)
-    alert("Failed to create reviewer.")
-  }
+      //M. wait 2s for bar animation before hiding loading screen
+      setTimeout(() => {
+         alert("Reviewer created successfully!")
+        setIsCreating(false)
+        setIsDone(false) // reset for next time
+        
+      }, 2000)
+   
+    } catch (err) {
+  console.error("Error creating reviewer:", err)
+  alert("Failed to create reviewer.")
+
+  // show error state briefly before hiding screen
+  setIsDone(true) // finish bar
+  setTimeout(() => {
+    setIsCreating(false) // hide loading screen
+    setIsDone(false)     // reset bar
+  }, 1500)
 }
 
-  //M. up to here
+  }
 
   useEffect(() => {
     switch (type) {
@@ -111,7 +130,8 @@ const CreateReviewer = () => {
         setInfo("")
     }
   }, [type])
-//dito nagdynamic set of url depende sa feature type
+  //dito nagdynamic set of url depende sa feature type
+
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -127,7 +147,20 @@ const CreateReviewer = () => {
   }
 
   return (
-    <div className="flex flex-col text-white w-full items-center p-[5%]">
+    isCreating ?
+      <div className="min-h-screen flex justify-center items-center flex-col">
+        <img
+          src={createLoadingScreen}
+          alt="creationLoadingScreen"
+          className="w-80"
+        />
+        <p className='text-[#9898D9] font-poppinsbold text-center'>
+          {isDone?"Reviewer Created, Happy Reviewing!":"Revio is working on your reviewers, please wait."}
+          
+        </p>
+        <LoadingBar isDone={isDone} /> {/* M. loading bar */}
+      </div>
+      : <div className="flex flex-col text-white w-full items-center p-[5%]">
       <div className="p-20 w-[80%]">
         {title ? (
           <>
@@ -190,10 +223,7 @@ const CreateReviewer = () => {
     {/* Create Reviewer Button */}
     <button
       className="mt-4 px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md font-semibold transition-all"
-      //onClick={() => alert("Reviewer created!")} // Replace this with actual logic
-
       onClick={handleCreateReviewer} //M. edit
- 
     >
       Create Reviewer
     </button>
@@ -202,6 +232,8 @@ const CreateReviewer = () => {
 
       </div>
     </div>
+    
+   
   )
 }
 

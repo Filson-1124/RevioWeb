@@ -29,6 +29,7 @@ export async function loadTermsAndCondition({ params, user }) {
   );
   const questionsSnap = await getDocs(questionsRef);
 
+
   const questions = questionsSnap.docs.map((d) => ({
     id: d.id,
     definition: d.data().definition,

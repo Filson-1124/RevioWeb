@@ -120,6 +120,8 @@ const Review = () => {
   }, [message])
 
   const current = reviewer.questions?.[currentIndex]
+const correctChoice = !isAcronymCard && current?.definition?.find(c => c.type === "correct");
+
   const currentAcronym = isAcronymCard ? reviewer.content[currentGroupIndex] : null
   const currentTitle = isAcronymCard ? currentAcronym.title : reviewer.title
   //these 3 const above po are for the displaying ng acronym mnemonics 
@@ -195,7 +197,7 @@ const Review = () => {
                   </div>
                 ) : (
                 //and if hindi po sya acronym card eto po ididisplay nya, which is the normal terms and condi flashcards
-                  <p className="text-3xl font-semibold text-white">{current.definition}</p>
+                  <p className="text-3xl font-semibold text-white">{current.term}</p>
                 )}
               </div>
               <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-[#FFF8AA] overflow-y-auto rounded-xl shadow-lg flex items-center justify-center p- text-center cursor-pointer">
@@ -206,8 +208,8 @@ const Review = () => {
                     <p>Key Phrase: <b>{currentAcronym.keyPhrase}</b></p>
                   </div>
                 ) : (
-                  //the same as before lang po this is the normal terms and condi flashcards
-                  <p className="text-3xl font-semibold text-[#6A558D]">{current.term}</p>
+                  
+                  <p className="text-3xl font-semibold text-[#6A558D]">{correctChoice.text}</p>
                 )}
               </div>
             </div>
@@ -233,7 +235,7 @@ const Review = () => {
             className="flex gap-2 place-items-center justify-center px-1 border-[#E93209] w-80 bg-none border-1 text-[#B5B5FF] h-10 rounded-xl font-poppinsbold font-semibold active:scale-95" >
             <IoGameController color="white" size={20} />
             <span className="text-lg font-bold bg-gradient-to-r from-[#F0EDB6] to-[#E93209] bg-clip-text text-transparent">
-              Intense Mode
+              Game Mode
             </span>
           </button>
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import gamifiedLogo from '../assets/gamifiedLogo.png'
 import { auth, db } from '../components/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
@@ -12,19 +13,93 @@ const Gamified = () => {
 
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(questions.length * 10)
-  const [flipped, setFlipped] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(questions.length * 50000000)
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [startTime] = useState(Date.now())
   const [showResults, setShowResults] = useState(false)
+  const [isPressed,setIsPressed]=useState(false)
 
   const [showSplash, setShowSplash] = useState(true)
   const [countdown, setCountdown] = useState(null)
   const [isAnimating, setIsAnimating] = useState(false)
   const[isCorrectAnimation,setIsCorrectAnimation]=useState()
+  const[shuffledChoices,setShuffledChoices]=useState([])
+
+  const[answers,setAnswers]=useState([])
+  const[currentCorrectAnswers,setCurrentCorrectAnswers]=useState([])
+  
 
   // This guards against index out-of-bounds
   const current = index < questions.length ? questions[index] : null
+
+
+  //added functions for the updated gamified version
+  const shuffle=(array) =>
+  {
+  let arr = [...array]; // copy so original isn’t modified
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+    useEffect(()=>{
+    if(current&& current.definition){
+  setShuffledChoices(shuffle(current.definition))
+    }
+    setIsPressed(false)
+
+
+  },[current.definition])
+
+   const findCorrectAnswer=(current)=>
+    {
+    const correctChoice = current.definition.find(c => c.type === "correct");
+    return correctChoice.text
+  }
+
+  const checkAnswer=(isCorrectAnswer)=>{
+    if(isCorrectAnswer=="correct"){
+      handleCheck()
+    }else{
+      handleWrong()
+    }
+  }
+  //hanggang dito po yung updated na gamified ng TD
+
+  //gamified acro naman po here
+  useEffect(()=>{
+    if(current?.content){
+        setAnswers(Array(current.contents.length).fill("")); 
+    }
+    if(isAcronym){ setCurrentCorrectAnswers(current.contents.map(c => c.word));}
+
+  },[current])
+
+  const handleChange = (index, value) => {
+  const updatedAnswers = [...answers];  // copy current answers
+  updatedAnswers[index] = value;        // update the correct slot
+  setAnswers(updatedAnswers);           // save it
+  console.log(updatedAnswers)
+};
+
+ const checkAcro=(answers,correctAnswers)=>{
+  let perfect = true;
+  let forReturn=""
+
+for (let i = 0; i < correctAnswers.length; i++) {
+  if (answers[i].toUpperCase() !== correctAnswers[i].toUpperCase()) {
+    perfect = false;
+    break; // stop early if one is wrong
+  }
+}
+  perfect?forReturn="correct":forReturn="";
+  setAnswers(Array(correctAnswers.length).fill(""));
+  return forReturn
+ }
+
+  //hanggang here
 
   useEffect(() => {
     if (countdown === 0) {
@@ -56,7 +131,7 @@ const Gamified = () => {
   }
 
   const handleNext = () => {
-    setFlipped(false)
+
     if (index >= questions.length - 1) {
       setShowResults(true)
     } else {
@@ -111,8 +186,8 @@ const Gamified = () => {
                   </div>
                 ) : (
                   <div>
-                    <p><b>Q:</b> {item.definition}</p>
-                    <p><b>A:</b> {item.term}</p>
+                    <p><b>Q:</b> {item.term}</p>
+                    <p><b>A:</b> {findCorrectAnswer(item)}</p>
                   </div>
                 )}
               </div>
@@ -126,8 +201,11 @@ const Gamified = () => {
   // Splash Screen
   if (showSplash) {
     return (
-      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white">
-        <img src={logo} alt="Logo" className="w-40 mb-6" />
+      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white gap-[20px]">
+        <img src={gamifiedLogo} alt="Logo" className="w-100 mb-6 animate-float-breathe" />
+
+      <p className='w-[40%] text-[#9898D9] font-poppins text-center'><b className='font-poppinsbold'>Direction: </b><br />{isAcronym?"Fill in the blanks using the first letters shown. Type the complete word and press \"Submit\". You must double check your answers before submitting! ":" Choose the correct definition!"}</p>
+
         <button
           onClick={handleStart}
           className="px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-xl rounded-full font-bold transition"
@@ -139,7 +217,7 @@ const Gamified = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white p-6 flex flex-col items-center relative">
+    <div className="min-h-screen bg-[#121212] text-white w-full p-6 flex flex-col place-content-center items-center relative">
       {countdown !== null && (
         <div className="absolute inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center text-8xl font-bold text-white">
           {countdown}
@@ -159,54 +237,73 @@ const Gamified = () => {
           <div className="mb-4 text-right text-sm text-gray-300">Time left: {timeLeft}s</div>
 
           {current && (
-            <div className="relative w-160 h-80 perspective mb-6">
+            <div className={`relative w-160 perspective mb-6 place-self-center ${isAcronym?'h-100':'h-80'}`}>
               <div
-                className={`transition-transform duration-500 transform-style preserve-3d w-full h-full
-                  ${flipped ? 'rotate-y-180' : ''} 
-                  ${isAnimating ? isCorrectAnimation? 'tilt-right-fade-out':'tilt-left-fade-out' : ''}`}
-                onClick={() => setFlipped(!flipped)}
+                className={`transition-transform duration-500 transform-style preserve-3d w-full h-full        
+                  ${isAnimating ? isCorrectAnimation? 'pop-up':'shake' : ''}`}
               >
-                <div className="absolute w-full h-full backface-hidden bg-[#8267B1] rounded-xl shadow-lg flex flex-col items-center justify-center p-6 text-center cursor-pointer">
+                <div className={isAcronym ? "mnemonics" : "flashcard-front"}>
                   {isAcronym ? (
-                    <div className="text-5xl font-extrabold tracking-widest">
-                      {current.contents.map(item => item.word.charAt(0)).join('')}
+                    <>
+                    <div className="text-lg font-extrabold tracking-widest">
+                    {current.contents.map((item, index) => (
+                      <div key={index} className="flex gap-10">
+                        <p className="text-md">{item.word.charAt(0)}</p>
+                        <textarea
+                          className="resize-none p-2 border-b-2 border-b-white bg-transparent text-white"
+                          placeholder="answer here"
+                          value={answers[index] || ""}                   // controlled value
+                          onChange={(e) => handleChange(index, e.target.value)} // update state
+                        />
+                      </div>
+                    ))}
+                                        
                     </div>
+                    
+                    </>
                   ) : (
-                    <p className="text-3xl font-semibold text-white">{current.definition}</p>
+                    <p className="text-3xl font-semibold text-white">{current.term}</p>
+                    
                   )}
                 </div>
-
-                <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-[#FFF8AA] overflow-y-auto rounded-xl shadow-lg flex items-center justify-center text-center cursor-pointer">
-                  {isAcronym ? (
-                    <div className="text-[#6A558D] text-xl font-semibold space-y-2 text-left">
-                      <p><b>Words:</b> {current.contents.map(c => c.word).join(', ')}</p>
-                      <p><b>Key Phrase:</b> {current.keyPhrase}</p>
-                    </div>
-                  ) : (
-                    <p className="text-3xl font-semibold text-[#6A558D]">{current.term}</p>
-                  )}
-                </div>
+                {/*ganto mag access ng keyphrase at 
+                <p><b>Words:</b> {current.contents.map(c => c.word).join(', ')}</p>
+                      <p><b>Key Phrase:</b> {current.keyPhrase}</p>*/}
               </div>
             </div>
           )}
+      
 
-          <div className="flex gap-4 justify-center">
-           
-            <button
-              onClick={handleWrong}
-              disabled={isAnimating || showResults || !current}
-              className={`px-4 py-2 rounded-xl text-white font-semibold ${isAnimating ? 'bg-red-300' : 'bg-red-500'}`}
+      {/*choices/submit button*/}
+      {isAcronym?<>
+  <p className="text-center">
+    <b>Key Phrase: </b>{current.keyPhrase}
+  </p>
+
+  <div className="flex justify-center mt-4">
+    <button
+      onClick={() => checkAnswer(checkAcro(answers, currentCorrectAnswers))}
+      className="bg-[#9898D9] text-[#200448] p-5 rounded-4xl font-poppinsbold hover:text-[#9898D9] hover:bg-[#200448] active:scale-90"
+    >
+      Submit Answer
+    </button>
+  </div>
+</> 
+      : <div className="grid grid-cols-2 gap-5 w-full max-w-4xl mx-auto">
+          {shuffledChoices.map((choice, index) => (
+            <div
+              key={index}
+            className={`min-h-[7rem] border-[#2e2e42] border-1 p-5 bg-[#20202C] rounded-2xl flex items-center justify-center text-center font-poppins cursor-pointer] 
+            ${isPressed ? (choice.type === "correct" ? "choiceCorrect" : "choiceWrong") : ""}`}
+          onClick={() => {checkAnswer(choice.type);
+                              setIsPressed(true);
+              }}
             >
-              ❌ Wrong
-            </button>
-             <button
-              onClick={handleCheck}
-              disabled={isAnimating || showResults || !current}
-              className={`px-4 py-2 rounded-xl text-white font-semibold ${isAnimating ? 'bg-green-300' : 'bg-green-500'}`}
-            >
-              ✅ Correct
-            </button>
-          </div>
+              {choice.text}
+            </div>
+  ))}
+</div>}
+      
         </div>
       )}
     </div>
