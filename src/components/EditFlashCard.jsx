@@ -7,27 +7,6 @@ import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, collection, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 
-/*
-JM
-
--Need ng loading screen pag pinindot yung SAVE kase medj matagal since uupdate sa firestore
--Yung every flashcard diba naka id sya as q1,q2,q3,... si firebase kase auto sort nya yung mga id kaya pag may q10,q11.
-  kay firestor ganto sya, q1,q10,q11,q2 kaya imbes na sa dulo yung mga inadd, mapupunta sa gitna.
-  suggest ko dito, sa backend ni maria, if pwede mag add ng NUMERIC id field per flashcards. 
-  sabi ni bff baka dahil stored as strings daw mga id natin which is tama (q1,q2,...)
-
-update
-
-- fixed save button with input validation
-- TD delete button working
-- added UI for delete sa acronym. (palitan nalang if pangit HAHA)
-- added add flashcards. eto yung may probs sa rendering dahil sa id
-- modify title sa acro
-
-NOTE: aayusin kopa buong file nato, masyadong mahaba
-*/
-
-
 const EditFlashCard = () => {
   const reviewer = useLoaderData()
   const navigate = useNavigate() 
@@ -45,16 +24,17 @@ const EditFlashCard = () => {
   const isAcronym = reviewer.type === "acronym"
   const isTermDef = reviewer.type === "terms"
 
+  // track deleted acronym letters
   const [deletedLetters, setDeletedLetters] = useState([]);
+  // track deleted items (terms or acronyms)
+  const [deletedItems, setDeletedItems] = useState([]);
 
   //used to get next ID based on the highest id stored
   const getNextId = (items) => {
-  if (items.length === 0) return "q1";
-
-  const maxIdNum = Math.max(...items.map(item => Number(item.id.replace("q", ""))));
-  return `q${maxIdNum + 1}`;
+    if (items.length === 0) return "q1";
+    const maxIdNum = Math.max(...items.map(item => Number(item.id.replace("q", ""))));
+    return `q${maxIdNum + 1}`;
   };
-
 
   const handleChange = (id, field, value) => {
     setQuestions(prev =>
@@ -62,248 +42,223 @@ const EditFlashCard = () => {
     )
   }
 
-const handleAcronymChange = (contentId, index, field, value) => {
-  setContent(prev =>
-    prev.map(c => {
-      if (c.id !== contentId) return c;
-
-      if (index === null) {
-        //return top-level fields like title and keyPhrase
-        return { ...c, [field]: value };
-      }
-
-      return {
-        ...c,
-        contents: c.contents.map((item, i) =>
-          i === index ? { ...item, [field]: value } : item
-        )
-      };
-    })
-  );
-};
+  const handleAcronymChange = (contentId, index, field, value) => {
+    setContent(prev =>
+      prev.map(c => {
+        if (c.id !== contentId) return c;
+        if (index === null) {
+          //return top-level fields like title and keyPhrase
+          return { ...c, [field]: value };
+        }
+        return {
+          ...c,
+          contents: c.contents.map((item, i) =>
+            i === index ? { ...item, [field]: value } : item
+          )
+        };
+      })
+    );
+  };
 
   //Generate incremental numeric ID for new items
   const addLetter = (contentId) => {
-  setContent(prev =>
-    prev.map(c => {
-      if (c.id !== contentId) return c;
+    setContent(prev =>
+      prev.map(c => {
+        if (c.id !== contentId) return c;
 
-      // find the next numeric ID
-      const nextId = c.contents.length > 0
-        ? (Math.max(...c.contents.map(item => Number(item.id) || 0)) + 1).toString()
-        : "1";
+        // find the next numeric ID
+        const nextId = c.contents.length > 0
+          ? (Math.max(...c.contents.map(item => Number(item.id) || 0)) + 1).toString()
+          : "1";
 
-      return {
-        ...c,
-        contents: [
-          ...c.contents,
-          { id: nextId, letter: "", word: "" }
-        ]
-      };
-    })
-  );
-};
-//to delete letters/word in acro
-const handleDeleteLetter = (contentId, letterId) => {
-  // track for Firestore deletion
-  setDeletedLetters(prev => [...prev, { contentId, letterId }]);
+        return {
+          ...c,
+          contents: [
+            ...c.contents,
+            { id: nextId, letter: "", word: "" }
+          ]
+        };
+      })
+    );
+  };
 
-  // update local state
-  setContent(prev =>
-    prev.map(c =>
-      c.id === contentId
-        ? { ...c, contents: c.contents.filter(item => item.id !== letterId) }
-        : c
-    )
-  );
-};
+  //to delete letters/word in acronym (only local)
+  const handleDeleteLetter = (contentId, letterId) => {
+    // track for deletion on save
+    setDeletedLetters(prev => [...prev, { contentId, letterId }]);
 
+    // update local state
+    setContent(prev =>
+      prev.map(c =>
+        c.id === contentId
+          ? { ...c, contents: c.contents.filter(item => item.id !== letterId) }
+          : c
+      )
+    );
+  };
 
-
-
-
-
-  //Save edited items to Firestor
-const handleSave = async () => {
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Not logged in");
+  //to delete the flashcard items (only local)
+  const handleDeleteItem = (id, type) => {
+    if (!window.confirm(`Are you sure you want to delete this ${type === "terms" ? "term" : "acronym"}?`)) {
       return;
     }
 
-       if (isAcronym) {
-      for (const c of content) {
-        for (const item of c.contents) {
-          //validate if the titles and contents are not empty 
-           if (!c.title || !c.title.trim()) {
-            alert("Each acronym flashcard must have a TITLE before saving.");
-            return;
-          }
+    // track for deletion on save
+    setDeletedItems(prev => [...prev, { id, type }]);
 
-          if (!item.letter.trim() || !item.word.trim()) {
-            alert("Each acronym entry must have both a LETTER and a WORD before saving.");
-            return;
-          }
-        }
-
-        const contentRef = doc(
-          db,
-          "users",
-          user.uid,
-          "folders",
-          reviewer.folderId,
-          "reviewers",
-          reviewer.id,
-          "content",
-          c.id
-        );
-
-        await setDoc(contentRef, {
-          title: c.title,
-          keyPhrase: c.keyPhrase,
-        });
-
-        //delete removed letters from Firestore
-        for (const d of deletedLetters.filter(dl => dl.contentId === c.id)) {
-          const letterRef = doc(contentRef, "contents", d.letterId);
-          await deleteDoc(letterRef);
-        }
-
-        //save remaining letters
-        for (const item of c.contents) {
-          const itemRef = doc(contentRef, "contents", String(item.id));
-          await setDoc(itemRef, {
-            letter: item.letter,
-            word: item.word,
-          });
-        }
-      }
-
-      //clear deleted list only after successful save
-      setDeletedLetters([]);
-    }
-
-    if (isTermDef) {
-      for (const q of questions) {
-        if (!q.question.trim() || !q.answer.trim()) {
-          alert("Each flashcard must have both a TERM and a DEFINITION before saving.");
-          return;
-        }
-      }
-    }
-
-    console.log("Saving reviewer:", reviewer.id);
-
-    const reviewerRef = doc(
-      db,
-      "users",
-      user.uid,
-      "folders",
-      reviewer.folderId,
-      "reviewers",
-      reviewer.id
-    );
-
-    if (isTermDef) {
-      for (const q of questions) {
-        console.log("Saving question:", q);
-        const qRef = doc(reviewerRef, "questions", q.id);
-        await setDoc(qRef, {
-          term: q.question,
-          definition: q.answer,
-        });
-      }
-    }
-
-    if (isAcronym) {
-      for (const c of content) {
-        console.log("Saving content:", c);
-        const contentRef = doc(reviewerRef, "content", c.id);
-
-        await setDoc(contentRef, {
-          title: c.title,
-          keyPhrase: c.keyPhrase,
-        });
-
-        for (const item of c.contents) {
-          const itemRef = doc(contentRef, "contents", String(item.id));
-          await setDoc(itemRef, {
-            letter: item.letter,
-            word: item.word,
-          });
-        }
-
-      }
-    }
-
-    alert("Changes saved successfully!");
-  } catch (error) {
-    console.error("Error saving:", error);
-    alert("Failed to save changes. Check console for details.");
-  }
-};
-
-// Add new term flashcard
-const handleAddTD = () => {
-    setQuestions(prev => [
-    ...prev,
-    { id: getNextId(prev), question: "", answer: "" }
-  ]);
-};
-
-
-// Add new acronym flashcard
-const handleAddAC = () => {
-  setContent(prev => [
-    ...prev,
-    { id: getNextId(prev), title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: ""}] }
-  ]);
-};
-
-//to delete the flashcard items
-const handleDeleteItem = async (id, type) => {
-  if (!window.confirm(`Are you sure you want to delete this ${type === "terms" ? "term" : "acronym"}?`)) {
-    return;
-  }
-
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Not logged in");
-      return;
-    }
-
-    const reviewerRef = doc(
-      db,
-      "users",
-      user.uid,
-      "folders",
-      reviewer.folderId,
-      "reviewers",
-      reviewer.id
-    );
-
-    const collectionName = type === "terms" ? "questions" : "content";
-    const itemRef = doc(reviewerRef, collectionName, id);
-
-    await deleteDoc(itemRef);
-
-    // Update UI state depending on type
+    // update UI state locally
     if (type === "terms") {
-      setQuestions((prev) => prev.filter((q) => q.id !== id));
-      alert("Deleted Successfully!");
+      setQuestions(prev => prev.filter(q => q.id !== id));
     } else {
-      setContent((prev) => prev.filter((c) => c.id !== id));
-      alert("Deleted Successfully!");
+      setContent(prev => prev.filter(c => c.id !== id));
     }
+  };
 
-  } catch (error) {
-    console.error(`Error deleting ${type}:`, error);
-    alert(`Failed to delete ${type}. Check console for details.`);
-  }
-};
+  //Save edited items to Firestore
+  const handleSave = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Not logged in");
+        return;
+      }
 
+      //Validate acronym cards
+      if (isAcronym) {
+        for (const c of content) {
+          for (const item of c.contents) {
+            if (!c.title || !c.title.trim()) {
+              alert("Each acronym flashcard must have a TITLE before saving.");
+              return;
+            }
+            if (!item.letter.trim() || !item.word.trim()) {
+              alert("Each acronym entry must have both a LETTER and a WORD before saving.");
+              return;
+            }
+          }
+        }
+      }
+
+      //Validate term/definition cards
+      if (isTermDef) {
+        for (const q of questions) {
+          if (!q.question.trim() || !q.answer.trim()) {
+            alert("Each flashcard must have both a TERM and a DEFINITION before saving.");
+            return;
+          }
+        }
+      }
+
+      const reviewerRef = doc(
+        db,
+        "users",
+        user.uid,
+        "folders",
+        reviewer.folderId,
+        "reviewers",
+        reviewer.id
+      );
+
+      // Delete removed items in Firestore
+      for (const d of deletedItems) {
+        const collectionName = d.type === "terms" ? "questions" : "content";
+        const itemRef = doc(reviewerRef, collectionName, d.id);
+        await deleteDoc(itemRef);
+      }
+      setDeletedItems([]); // clear deleted items after save
+
+      //Delete removed acronym letters in Firestore
+      for (const d of deletedLetters) {
+        const contentRef = doc(reviewerRef, "content", d.contentId);
+        const letterRef = doc(contentRef, "contents", d.letterId);
+        await deleteDoc(letterRef);
+      }
+      setDeletedLetters([]); //clear deleted letters
+
+      // Save term/definition questions
+      if (isTermDef) {
+        for (const q of questions) {
+          const qRef = doc(reviewerRef, "questions", q.id);
+
+          const existingSnap = await getDoc(qRef);
+          const existingData = existingSnap.exists() ? existingSnap.data() : null;
+
+          //edit only the 'correct' one.
+          let defs = [];
+          if (existingData && Array.isArray(existingData.definition)) {
+            defs = existingData.definition.slice();
+          } else if (existingData && existingData.definition && typeof existingData.definition === "object") {
+            defs = [existingData.definition];
+          } else {
+            defs = [];
+          }
+
+          let foundCorrect = false;
+          defs = defs.map(d => {
+            if (d && d.type === "correct") {
+              foundCorrect = true;
+              return { ...d, text: q.answer };
+            }
+            return d;
+          });
+
+          // add If there was no 'correct' definition previously
+          if (!foundCorrect) {
+            defs.unshift({ text: q.answer, type: "correct" });
+          }
+
+          // --- AI INSERTION POINT:
+          // At this location you can call your AI function to generate wrong choices for the term.
+          // Make sure any AI-generated wrong choices are appended/preserved as objects with `text` and `type: "wrong"`.
+          // Merge update so other top-level fields are preserved; we're intentionally updating the 'definition' array only.
+
+          await setDoc(qRef, {
+            term: q.question,
+            definition: defs,
+          }, { merge: true });
+        }
+      }
+
+      // Save acronym content
+      if (isAcronym) {
+        for (const c of content) {
+          const contentRef = doc(reviewerRef, "content", c.id);
+          await setDoc(contentRef, {
+            title: c.title,
+            keyPhrase: c.keyPhrase,
+          }, { merge: true });
+          for (const item of c.contents) {
+            const itemRef = doc(contentRef, "contents", String(item.id));
+            await setDoc(itemRef, {
+              letter: item.letter,
+              word: item.word,
+            }, { merge: true });
+          }
+        }
+      }
+
+      alert("Changes saved successfully!");
+    } catch (error) {
+      console.error("Error saving:", error);
+      alert("Failed to save changes. Check console for details.");
+    }
+  };
+
+  //Add new term flashcard
+  const handleAddTD = () => {
+    setQuestions(prev => [
+      ...prev,
+      { id: getNextId(prev), question: "", answer: "" }
+    ]);
+  };
+
+  //Add new acronym flashcard
+  const handleAddAC = () => {
+    setContent(prev => [
+      ...prev,
+      { id: getNextId(prev), title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: ""}] }
+    ]);
+  };
 
   return (
     <div>
@@ -358,31 +313,26 @@ const handleDeleteItem = async (id, type) => {
                       onChange={(e) => handleChange(q.id, "answer", e.target.value)}
                     />
                   </section>
-                  
                 </div>
                 <button 
                   className="flex w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500"
                   onClick={() => handleDeleteItem(q.id, "terms")}>
                   <LuTrash />
                 </button>
-
-                </div>
+              </div>
             ))}
-                  {questions.length > 0 && (
-                <button
-                  onClick={handleAddTD}
-                  className="w-full max-w-xl bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl"
-                >
-                  Add Flashcard
-                </button>
-              )}
+            <button
+              onClick={handleAddTD}
+              className="w-full max-w-xl bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl"
+            >
+              Add Flashcard
+            </button>
           </>
         )}
 
         {isAcronym && (
           <>
             {content.length === 0 && <p className="text-gray-400">No acronym content yet.</p>}
-            
             {content.map((item) => (
               <div
                 key={item.id}
@@ -449,23 +399,20 @@ const handleDeleteItem = async (id, type) => {
                   />
                 </section>
 
-                  <button
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
-                  >
-                    <LuTrash />
-                  </button>
-            
-                </div>
+                <button
+                  onClick={() => handleDeleteItem(item.id, "acronym")}
+                  className="flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
+                >
+                  <LuTrash />
+                </button>
+              </div>
             ))}
-                {content.length > 0 && (
-                    <button
-                      onClick={handleAddAC}
-                      className="w-full max-w-xl bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl"
-                    >
-                      Add Flashcard
-                    </button>
-                )}
+            <button
+              onClick={handleAddAC}
+              className="w-full max-w-xl bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl"
+            >
+              Add Flashcard
+            </button>
           </>
         )}
       </div>
@@ -473,7 +420,8 @@ const handleDeleteItem = async (id, type) => {
   )
 }
 
-export default EditFlashCard
+
+export default EditFlashCard;
 
 export const editFlashCardLoader = async ({ params }) => {
   const { id: folderId, reviewerId } = params;
@@ -518,10 +466,22 @@ export const editFlashCardLoader = async ({ params }) => {
       const questionsSnap = await getDocs(questionsRef);
       const questions = questionsSnap.docs.map((doc) => {
         const data = doc.data();
+
+        let answer = "";
+        if (Array.isArray(data.definition)) {
+          const correct = data.definition.find(d => d && d.type === "correct") || data.definition[0];
+          answer = correct?.text ?? "";
+        } else if (data.definition && typeof data.definition === "object") {
+          // single map stored as definition
+          answer = data.definition.text ?? "";
+        } else if (typeof data.definition === "string") {
+          answer = data.definition;
+        }
+
         return {
           id: doc.id,
           question: data.term || "",
-          answer: data.definition || "",
+          answer,
         };
       });
 
