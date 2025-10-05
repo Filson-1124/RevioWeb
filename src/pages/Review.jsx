@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
-import { LuArrowLeft } from "react-icons/lu";
+import { LuArrowLeft } from "react-icons/lu"
 import { IoArrowRedoSharp, IoArrowUndo, IoGameController } from "react-icons/io5"
 import { FaEdit } from "react-icons/fa"
 
 const Review = () => {
   const reviewer = useLoaderData()
-  
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -27,9 +26,7 @@ const Review = () => {
 
   useEffect(() => {
     setShowNotification(true)
-    const timer = setTimeout(() => {
-      setShowNotification(false)
-    }, 4000)
+    const timer = setTimeout(() => setShowNotification(false), 4000)
     return () => clearTimeout(timer)
   }, [isBreak])
 
@@ -42,7 +39,6 @@ const Review = () => {
             if (!isBreak) {
               const nextCount = pomodoroCount + 1
               setPomodoroCount(nextCount)
-
               if (nextCount % 4 === 0) {
                 setIsBreak(true)
                 setIsLongBreak(true)
@@ -74,38 +70,22 @@ const Review = () => {
   const handleNext = () => {
     setFlipped(false)
     if (isAcronymCard) {
-      if (currentGroupIndex < reviewer.content.length - 1) {
-        setCurrentGroupIndex(currentGroupIndex + 1)
-        setMessage('')
-      } else {
-        setMessage("You've reached the last card")
-      }
+      if (currentGroupIndex < reviewer.content.length - 1) setCurrentGroupIndex(currentGroupIndex + 1)
+      else setMessage("You've reached the last card")
     } else {
-      if (currentIndex < reviewer.questions.length - 1) {
-        setCurrentIndex(currentIndex + 1)
-        setMessage('')
-      } else {
-        setMessage("You've reached the last card")
-      }
+      if (currentIndex < reviewer.questions.length - 1) setCurrentIndex(currentIndex + 1)
+      else setMessage("You've reached the last card")
     }
   }
 
   const handlePrev = () => {
     setFlipped(false)
     if (isAcronymCard) {
-      if (currentGroupIndex > 0) {
-        setCurrentGroupIndex(currentGroupIndex - 1)
-        setMessage('')
-      } else {
-        setMessage('This is the first card')
-      }
+      if (currentGroupIndex > 0) setCurrentGroupIndex(currentGroupIndex - 1)
+      else setMessage('This is the first card')
     } else {
-      if (currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1)
-        setMessage('')
-      } else {
-        setMessage('This is the first card')
-      }
+      if (currentIndex > 0) setCurrentIndex(currentIndex - 1)
+      else setMessage('This is the first card')
     }
   }
 
@@ -118,18 +98,17 @@ const Review = () => {
 
   const current = reviewer.questions?.[currentIndex]
   const correctChoice = !isAcronymCard && current?.definition?.find(c => c.type === "correct")
-
   const currentAcronym = isAcronymCard ? reviewer.content?.[currentGroupIndex] : null
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
-    <div className='flex flex-col items-center justify-start min-h-screen bg-[#121212] pt-6 px-4'>
-      <div className="w-full p-10 flex justify-between items-center relative">
+    <div className='flex flex-col items-center justify-start min-h-screen bg-[#121212] pt-6 px-4 md:px-10'>
+      <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+          className="absolute left-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
-          <LuArrowLeft size={20} />
+          <LuArrowLeft size={18} className='md:size-5' />
           Back
         </button>
       </div>
@@ -152,20 +131,20 @@ const Review = () => {
             />
           </div>
           <div className="flex justify-between items-center mt-2">
-            <span className="text-sm text-[#A0AEC0] font-semibold">
+            <span className="text-xs md:text-sm text-[#A0AEC0] font-semibold">
               {isBreak ? (isLongBreak ? 'Long Break' : 'Break Time') : 'Study Time'}
             </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setIsRunning(!isRunning)}
-                className="px-3 py-1 bg-[#B5B5FF] text-black rounded text-sm font-bold"
+                className="px-3 py-1 bg-[#B5B5FF] text-black rounded text-xs md:text-sm font-bold"
               >
                 {isRunning ? 'Pause' : 'Start'}
               </button>
               {!isBreak && (
                 <button
                   onClick={() => { setIsRunning(false); setTimeLeft(STUDY_DURATION) }}
-                  className="px-3 py-1 bg-red-500 text-white rounded text-sm font-bold"
+                  className="px-3 py-1 bg-red-500 text-white rounded text-xs md:text-sm font-bold"
                 >
                   Reset
                 </button>
@@ -173,7 +152,7 @@ const Review = () => {
               {isBreak && (
                 <button
                   onClick={() => { setIsBreak(false); setIsLongBreak(false); setTimeLeft(STUDY_DURATION) }}
-                  className="px-3 py-1 bg-yellow-400 text-black rounded text-sm font-bold"
+                  className="px-3 py-1 bg-yellow-400 text-black rounded text-xs md:text-sm font-bold"
                 >
                   Skip Break
                 </button>
@@ -183,139 +162,94 @@ const Review = () => {
         </div>
       )}
 
-      <h1 className='text-white text-3xl font-bold mt-6 mb-10'>{currentTitle}</h1>
+      <h1 className='text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center'>{currentTitle}</h1>
 
       {isFlashcard && (
         <>
-          <div className="relative w-160 h-80 perspective">
-            <div
-              className={`transition-transform duration-500 transform-style preserve-3d w-full h-full ${flipped ? 'rotate-y-180' : ''}`}
-              onClick={handleFlip}
-            >
-              <div className="absolute w-full h-full backface-hidden bg-[#8267B1] rounded-xl shadow-lg flex flex-col items-center justify-center p-6 text-center cursor-pointer">
-                {isAcronymCard ? (
-                  <div className="bg-[#5C5C76] p-4 rounded-lg shadow-inner w-full overflow-y-auto">
-                    <div className="text-center text-xl font-extrabold tracking-widest leading-loose">
-                      {currentAcronym?.contents?.map((item, index) => (
-                        <p key={index} className='first-letter:text-[#E4FF35] text-white font-poppinsbold'>
-                          {item?.word ?? ""}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-3xl font-semibold text-white">{current?.term ?? "No term available"}</p>
-                )}
-              </div>
-              <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-[#FFF8AA] overflow-y-auto rounded-xl shadow-lg flex items-center justify-center p- text-center cursor-pointer">
-                {isAcronymCard ? (
-                  <div className="text-[#6A558D] text-xl font-semibold space-y-1 text-left">
-                    <p>Key Phrase: <b>{currentAcronym?.keyPhrase ?? ""}</b></p>
-                  </div>
-                ) : (
-                  <p className="text-3xl font-semibold text-[#6A558D]">{correctChoice?.text ?? "No definition available"}</p>
-                )}
-              </div>
-            </div>
+         {/* Flashcard Section */}
+<div className="relative w-[90vw] sm:w-[35rem] md:w-[38rem] lg:w-[50rem] xl:w-[60rem] h-[18rem] sm:h-[20rem] md:h-[25rem] lg:h-[28rem] xl:h-[30rem] perspective transition-all duration-500">
+  <div
+    className={`transition-transform duration-500 [transform-style:preserve-3d] w-full h-full ${flipped ? 'rotate-y-180' : ''}`}
+    onClick={handleFlip}
+  >
+    {/* FRONT SIDE */}
+    <div className="absolute w-full h-full [backface-visibility:hidden] bg-[#8267B1] rounded-2xl shadow-lg flex flex-col items-center justify-center p-2 md:p-8 text-center cursor-pointer">
+      {isAcronymCard ? (
+        <div className="scroll-container bg-[#5C5C76] p-2 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto">
+          <div className="text-center text-lg md:text-3xl font-extrabold tracking-widest leading-loose">
+            {currentAcronym?.contents?.map((item, index) => (
+              <p key={index} className="first-letter:text-[#E4FF35] text-white font-poppinsbold">
+                {item?.word ?? ''}
+              </p>
+            ))}
           </div>
+        </div>
+      ) : (
+        <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white">
+          {current?.term ?? 'No term available'}
+        </p>
+      )}
+    </div>
+
+    {/* BACK SIDE */}
+    <div className="absolute w-full h-full [backface-visibility:hidden] rotate-y-180 bg-[#FFF8AA] rounded-2xl shadow-lg flex items-center justify-center p-6 md:p-10 text-center cursor-pointer">
+      <div className="scroll-container w-full h-full overflow-y-auto">
+        {isAcronymCard ? (
+          <div className="text-[#6A558D] text-lg md:text-2xl font-semibold space-y-2 text-left">
+            <p>
+              Key Phrase: <b>{currentAcronym?.keyPhrase ?? ''}</b>
+            </p>
+          </div>
+        ) : (
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#6A558D]">
+            {correctChoice?.text ?? 'No definition available'}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
           <div className="mt-6 flex gap-4">
             <button
               onClick={handlePrev}
-              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-50 rounded-4xl justify-center place-items-center active:scale-90"
+              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
-              <IoArrowUndo color='black' size={30} />
+              <IoArrowUndo color='black' size={25} />
             </button>
             <button
               onClick={handleNext}
-              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-50 rounded-4xl justify-center place-items-center active:scale-90"
+              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
-              <IoArrowRedoSharp color='black' size={30} />
+              <IoArrowRedoSharp color='black' size={25} />
             </button>
           </div>
 
-          {message && <p className="mt-4 text-yellow-300 font-semibold">{message}</p>}
+          {message && <p className="mt-4 text-yellow-300 font-semibold text-sm md:text-base">{message}</p>}
+<div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
+  <button
+    onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
+    className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+  >
+    <FaEdit color="#B5B5FF" size={18} /> Edit
+  </button>
 
-          <div className='flex gap-10 mt-10'>
-            <button
-              onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
-              className='flex gap-2 place-items-center justify-center px-1 border-white w-80 bg-none border-1 text-[#B5B5FF] h-10 rounded-xl font-poppinsbold font-semibold '
-            >
-              <FaEdit color='#B5B5FF' size={20} /> Edit
-            </button>
-            <button
-              onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
-              className="flex gap-2 place-items-center justify-center px-1 border-[#E93209] w-80 bg-none border-1 text-[#B5B5FF] h-10 rounded-xl font-poppinsbold font-semibold active:scale-95"
-            >
-              <IoGameController color="white" size={20} />
-              <span className="text-lg font-bold bg-gradient-to-r from-[#F0EDB6] to-[#E93209] bg-clip-text text-transparent">
-                Game Mode
-              </span>
-            </button>
-          </div>
+  <button
+    onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
+    className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+  >
+    <IoGameController color="white" size={18} />
+    <span className="font-bold bg-gradient-to-r from-[#F0EDB6] to-[#E93209] bg-clip-text text-transparent">
+      Game Mode
+    </span>
+  </button>
+</div>
+
         </>
       )}
-
-      {!isFlashcard && reviewer.sections && (
-  <div className="text-white w-full max-w-3xl mt-10">
-    {reviewer.sections.map((section, idx) => (
-      <div key={idx} className="mb-6">
-        <h2 className="text-xl font-semibold text-[#5EEAD4] mb-2">📘 {section.title}</h2>
-        <ul className="list-disc list-inside space-y-1 text-[#E2E8F0]">
-
-          {section.analogy ? (
-            <>
-              <b>Explanation:</b><br />
-              <p>{section.explanation ?? ""}</p>
-              <b>Analogy: </b><br />
-              <p className='ml-2.5'>{section.analogy ?? ""}</p>
-
-              {section.steps && section.steps.length > 0 && (
-                <>
-                  <b>Steps:</b><br />
-                  <ol className="list-decimal list-inside space-y-1">
-                    {section.steps.map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ol>
-                </>
-              )}
-
-              {section.keyPoints && section.keyPoints.length > 0 && (
-                <>
-                  <b>Key Points: </b><br />
-                  <ul className="list-disc list-inside space-y-1">
-                    {section.keyPoints.map((point, i) => (
-                      <li key={i}>{point}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <p><b>Summary:</b></p>
-              <h3>{section.summary}</h3>
-              {section.concept && (
-                <>
-                  <b>Concepts:</b><br />
-                  <p><b>{section.concept?.term ?? ""}</b></p>
-                  <p>{section.concept?.explanation ?? ""}</p>
-                  <b>Examples:</b><br />
-                  <p>{section.concept?.example ?? ""}</p>
-                </>
-              )}
-              <p><b>Key Take Aways:</b> {section.keyTakeaways ?? ""}</p>
-            </>
-          )}
-
-        </ul>
-      </div>
-    ))}
-  </div>
-)}
-
-     
     </div>
   )
 }

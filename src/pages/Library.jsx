@@ -10,7 +10,7 @@ const Library = () => {
 
   if (!Array.isArray(foldersData)) return null;
 
-  return (
+  /*  
     <div>
       <div className='flex flex-col gap-7 p-20'>
         <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>LIBRARY</h1>
@@ -29,11 +29,54 @@ const Library = () => {
         ))}
       </div>
     </div>
+  */
+
+  return (
+    <div>
+      {/* Header Section */}
+      <div className='flex flex-col gap-7 p-10'>
+        <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>LIBRARY</h1>
+        <hr className='text-white' />
+      </div>
+
+      {/* Folder Grid */}
+      <div className='px-6 sm:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 text-start'>
+        {foldersData.map(folder => {
+          // Determine font size based on folder title length
+          const isLongTitle = folder.title.length > 25;
+          const textSize = isLongTitle
+            ? 'text-xs sm:text-sm md:text-base'  // smaller font for long titles
+            : 'text-sm sm:text-base md:text-lg'; // normal font for shorter titles
+
+          return (
+            <Link
+              key={folder.id}
+              to={folder.id}
+              className='flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105'
+            >
+              {/* Keep the icon size fixed */}
+              <div className="flex-shrink-0">
+                <FaFolder color='white' size={80} />
+              </div>
+
+              {/* Title automatically resizes if long */}
+              <h4
+                className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
+                title={folder.title}
+              >
+                {folder.title}
+              </h4>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
 export default Library;
 
+// Loader for Firebase Data
 export const libraryLoader = async () => {
   // Wrap Firebase's auth check in a promise
   const getUser = () => {

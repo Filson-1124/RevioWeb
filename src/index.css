@@ -61,6 +61,15 @@ input:focus {
 .volume-slider::-moz-range-thumb {
   @apply w-4 h-4 rounded-full bg-white shadow-md border-none;
 }
+.scroll-container {
+  -webkit-overflow-scrolling: touch; /* enables momentum scroll on iOS */
+  touch-action: pan-y;               /* allow vertical scroll */
+  overscroll-behavior: contain;      /* prevents bounce affecting parent */
+  position: relative;
+  z-index: 1;                        /* fix Safari scroll bug inside 3D transforms */
+  transform: translateZ(0);          /* isolates rendering context */
+}
+
 
 /* --- Card Animations --- */
 
