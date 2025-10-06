@@ -33,6 +33,7 @@ import ACloader from './ReviewerLoaders/ACloader'
 import TDloader from './ReviewerLoaders/TDloader'
 import STDloader from './ReviewerLoaders/STDloader'
 import AIloader from './ReviewerLoaders/AIloader'
+import Download from './pages/Download'
 
 
 
@@ -55,16 +56,17 @@ const router = createBrowserRouter(
           <Route path=":id/:reviewerId/ai" element={<Review />} loader={AIloader} />
 
           <Route path="/Main/Library/:id/:reviewerId/gamified" element={<Gamified />} loader={gamifiedLoader} />
-          <Route path="/Main/Library/:id/:reviewerId/edit" element={<EditFlashCard/>} loader={editFlashCardLoader} />
-        </Route>
-
+        <Route path="/Main/Library/:id/:reviewerId/edit" element={<EditFlashCard/>} loader={editFlashCardLoader} /></Route>
         <Route path="Focus" element={<Focus />} />
         <Route path="Create" element={<StudyToolsLayout />}>
           <Route index element={<StudyToolsMenu />} />
           <Route path="Submit" element={<CreateReviewer />} />
         </Route>
-        <Route path="Settings" element={<Settings />} />
-      </Route>
+        <Route path="Download" element={<Download />}></Route>
+
+        <Route path="Settings" element={<Settings />} /> </Route>
+
+      
     </Route>
   )
 )

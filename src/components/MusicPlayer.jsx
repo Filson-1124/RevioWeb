@@ -1,13 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react'
-import Draggable from 'react-draggable'
-import { useAudio } from './AudioContext'
-import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaMusic } from 'react-icons/fa'
+import React, { useRef, useState, useEffect } from 'react';
+import Draggable from 'react-draggable';
+import { useAudio } from './AudioContext';
+import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaMusic } from 'react-icons/fa';
 
 const MusicPlayer = () => {
-  const [open, setOpen] = useState(false)
-  const lastTouchRef = useRef(0)
-  const nodeRef = useRef(null)
-  const panelRef = useRef(null)
+  const [open, setOpen] = useState(false);
+  const lastTouchRef = useRef(0);
+  const nodeRef = useRef(null);
+  const panelRef = useRef(null);
 
   const {
     currentTrack,
@@ -18,47 +18,58 @@ const MusicPlayer = () => {
     setVolume,
     volume,
     audioRef,
-  } = useAudio()
+  } = useAudio();
 
   const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value)
-    setVolume(newVolume)
-    if (audioRef?.current) audioRef.current.volume = newVolume
-  }
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    if (audioRef?.current) audioRef.current.volume = newVolume;
+  };
+
+  useEffect(() => {
+    if (audioRef?.current) {
+      audioRef.current.loop = true; // make it loop infinitely
+    }
+  }, [audioRef]);
 
   useEffect(() => {
     const handleOutside = (ev) => {
-      if (!open) return
+      if (!open) return;
       if (panelRef.current && !panelRef.current.contains(ev.target)) {
-        setOpen(false)
+        setOpen(false);
       }
-    }
-    document.addEventListener('mousedown', handleOutside)
-    document.addEventListener('touchstart', handleOutside)
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside);
     return () => {
-      document.removeEventListener('mousedown', handleOutside)
-      document.removeEventListener('touchstart', handleOutside)
-    }
-  }, [open])
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [open]);
 
   const toggleHandlerFromClick = (e) => {
     if (Date.now() - lastTouchRef.current < 500) {
-      e.stopPropagation()
-      return
+      e.stopPropagation();
+      return;
     }
-    e.stopPropagation()
-    setOpen((p) => !p)
-  }
+    e.stopPropagation();
+    setOpen((p) => !p);
+  };
 
   const toggleHandlerFromTouch = (e) => {
-    lastTouchRef.current = Date.now()
-    e.stopPropagation()
-    e.preventDefault?.()
-    setOpen((p) => !p)
-  }
+    lastTouchRef.current = Date.now();
+    e.stopPropagation();
+    e.preventDefault?.();
+    setOpen((p) => !p);
+  };
 
   return (
-    <Draggable nodeRef={nodeRef} bounds="body" cancel=".no-drag" enableUserSelectHack={false}>
+    <Draggable
+      nodeRef={nodeRef}
+      bounds="body"
+      cancel=".no-drag"
+      enableUserSelectHack={false}
+    >
       <div
         ref={nodeRef}
         className="fixed z-[9999] right-4 bottom-[5.5rem] md:right-6 md:bottom-6 w-max cursor-move pointer-events-auto"
@@ -111,7 +122,7 @@ const MusicPlayer = () => {
         )}
       </div>
     </Draggable>
-  )
-}
+  );
+};
 
-export default MusicPlayer
+export default MusicPlayer;
