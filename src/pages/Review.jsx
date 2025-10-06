@@ -250,8 +250,71 @@ const Review = () => {
 
         </>
       )}
+
+      {!isFlashcard && reviewer.sections && (
+  <div className="text-white w-full max-w-3xl mt-10">
+    {reviewer.sections.map((section, idx) => (
+      <div key={idx} className="mb-6">
+        <h2 className="text-xl font-semibold text-[#5EEAD4] mb-2">📘 {section.title}</h2>
+        <ul className="list-disc list-inside space-y-1 text-[#E2E8F0]">
+
+          {section.analogy ? (
+            <>
+              <b>Explanation:</b><br />
+              <p>{section.explanation ?? ""}</p>
+              <b>Analogy: </b><br />
+              <p className='ml-2.5'>{section.analogy ?? ""}</p>
+
+              {section.steps && section.steps.length > 0 && (
+                <>
+                  <b>Steps:</b><br />
+                  <ol className="list-decimal list-inside space-y-1">
+                    {section.steps.map((step, i) => (
+                      <li key={i}>{step}</li>
+                    ))}
+                  </ol>
+                </>
+              )}
+
+              {section.keyPoints && section.keyPoints.length > 0 && (
+                <>
+                  <b>Key Points: </b><br />
+                  <ul className="list-disc list-inside space-y-1">
+                    {section.keyPoints.map((point, i) => (
+                      <li key={i}>{point}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <p><b>Summary:</b></p>
+              <h3>{section.summary}</h3>
+              {section.concept && (
+                <>
+                  <b>Concepts:</b><br />
+                  <p><b>{section.concept?.term ?? ""}</b></p>
+                  <p>{section.concept?.explanation ?? ""}</p>
+                  <b>Examples:</b><br />
+                  <p>{section.concept?.example ?? ""}</p>
+                </>
+              )}
+              <p><b>Key Take Aways:</b> {section.keyTakeaways ?? ""}</p>
+            </>
+          )}
+
+        </ul>
+      </div>
+    ))}
+  </div>
+)}
+
+     
+
     </div>
   )
+  
 }
 
 export default Review
