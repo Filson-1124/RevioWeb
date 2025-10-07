@@ -6,6 +6,19 @@ import { FaEdit } from "react-icons/fa"
 
 const Review = () => {
   const reviewer = useLoaderData()
+
+  // Sort only the questions (terms) numerically based on their IDs
+  const sortedQuestions = reviewer.questions
+    ? [...reviewer.questions].sort((a, b) => {
+        const numA = parseInt(a.id.replace(/\D/g, ''), 10)
+        const numB = parseInt(b.id.replace(/\D/g, ''), 10)
+        return numA - numB
+      })
+    : []
+
+  // Acronyms remain in their original order
+  const sortedContent = reviewer.content ? [...reviewer.content] : []
+
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -70,10 +83,10 @@ const Review = () => {
   const handleNext = () => {
     setFlipped(false)
     if (isAcronymCard) {
-      if (currentGroupIndex < reviewer.content.length - 1) setCurrentGroupIndex(currentGroupIndex + 1)
+      if (currentGroupIndex < sortedContent.length - 1) setCurrentGroupIndex(currentGroupIndex + 1)
       else setMessage("You've reached the last card")
     } else {
-      if (currentIndex < reviewer.questions.length - 1) setCurrentIndex(currentIndex + 1)
+      if (currentIndex < sortedQuestions.length - 1) setCurrentIndex(currentIndex + 1)
       else setMessage("You've reached the last card")
     }
   }
@@ -96,9 +109,9 @@ const Review = () => {
     }
   }, [message])
 
-  const current = reviewer.questions?.[currentIndex]
+  const current = isAcronymCard ? sortedContent?.[currentGroupIndex] : sortedQuestions?.[currentIndex]
   const correctChoice = !isAcronymCard && current?.definition?.find(c => c.type === "correct")
-  const currentAcronym = isAcronymCard ? reviewer.content?.[currentGroupIndex] : null
+  const currentAcronym = isAcronymCard ? current : null
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
@@ -209,9 +222,6 @@ const Review = () => {
     </div>
   </div>
 </div>
-
-
-
 
           <div className="mt-6 flex gap-4">
             <button
