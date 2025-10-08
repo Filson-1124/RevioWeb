@@ -1,5 +1,5 @@
 // EditFlashCard.jsx
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import { LuPencil, LuTrash, LuPlus, LuArrowLeft } from "react-icons/lu";
 import { FaSave } from "react-icons/fa";
@@ -9,9 +9,46 @@ import { doc, getDoc, collection, getDocs, setDoc, deleteDoc } from "firebase/fi
 
 const EditFlashCard = () => {
   const reviewer = useLoaderData()
-  const navigate = useNavigate() 
-  const [questions, setQuestions] = useState(reviewer.questions || [])
-  const [content, setContent] = useState(reviewer.content || [])
+  const navigate = useNavigate()
+
+  // initialize state from loader but ensure sorting / stable shapes
+  const [questions, setQuestions] = useState(() => reviewer?.questions || [])
+  const [content, setContent] = useState(() => reviewer?.content || [])
+
+  useEffect(() => {
+    // When loader data changes, set states with proper numeric sorting
+    if (!reviewer) return;
+
+    // sort questions numerically if IDs include numbers (q1, q2, q10)
+    if (reviewer.questions && Array.isArray(reviewer.questions)) {
+      const sortedQuestions = [...reviewer.questions].sort((a, b) => {
+        const aNum = extractNumericId(a.id)
+        const bNum = extractNumericId(b.id)
+        return aNum - bNum
+      })
+      setQuestions(sortedQuestions)
+    } else {
+      setQuestions(reviewer.questions || [])
+    }
+
+    // sort acronym content's inner contents by numeric id
+    if (reviewer.content && Array.isArray(reviewer.content)) {
+      const sortedContent = reviewer.content.map(c => {
+        if (Array.isArray(c.contents)) {
+          const sortedContents = [...c.contents].sort((x, y) => {
+            const xn = Number(x.id) || 0
+            const yn = Number(y.id) || 0
+            return xn - yn
+          })
+          return { ...c, contents: sortedContents }
+        }
+        return c
+      })
+      setContent(sortedContent)
+    } else {
+      setContent(reviewer.content || [])
+    }
+  }, [reviewer])
 
   if (!reviewer) {
     return (
@@ -29,11 +66,28 @@ const EditFlashCard = () => {
   // track deleted items (terms or acronyms)
   const [deletedItems, setDeletedItems] = useState([]);
 
-  //used to get next ID based on the highest id stored
-  const getNextId = (items) => {
-    if (items.length === 0) return "q1";
-    const maxIdNum = Math.max(...items.map(item => Number(item.id.replace("q", ""))));
+  // helper: extract numeric part from ids like 'q1' or '1' or 'item12'
+  const extractNumericId = (id) => {
+    if (!id && id !== 0) return 0
+    const match = String(id).match(/\d+/g)
+    if (!match) return 0
+    // if multiple numbers, join them (rare) but usually first is fine
+    return Number(match.join("")) || 0
+  }
+
+  //used to get next ID for question items (will produce q{n})
+  const getNextQuestionId = (items) => {
+    if (!items || items.length === 0) return "q1";
+    // items might have ids like q1, q2, 1, etc.
+    const maxIdNum = Math.max(...items.map(item => extractNumericId(item.id)));
     return `q${maxIdNum + 1}`;
+  };
+
+  // used to get next ID for acronym content inner items (numeric strings)
+  const getNextContentInnerId = (contents) => {
+    if (!contents || contents.length === 0) return "1";
+    const maxIdNum = Math.max(...contents.map(item => Number(item.id) || 0));
+    return String(maxIdNum + 1);
   };
 
   const handleChange = (id, field, value) => {
@@ -60,16 +114,14 @@ const EditFlashCard = () => {
     );
   };
 
-  //Generate incremental numeric ID for new items
+  //Generate incremental numeric ID for new items (acronym inner entries)
   const addLetter = (contentId) => {
     setContent(prev =>
       prev.map(c => {
         if (c.id !== contentId) return c;
 
         // find the next numeric ID
-        const nextId = c.contents.length > 0
-          ? (Math.max(...c.contents.map(item => Number(item.id) || 0)) + 1).toString()
-          : "1";
+        const nextId = getNextContentInnerId(c.contents)
 
         return {
           ...c,
@@ -246,18 +298,34 @@ const EditFlashCard = () => {
 
   //Add new term flashcard
   const handleAddTD = () => {
-    setQuestions(prev => [
-      ...prev,
-      { id: getNextId(prev), question: "", answer: "" }
-    ]);
+    setQuestions(prev => {
+      const nextId = getNextQuestionId(prev);
+      return [
+        ...prev,
+        { id: nextId, question: "", answer: "" }
+      ];
+    });
   };
 
   //Add new acronym flashcard
   const handleAddAC = () => {
-    setContent(prev => [
-      ...prev,
-      { id: getNextId(prev), title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: ""}] }
-    ]);
+    setContent(prev => {
+      const newId = (() => {
+        // attempt to find numeric postfix if existing content ids are q{n} or numeric
+        if (!prev || prev.length === 0) return "q1";
+        // find numeric portion of each content id and take max
+        const maxNum = Math.max(...prev.map(p => extractNumericId(p.id)));
+        // keep same id style as existing (if they used 'q' prefix or plain numeric)
+        // If content ids look like "q1" keep 'q' prefix; otherwise use numeric string
+        const useQPrefix = prev.some(p => /^q\d+$/i.test(String(p.id)));
+        return useQPrefix ? `q${maxNum + 1}` : String(maxNum + 1);
+      })();
+
+      return [
+        ...prev,
+        { id: newId, title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: ""}] }
+      ];
+    });
   };
 
   return (
@@ -291,36 +359,40 @@ const EditFlashCard = () => {
         {isTermDef && (
           <>
             {questions.length === 0 && <p className="text-gray-400">No questions yet.</p>}
-            {questions.map((q, idx) => (
-              <div
-                key={q.id || idx}
-                className="flex items-stretch bg-[#3F3F54] w-2xl pl-10 pr-0 gap-10 text-white rounded-xl"
-              >
-                <div className="flex flex-col w-full gap-10 my-10">
-                  <section className="w-full">
-                    <h4>Terms</h4>
-                    <textarea
-                      className="bg-[#51516B] w-full resize-none p-2 rounded-md"
-                      value={q.question || ""}
-                      onChange={(e) => handleChange(q.id, "question", e.target.value)}
-                    />
-                  </section>
-                  <section className="w-full">
-                    <h4>Definition</h4>
-                    <textarea
-                      className="bg-[#51516B] w-full min-h-30 resize-none p-2 rounded-md"
-                      value={q.answer || ""}
-                      onChange={(e) => handleChange(q.id, "answer", e.target.value)}
-                    />
-                  </section>
+            {/* inner-scroll area for the list of term flashcards */}
+            <div className="w-full max-w-4xl overflow-auto max-h-[60vh] space-y-6">
+              {questions.map((q, idx) => (
+                <div
+                  key={q.id || idx}
+                  className="flex items-stretch bg-[#3F3F54] w-full pl-10 pr-0 gap-10 text-white rounded-xl"
+                >
+                  <div className="flex flex-col w-full gap-10 my-10">
+                    <section className="w-full">
+                      <h4>Terms</h4>
+                      <textarea
+                        className="bg-[#51516B] w-full resize-none p-2 rounded-md"
+                        value={q.question || ""}
+                        onChange={(e) => handleChange(q.id, "question", e.target.value)}
+                      />
+                    </section>
+                    <section className="w-full">
+                      <h4>Definition</h4>
+                      <textarea
+                        className="bg-[#51516B] w-full min-h-30 resize-none p-2 rounded-md"
+                        value={q.answer || ""}
+                        onChange={(e) => handleChange(q.id, "answer", e.target.value)}
+                      />
+                    </section>
+                  </div>
+                  <button 
+                    className="flex w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500"
+                    onClick={() => handleDeleteItem(q.id, "terms")}>
+                    <LuTrash />
+                  </button>
                 </div>
-                <button 
-                  className="flex w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500"
-                  onClick={() => handleDeleteItem(q.id, "terms")}>
-                  <LuTrash />
-                </button>
-              </div>
-            ))}
+              ))}
+            </div>
+
             <button
               onClick={handleAddTD}
               className="w-full max-w-xl bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl"
@@ -333,80 +405,85 @@ const EditFlashCard = () => {
         {isAcronym && (
           <>
             {content.length === 0 && <p className="text-gray-400">No acronym content yet.</p>}
-            {content.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col bg-[#3F3F54] w-2xl p-10 text-white gap-6 rounded-xl"
-              >
-                <input type="text" placeholder="Enter title" className="bg-[#51516B] w-full p-3 rounded-lg text-white font-poppinsbold text-xl" value={item.title ?? ""} 
-                onChange={(e) => handleAcronymChange(item.id, null, "title", e.target.value)}/>
-                
-                <div className="flex flex-col gap-4">
-                  {item.contents.map((c, index) => (
-                    <div
-                      key={c.id || index}
-                      className="flex items-center gap-4 bg-[#51516B] p-3 rounded-lg"
-                    >
-                      <input
-                        className="w-12 h-12 text-xl font-bold text-center bg-[#373749] rounded-md"
-                        value={c.letter}
-                        onChange={(e) =>
-                          handleAcronymChange(item.id, index, "letter", e.target.value)
-                        }
-                      />
-                      <textarea 
-                        className="flex-1 bg-[#373749] p-2 rounded-md resize-none"
-                        value={c.word}
-                        onChange={(e) =>
-                          handleAcronymChange(item.id, index, "word", e.target.value)
-                        }
-                      />
-                      <button
-                        onClick={() => handleDeleteLetter(item.id, c.id)}
-                        className="flex w-[40px] h-[40px] justify-center items-center bg-[#373749] hover:bg-red-500 rounded-md"
+
+            {/* inner-scroll area for acronym cards */}
+            <div className="w-full max-w-4xl overflow-auto max-h-[70vh] space-y-6">
+              {content.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col bg-[#3F3F54] w-full p-10 text-white gap-6 rounded-xl"
+                >
+                  <input type="text" placeholder="Enter title" className="bg-[#51516B] w-full p-3 rounded-lg text-white font-poppinsbold text-xl" value={item.title ?? ""} 
+                  onChange={(e) => handleAcronymChange(item.id, null, "title", e.target.value)}/>
+                  
+                  <div className="flex flex-col gap-4">
+                    {item.contents.map((c, index) => (
+                      <div
+                        key={c.id || index}
+                        className="flex items-center gap-4 bg-[#51516B] p-3 rounded-lg"
                       >
-                        <LuTrash />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-    
-                <div className="flex justify-center">
+                        <input
+                          className="w-12 h-12 text-xl font-bold text-center bg-[#373749] rounded-md"
+                          value={c.letter}
+                          onChange={(e) =>
+                            handleAcronymChange(item.id, index, "letter", e.target.value)
+                          }
+                        />
+                        <textarea 
+                          className="flex-1 bg-[#373749] p-2 rounded-md resize-none"
+                          value={c.word}
+                          onChange={(e) =>
+                            handleAcronymChange(item.id, index, "word", e.target.value)
+                          }
+                        />
+                        <button
+                          onClick={() => handleDeleteLetter(item.id, c.id)}
+                          className="flex w-[40px] h-[40px] justify-center items-center bg-[#373749] hover:bg-red-500 rounded-md"
+                        >
+                          <LuTrash />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+      
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => addLetter(item.id)}
+                      className="w-[40px] h-[40px] flex justify-center items-center 
+                                bg-[#373749] hover:bg-green-500 
+                                rounded-full shadow-md transition-colors"
+                    >
+                      <LuPlus size={24} />
+                    </button>
+                  </div>
+
+                  <section>
+                    <h4 className="mb-2">Key Phrase</h4>
+                    <textarea
+                      className="bg-[#51516B] w-full p-3 rounded-lg min-h-20 resize-none text-white"
+                      value={item.keyPhrase ?? ""}
+                      onChange={(e) =>
+                        setContent(prev =>
+                          prev.map(c =>
+                            c.id === item.id
+                              ? { ...c, keyPhrase: e.target.value }
+                              : c
+                          )
+                        )
+                      }
+                    />
+                  </section>
+
                   <button
-                    onClick={() => addLetter(item.id)}
-                    className="w-[40px] h-[40px] flex justify-center items-center 
-                              bg-[#373749] hover:bg-green-500 
-                              rounded-full shadow-md transition-colors"
+                    onClick={() => handleDeleteItem(item.id, "acronym")}
+                    className="flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
                   >
-                    <LuPlus size={24} />
+                    <LuTrash />
                   </button>
                 </div>
+              ))}
+            </div>
 
-                <section>
-                  <h4 className="mb-2">Key Phrase</h4>
-                  <textarea
-                    className="bg-[#51516B] w-full p-3 rounded-lg min-h-20 resize-none text-white"
-                    value={item.keyPhrase ?? ""}
-                    onChange={(e) =>
-                      setContent(prev =>
-                        prev.map(c =>
-                          c.id === item.id
-                            ? { ...c, keyPhrase: e.target.value }
-                            : c
-                        )
-                      )
-                    }
-                  />
-                </section>
-
-                <button
-                  onClick={() => handleDeleteItem(item.id, "acronym")}
-                  className="flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
-                >
-                  <LuTrash />
-                </button>
-              </div>
-            ))}
             <button
               onClick={handleAddAC}
               className="w-full max-w-xl bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl"
@@ -485,11 +562,18 @@ export const editFlashCardLoader = async ({ params }) => {
         };
       });
 
+      // sort questions numerically before returning so UI receives ordered q1,q2,...
+      const sortedQuestions = questions.sort((a, b) => {
+        const aNum = Number(String(a.id).match(/\d+/)?.[0] || 0);
+        const bNum = Number(String(b.id).match(/\d+/)?.[0] || 0);
+        return aNum - bNum;
+      });
+
       return {
         id: reviewerId,
         title: reviewerData.title,
         type: "terms",
-        questions,
+        questions: sortedQuestions,
         folderId,
       };
     }
