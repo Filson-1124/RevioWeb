@@ -1,4 +1,3 @@
-// EditFlashCard.jsx
 import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import { LuPencil, LuTrash, LuPlus, LuArrowLeft } from "react-icons/lu";
@@ -7,6 +6,8 @@ import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, collection, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const EditFlashCard = () => {
   const reviewer = useLoaderData()
   const navigate = useNavigate()
@@ -14,6 +15,10 @@ const EditFlashCard = () => {
   // initialize state from loader but ensure sorting / stable shapes
   const [questions, setQuestions] = useState(() => reviewer?.questions || [])
   const [content, setContent] = useState(() => reviewer?.content || [])
+    // track deleted acronym letters
+  const [deletedLetters, setDeletedLetters] = useState([]);
+  // track deleted items (terms or acronyms)
+  const [deletedItems, setDeletedItems] = useState([]);
 
   useEffect(() => {
     // When loader data changes, set states with proper numeric sorting
@@ -61,10 +66,8 @@ const EditFlashCard = () => {
   const isAcronym = reviewer.type === "acronym"
   const isTermDef = reviewer.type === "terms"
 
-  // track deleted acronym letters
-  const [deletedLetters, setDeletedLetters] = useState([]);
-  // track deleted items (terms or acronyms)
-  const [deletedItems, setDeletedItems] = useState([]);
+//this is the og place of the 2 red useSatte, i just put it above with the othe rhooks to remive the red lines. im really bothered.
+// still the edit title doesnt work.
 
   // helper: extract numeric part from ids like 'q1' or '1' or 'item12'
   const extractNumericId = (id) => {
@@ -229,47 +232,93 @@ const EditFlashCard = () => {
 
       // Save term/definition questions
       if (isTermDef) {
-        for (const q of questions) {
-          const qRef = doc(reviewerRef, "questions", q.id);
+      const token = await user.getIdToken();
 
-          const existingSnap = await getDoc(qRef);
-          const existingData = existingSnap.exists() ? existingSnap.data() : null;
+      // Fetch existing docs to know which need distractors
+      const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id));
+      const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)));
 
-          //edit only the 'correct' one.
-          let defs = [];
-          if (existingData && Array.isArray(existingData.definition)) {
-            defs = existingData.definition.slice();
-          } else if (existingData && existingData.definition && typeof existingData.definition === "object") {
-            defs = [existingData.definition];
-          } else {
-            defs = [];
-          }
+      const existingById = {};
+      const needingDistractors = [];
 
-          let foundCorrect = false;
-          defs = defs.map(d => {
-            if (d && d.type === "correct") {
-              foundCorrect = true;
-              return { ...d, text: q.answer };
-            }
-            return d;
-          });
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const snap = snaps[i];
+        const data = snap.exists() ? snap.data() : null;
+        existingById[q.id] = data;
 
-          // add If there was no 'correct' definition previously
-          if (!foundCorrect) {
-            defs.unshift({ text: q.answer, type: "correct" });
-          }
+        const existingDefs = data?.definition || [];
+        const hasWrong = Array.isArray(existingDefs) && existingDefs.some(d => d.type === "wrong");
 
-          // --- AI INSERTION POINT:
-          // At this location you can call your AI function to generate wrong choices for the term.
-          // Make sure any AI-generated wrong choices are appended/preserved as objects with `text` and `type: "wrong"`.
-          // Merge update so other top-level fields are preserved; we're intentionally updating the 'definition' array only.
-
-          await setDoc(qRef, {
+        // Req only if no distractors
+        if (!hasWrong) {
+          needingDistractors.push({
+            id: q.id,
             term: q.question,
-            definition: defs,
-          }, { merge: true });
+            correctDefinition: q.answer,
+          });
         }
       }
+
+      // Call backend if missing distractors
+      let distractorMap = {};
+      if (needingDistractors.length > 0) {
+        try {
+          const resp = await fetch(`${API_URL}/api/distractors`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              items: needingDistractors,
+              count: 3,
+            }),
+          });
+
+          if (resp.ok) {
+            const body = await resp.json();
+            distractorMap = body?.distractors || {};
+          } else {
+            console.error("Distractor API error:", resp.status, await resp.text());
+          }
+        } catch (err) {
+          console.error("Failed to call distractor API:", err);
+        }
+      }
+
+      // Save all cards (merge with distractors)
+      for (const q of questions) {
+        const existing = existingById[q.id];
+        let defs = Array.isArray(existing?.definition)
+          ? existing.definition.slice()
+          : [];
+
+        const correctDef = q.answer.trim();
+        const hasCorrect = defs.some(d => d.type === "correct");
+        if (hasCorrect) {
+          defs = defs.map(d => d.type === "correct" ? { ...d, text: correctDef } : d);
+        } else {
+          defs.push({ text: correctDef, type: "correct" });
+        }
+
+        const aiWrongs = Array.isArray(distractorMap[q.id]) ? distractorMap[q.id] : [];
+        for (const wrong of aiWrongs) {
+          if (!wrong || !wrong.trim()) continue;
+          const trimmed = wrong.trim();
+          const exists = defs.some(d => d.text.trim() === trimmed);
+          if (!exists && trimmed !== correctDef) {
+            defs.push({ text: trimmed, type: "wrong" });
+          }
+        }
+
+        const qRef = doc(reviewerRef, "questions", q.id);
+        await setDoc(qRef, {
+          term: q.question,
+          definition: defs,
+        }, { merge: true });
+      }
+    }
 
       // Save acronym content
       if (isAcronym) {
