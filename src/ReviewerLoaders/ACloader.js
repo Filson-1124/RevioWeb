@@ -3,7 +3,6 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../components/firebase";
 
-// ✅ Ensure we have the authenticated user before loading data
 const getUser = () =>
   new Promise((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -17,14 +16,11 @@ export async function loadAcronymMnemonics({ params }) {
   const user = await getUser();
   const { reviewerId, id: folderId } = params;
 
-  console.log("🧭 Loader Params:", { reviewerId, folderId, user: user?.uid });
 
-  // ✅ Guard checks
   if (!user?.uid) throw new Error("User UID is undefined — check authentication.");
   if (!folderId) throw new Error("folderId is undefined — check your route path (:id param).");
   if (!reviewerId) throw new Error("reviewerId is undefined — check your route path (:reviewerId param).");
 
-  // ✅ Correct Firestore reference path
   const reviewerRef = doc(
     db,
     "users",
