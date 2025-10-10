@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
-import logo from '../assets/logo.png'
+import gamifiedLogo from '../assets/gamifiedLogo.png'
 import { auth, db } from '../components/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
@@ -12,41 +12,81 @@ const Gamified = () => {
 
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(questions.length * 10)
-  const [flipped, setFlipped] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(questions.length * 50000000)
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [startTime] = useState(Date.now())
   const [showResults, setShowResults] = useState(false)
-
+  const [isPressed, setIsPressed] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
   const [countdown, setCountdown] = useState(null)
   const [isAnimating, setIsAnimating] = useState(false)
-  const[isCorrectAnimation,setIsCorrectAnimation]=useState()
+  const [isCorrectAnimation, setIsCorrectAnimation] = useState()
+  const [shuffledChoices, setShuffledChoices] = useState([])
+  const [answers, setAnswers] = useState([])
+  const [currentCorrectAnswers, setCurrentCorrectAnswers] = useState([])
 
-  // This guards against index out-of-bounds
   const current = index < questions.length ? questions[index] : null
 
+  // shuffle choices
+  const shuffle = (array) => {
+    let arr = [...array]
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+  }
+
   useEffect(() => {
-    if (countdown === 0) {
-      setCountdown(null)
-    } else if (countdown > 0) {
-      const timeout = setTimeout(() => setCountdown(prev => prev - 1), 1000)
-      return () => clearTimeout(timeout)
+    if (current && current.definition) setShuffledChoices(shuffle(current.definition))
+    setIsPressed(false)
+  }, [current?.definition])
+
+  const findCorrectAnswer = (current) =>
+    current.definition.find((c) => c.type === 'correct')?.text
+
+  const checkAnswer = (isCorrectAnswer) => {
+    if (isCorrectAnswer === 'correct') handleCheck()
+    else handleWrong()
+  }
+
+  useEffect(() => {
+    if (current?.content) setAnswers(Array(current.contents.length).fill(''))
+    if (isAcronym) setCurrentCorrectAnswers(current.contents.map((c) => c.word))
+  }, [current])
+
+  const handleChange = (index, value) => {
+    const updated = [...answers]
+    updated[index] = value
+    setAnswers(updated)
+  }
+
+  const checkAcro = (answers, correctAnswers) => {
+    let perfect = true
+    for (let i = 0; i < correctAnswers.length; i++) {
+      if (answers[i].toUpperCase() !== correctAnswers[i].toUpperCase()) {
+        perfect = false
+        break
+      }
+    }
+    setAnswers(Array(correctAnswers.length).fill(''))
+    return perfect ? 'correct' : ''
+  }
+
+  // countdown + timer
+  useEffect(() => {
+    if (countdown === 0) setCountdown(null)
+    else if (countdown > 0) {
+      const t = setTimeout(() => setCountdown((p) => p - 1), 1000)
+      return () => clearTimeout(t)
     }
   }, [countdown])
 
   useEffect(() => {
     if (showResults || countdown !== null || showSplash) return
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          handleNext()
-          return 0
-        }
-        return prev - 1
-      })
+      setTimeLeft((prev) => (prev <= 1 ? (handleNext(), 0) : prev - 1))
     }, 1000)
-
     return () => clearInterval(timer)
   }, [index, showResults, countdown, showSplash])
 
@@ -56,12 +96,8 @@ const Gamified = () => {
   }
 
   const handleNext = () => {
-    setFlipped(false)
-    if (index >= questions.length - 1) {
-      setShowResults(true)
-    } else {
-      setIndex(prev => Math.min(prev + 1, questions.length - 1))
-    }
+    if (index >= questions.length - 1) setShowResults(true)
+    else setIndex((p) => Math.min(p + 1, questions.length - 1))
   }
 
   const triggerNextWithAnimation = (isCorrect) => {
@@ -69,11 +105,8 @@ const Gamified = () => {
     setIsAnimating(true)
     setTimeout(() => {
       setIsAnimating(false)
-      if (isCorrect) {
-        setScore(prev => prev + 1)
-      } else if (current) {
-        setWrongAnswers(prev => [...prev, current])
-      }
+      if (isCorrect) setScore((p) => p + 1)
+      else if (current) setWrongAnswers((p) => [...p, current])
       handleNext()
     }, 500)
   }
@@ -86,51 +119,57 @@ const Gamified = () => {
 
   const handleWrong = () => {
     if (isAnimating || showResults || !current) return
-      setIsCorrectAnimation(false)
+    setIsCorrectAnimation(false)
     triggerNextWithAnimation(false)
-    
   }
 
+  // Results screen
   const renderResults = () => {
     const timeSpent = Math.ceil((Date.now() - startTime) / 1000)
     return (
-      <div className="text-center text-white">
-        <h2 className="text-3xl font-bold mb-4">Results</h2>
-        <p className="text-lg mb-2">Score: {score} / {questions.length}</p>
-        <p className="text-lg mb-6">Time spent: {timeSpent} seconds</p>
+      <div className="text-center text-white w-full max-w-2xl px-4">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4">Results</h2>
+        <p className="text-base sm:text-lg mb-2">Score: {score} / {questions.length}</p>
+        <p className="text-base sm:text-lg mb-6">Time spent: {timeSpent}s</p>
         {wrongAnswers.length > 0 ? (
-          <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-4">
-            <h3 className="text-xl font-semibold mb-2">Wrong Answers:</h3>
+          <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
             {wrongAnswers.map((item, i) => (
-              <div key={i} className="p-3 border rounded-md">
+              <div key={i} className="p-3 border rounded-md text-sm sm:text-base">
                 {isAcronym ? (
-                  <div>
+                  <>
                     <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
                     <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
                     <p><b>Key Phrase:</b> {item.keyPhrase}</p>
-                  </div>
+                  </>
                 ) : (
-                  <div>
-                    <p><b>Q:</b> {item.definition}</p>
-                    <p><b>A:</b> {item.term}</p>
-                  </div>
+                  <>
+                    <p><b>Q:</b> {item.term}</p>
+                    <p><b>A:</b> {findCorrectAnswer(item)}</p>
+                  </>
                 )}
               </div>
             ))}
           </div>
-        ) : <p>No mistakes! Well done 🎉</p>}
+        ) : <p className="text-lg">No mistakes! 🎉</p>}
       </div>
     )
   }
 
-  // Splash Screen
+  // Splash screen
   if (showSplash) {
     return (
-      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white">
-        <img src={logo} alt="Logo" className="w-40 mb-6" />
+      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center">
+        <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
+        <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
+          <b className="font-poppinsbold">Direction:</b><br />
+          {isAcronym
+            ? "Fill in the blanks using the first letters shown. Type the complete word and press 'Submit'."
+            : "Choose the correct definition!"}
+        </p>
         <button
           onClick={handleStart}
-          className="px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-xl rounded-full font-bold transition"
+          className="px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold transition w-[80%] sm:w-auto"
         >
           Start Intense Mode
         </button>
@@ -138,75 +177,96 @@ const Gamified = () => {
     )
   }
 
+  // Main game screen
   return (
-    <div className="min-h-screen bg-[#121212] text-white p-6 flex flex-col items-center relative">
+    <div className="min-h-screen bg-[#121212] text-white w-full p-4 sm:p-6 flex flex-col items-center relative overflow-x-hidden">
       {countdown !== null && (
-        <div className="absolute inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center text-8xl font-bold text-white">
+        <div className="absolute inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center text-6xl sm:text-8xl font-bold text-white">
           {countdown}
         </div>
       )}
 
       {showResults ? (
-        <div className="flex items-center justify-center w-full h-full">
-          {renderResults()}
-        </div>
+        <div className="flex items-center justify-center w-full h-full">{renderResults()}</div>
       ) : (
-        <div className={`w-full max-w-2xl transition-opacity ${countdown !== null ? 'opacity-30' : 'opacity-100'}`}>
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-xl font-bold">Gamified Mode</h1>
-            <span className="text-lg">Score: {score}</span>
+        <div className={`w-full max-w-4xl transition-opacity ${countdown !== null ? 'opacity-30' : 'opacity-100'}`}>
+          <div className="flex justify-between items-center mb-4 text-sm sm:text-base">
+            <h1 className="font-bold">Gamified Mode</h1>
+            <span>Score: {score}</span>
           </div>
-          <div className="mb-4 text-right text-sm text-gray-300">Time left: {timeLeft}s</div>
+          <div className="mb-4 text-right text-xs sm:text-sm text-gray-300">Time left: {timeLeft}s</div>
 
           {current && (
-            <div className="relative w-160 h-80 perspective mb-6">
-              <div
-                className={`transition-transform duration-500 transform-style preserve-3d w-full h-full
-                  ${flipped ? 'rotate-y-180' : ''} 
-                  ${isAnimating ? isCorrectAnimation? 'tilt-right-fade-out':'tilt-left-fade-out' : ''}`}
-                onClick={() => setFlipped(!flipped)}
-              >
-                <div className="absolute w-full h-full backface-hidden bg-[#8267B1] rounded-xl shadow-lg flex flex-col items-center justify-center p-6 text-center cursor-pointer">
-                  {isAcronym ? (
-                    <div className="text-5xl font-extrabold tracking-widest">
-                      {current.contents.map(item => item.word.charAt(0)).join('')}
-                    </div>
-                  ) : (
-                    <p className="text-3xl font-semibold text-white">{current.definition}</p>
-                  )}
-                </div>
-
-                <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-[#FFF8AA] overflow-y-auto rounded-xl shadow-lg flex items-center justify-center text-center cursor-pointer">
-                  {isAcronym ? (
-                    <div className="text-[#6A558D] text-xl font-semibold space-y-2 text-left">
-                      <p><b>Words:</b> {current.contents.map(c => c.word).join(', ')}</p>
-                      <p><b>Key Phrase:</b> {current.keyPhrase}</p>
-                    </div>
-                  ) : (
-                    <p className="text-3xl font-semibold text-[#6A558D]">{current.term}</p>
-                  )}
-                </div>
-              </div>
+            <div
+  className={`relative w-full mb-6 flex justify-center ${
+    isAcronym ? 'h-[50vh] sm:h-[55vh] md:h-[60vh]' : 'h-64 sm:h-72'
+  }`}
+>
+  <div
+    className={`transition-transform duration-500 w-full h-full flex justify-center items-center ${
+      isAnimating ? (isCorrectAnimation ? 'pop-up' : 'shake') : ''
+    }`}
+  >
+    <div
+      className={`${
+        isAcronym ? 'mnemonics' : 'flashcard-front'
+      } w-[90%] sm:w-[80%] lg:w-[60%] p-4 sm:p-6 rounded-2xl bg-[#20202C] flex flex-col justify-center`}
+    >
+      {isAcronym ? (
+        <div className="text-base sm:text-lg font-bold tracking-widest space-y-3 overflow-y-auto max-h-[45vh] sm:max-h-[50vh] w-full px-2">
+          {current.contents.map((item, i) => (
+            <div key={i} className="flex gap-4 items-center">
+              <p className="text-md sm:text-lg text-[#E4FF35]">{item.word.charAt(0)}</p>
+              <textarea
+                className="resize-none p-2 border-b-2 border-b-white bg-transparent text-white w-full focus:outline-none"
+                placeholder="answer here"
+                value={answers[i] || ''}
+                onChange={(e) => handleChange(i, e.target.value)}
+                rows={1}
+              />
             </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-2xl sm:text-3xl font-semibold text-center text-white">
+          {current.term}
+        </p>
+      )}
+    </div>
+  </div>
+</div>
+
           )}
 
-          <div className="flex gap-4 justify-center">
-           
-            <button
-              onClick={handleWrong}
-              disabled={isAnimating || showResults || !current}
-              className={`px-4 py-2 rounded-xl text-white font-semibold ${isAnimating ? 'bg-red-300' : 'bg-red-500'}`}
-            >
-              ❌ Wrong
-            </button>
-             <button
-              onClick={handleCheck}
-              disabled={isAnimating || showResults || !current}
-              className={`px-4 py-2 rounded-xl text-white font-semibold ${isAnimating ? 'bg-green-300' : 'bg-green-500'}`}
-            >
-              ✅ Correct
-            </button>
-          </div>
+          {/* Choices or submit button */}
+          {isAcronym ? (
+            <>
+              <p className="text-center text-sm sm:text-base mb-4">
+                <b>Key Phrase:</b> {current.keyPhrase}
+              </p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => checkAnswer(checkAcro(answers, currentCorrectAnswers))}
+                  className="bg-[#9898D9] text-[#200448] px-6 py-3 rounded-3xl font-bold hover:text-[#9898D9] hover:bg-[#200448] active:scale-90 w-[80%] sm:w-auto"
+                >
+                  Submit Answer
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-4xl mx-auto">
+              {shuffledChoices.map((choice, i) => (
+                <div
+                  key={i}
+                  className={`min-h-[5rem] sm:min-h-[7rem] border border-[#2e2e42] p-4 sm:p-5 bg-[#20202C] rounded-2xl flex items-center justify-center text-center cursor-pointer text-sm sm:text-base 
+                    ${isPressed ? (choice.type === 'correct' ? 'choiceCorrect' : 'choiceWrong') : ''}`}
+                  onClick={() => { checkAnswer(choice.type); setIsPressed(true) }}
+                >
+                  {choice.text}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -214,6 +274,7 @@ const Gamified = () => {
 }
 
 export default Gamified
+
 
 export const gamifiedLoader = async ({ params }) => {
   const { id: folderId, reviewerId } = params;

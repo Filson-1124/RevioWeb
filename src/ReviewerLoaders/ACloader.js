@@ -1,8 +1,25 @@
 import { db } from "../components/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../components/firebase";
 
-export async function loadAcronymMnemonics({ params, user }) {
+const getUser = () =>
+  new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      if (user && user.emailVerified) resolve(user);
+      else reject("Unauthorized");
+    });
+  });
+
+export async function loadAcronymMnemonics({ params }) {
+  const user = await getUser();
   const { reviewerId, id: folderId } = params;
+
+
+  if (!user?.uid) throw new Error("User UID is undefined — check authentication.");
+  if (!folderId) throw new Error("folderId is undefined — check your route path (:id param).");
+  if (!reviewerId) throw new Error("reviewerId is undefined — check your route path (:reviewerId param).");
 
   const reviewerRef = doc(
     db,
@@ -15,6 +32,8 @@ export async function loadAcronymMnemonics({ params, user }) {
   );
 
   const reviewerSnap = await getDoc(reviewerRef);
+  if (!reviewerSnap.exists()) throw new Error("Reviewer document not found in Firestore.");
+
   const reviewerData = reviewerSnap.data();
 
   const contentCollectionRef = collection(

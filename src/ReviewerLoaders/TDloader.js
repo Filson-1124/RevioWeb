@@ -1,7 +1,19 @@
 import { db } from "../components/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../components/firebase";
 
-export async function loadTermsAndCondition({ params, user }) {
+const getUser = () =>
+  new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      if (user && user.emailVerified) resolve(user);
+      else reject("Unauthorized");
+    });
+  });
+
+export async function loadTermsAndCondition({ params }) {
+  const user = await getUser();
   const { reviewerId, id: folderId } = params;
 
   const reviewerRef = doc(
@@ -27,6 +39,7 @@ export async function loadTermsAndCondition({ params, user }) {
     reviewerId,
     "questions"
   );
+
   const questionsSnap = await getDocs(questionsRef);
 
   const questions = questionsSnap.docs.map((d) => ({
