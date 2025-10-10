@@ -6,6 +6,19 @@ import { FaEdit } from "react-icons/fa"
 
 const Review = () => {
   const reviewer = useLoaderData()
+
+  // Sort only the questions (terms) numerically based on their IDs
+  const sortedQuestions = reviewer.questions
+    ? [...reviewer.questions].sort((a, b) => {
+        const numA = parseInt(a.id.replace(/\D/g, ''), 10)
+        const numB = parseInt(b.id.replace(/\D/g, ''), 10)
+        return numA - numB
+      })
+    : []
+
+  // Acronyms remain in their original order
+  const sortedContent = reviewer.content ? [...reviewer.content] : []
+
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -21,10 +34,10 @@ const Review = () => {
   const handleNext = () => {
     setFlipped(false)
     if (isAcronymCard) {
-      if (currentGroupIndex < reviewer.content.length - 1) setCurrentGroupIndex(currentGroupIndex + 1)
+      if (currentGroupIndex < sortedContent.length - 1) setCurrentGroupIndex(currentGroupIndex + 1)
       else setMessage("You've reached the last card")
     } else {
-      if (currentIndex < reviewer.questions.length - 1) setCurrentIndex(currentIndex + 1)
+      if (currentIndex < sortedQuestions.length - 1) setCurrentIndex(currentIndex + 1)
       else setMessage("You've reached the last card")
     }
   }
@@ -47,9 +60,9 @@ const Review = () => {
     }
   }, [message])
 
-  const current = reviewer.questions?.[currentIndex]
+  const current = isAcronymCard ? sortedContent?.[currentGroupIndex] : sortedQuestions?.[currentIndex]
   const correctChoice = !isAcronymCard && current?.definition?.find(c => c.type === "correct")
-  const currentAcronym = isAcronymCard ? reviewer.content?.[currentGroupIndex] : null
+  const currentAcronym = isAcronymCard ? current : null
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
@@ -93,24 +106,27 @@ const Review = () => {
                 )}
               </div>
 
-              {/* BACK SIDE */}
-              <div className="absolute w-full h-full [backface-visibility:hidden] rotate-y-180 bg-[#FFF8AA] rounded-2xl shadow-lg flex items-center justify-center p-6 md:p-10 text-center cursor-pointer">
-                <div className="scroll-container w-full h-full overflow-y-auto">
-                  {isAcronymCard ? (
-                    <div className="text-[#6A558D] text-lg md:text-2xl font-semibold space-y-2 text-left">
-                      <p>
-                        Key Phrase: <b>{currentAcronym?.keyPhrase ?? ''}</b>
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#6A558D]">
-                      {correctChoice?.text ?? 'No definition available'}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
+    {/* BACK SIDE */}
+    <div className="absolute w-full h-full [backface-visibility:hidden] rotate-y-180 bg-[#FFF8AA] rounded-2xl shadow-lg flex items-center justify-center p-6 md:p-10 text-center cursor-pointer">
+      <div className="scroll-container w-full h-full overflow-y-auto">
+        {isAcronymCard ? (
+          <div className="text-[#6A558D] text-lg md:text-2xl font-semibold space-y-2 text-left">
+            <p>
+              Key Phrase: <b>{currentAcronym?.keyPhrase ?? ''}</b>
+            </p>
           </div>
+        ) : (
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#6A558D]">
+            {correctChoice?.text ?? 'No definition available'}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
           <div className="mt-6 flex gap-4">
             <button

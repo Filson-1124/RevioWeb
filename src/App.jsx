@@ -38,7 +38,6 @@ import STDloader from './ReviewerLoaders/STDloader'
 import AIloader from './ReviewerLoaders/AIloader'
 import Download from './pages/Download'
 
-// ✅ This wrapper ensures PomodoroControls only appears on certain routes
 const PomodoroWrapper = () => {
   const location = useLocation()
   const hidePomodoro = ['/', '/Register', '/ResetPassword'].includes(location.pathname)
@@ -52,11 +51,12 @@ const PomodoroWrapper = () => {
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    // ✅ Router root layout uses PomodoroWrapper so it’s inside Router context
     <Route element={<PomodoroWrapper />}>
+
       <Route path="/" element={<Login />} />
       <Route path="/Register" element={<Register />} />
       <Route path="/ResetPassword" element={<ForgotPassword />} />
+
 
       <Route path="/Main" element={<RootLayout />}>
         <Route path="Library" element={<LibraryLayout />}>
@@ -89,6 +89,12 @@ const router = createBrowserRouter(
 
         <Route path="Download" element={<Download />} />
         <Route path="Settings" element={<Settings />} />
+
+        <Route path="review/main/:id/:reviewerId" element={<Review />} loader={MainLoader} />
+        <Route path="review/acronym/:id/:reviewerId" element={<Review />} loader={ACloader} />
+        <Route path="review/terms/:id/:reviewerId" element={<Review />} loader={TDloader} />
+        <Route path="review/summarized/:id/:reviewerId" element={<Review />} loader={STDloader} />
+        <Route path="review/ai/:id/:reviewerId" element={<Review />} loader={AIloader} />
       </Route>
     </Route>
   )
@@ -99,7 +105,6 @@ const App = () => {
     <AuthProvider>
       <AudioProvider>
         <PomodoroProvider>
-          {/* ✅ PomodoroWrapper is now *inside* RouterProvider */}
           <RouterProvider router={router} />
           <ToastContainer position="top-center" autoClose={3000} />
         </PomodoroProvider>
