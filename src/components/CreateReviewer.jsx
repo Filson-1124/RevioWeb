@@ -5,7 +5,22 @@ import { CiCirclePlus } from "react-icons/ci"
 import { IoClose } from "react-icons/io5"
 import { useAuth } from '../components/AuthContext'
 import LoadingBar from './LoadingBar'
-const API_URL = import.meta.env.VITE_API_URL
+
+// ✅ Automatically detect correct backend base URL
+const getBaseUrl = () => {
+  // 1️⃣ Use .env if set
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL
+
+  // 2️⃣ Localhost for PC testing
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:5000'
+  }
+
+  // 3️⃣ Dynamic IP for phone testing on same Wi-Fi
+  return `http://${window.location.hostname}:5000`
+}
+
+const API_URL = getBaseUrl()
 
 const CreateReviewer = () => {
   const [searchParams] = useSearchParams()
@@ -24,7 +39,7 @@ const CreateReviewer = () => {
 
   const handleCreateReviewer = async () => {
     if (!selectedFile || !currentUser) {
-      alert("An error occured. There was a problem processing the file.")
+      alert("An error occurred. There was a problem processing the file.")
       return
     }
 
