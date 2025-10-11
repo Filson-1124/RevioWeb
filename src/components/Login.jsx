@@ -54,11 +54,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsLoggingIn(true)
+  
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
       if (user.emailVerified) {
+        setIsLoggingIn(true)
         setIsLoggedIn(true)
         setIsDone(true)
         toast.success("User logged in successfully")

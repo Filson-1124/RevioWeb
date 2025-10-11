@@ -76,22 +76,29 @@ const Review = () => {
           Back
         </button>
       </div>
-
-      <h1 className='text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center'>{currentTitle}</h1>
+      
+      {!isAcronymCard && (
+  <h1 className="text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center">
+    {currentTitle}
+  </h1>
+)}
 
       {isFlashcard && (
         <>
           {/* Flashcard Section */}
-          <div className="relative w-[90vw] sm:w-[35rem] md:w-[38rem] lg:w-[50rem] xl:w-[60rem] h-[18rem] sm:h-[20rem] md:h-[25rem] lg:h-[28rem] xl:h-[30rem] perspective transition-all duration-500">
+          <div className="relative w-[90vw] sm:w-[35rem] md:w-[38rem] lg:w-[50rem] xl:w-[35rem] h-[18rem] sm:h-[35rem] md:h-[25rem] lg:h-[28rem] xl:h-[30rem] perspective transition-all duration-500">
             <div
               className={`transition-transform duration-500 [transform-style:preserve-3d] w-full h-full ${flipped ? 'rotate-y-180' : ''}`}
               onClick={handleFlip}
             >
               {/* FRONT SIDE */}
-              <div className="absolute w-full h-full [backface-visibility:hidden] bg-[#8267B1] rounded-2xl shadow-lg flex flex-col items-center justify-center p-2 md:p-8 text-center cursor-pointer">
+        <div  className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-10 md:p-4 text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'
+  }`}
+>
+              {isAcronymCard?<h1 className="text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center"> {currentTitle}</h1>:""}
                 {isAcronymCard ? (
                   <div className="scroll-container bg-[#5C5C76] p-2 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto">
-                    <div className="text-center text-lg md:text-3xl font-extrabold tracking-widest leading-loose">
+                    <div className="text-start text-lg md:text-lg font-extrabold tracking-widest leading-loose place-self-center">
                       {currentAcronym?.contents?.map((item, index) => (
                         <p key={index} className="first-letter:text-[#E4FF35] text-white font-poppinsbold">
                           {item?.word ?? ''}
@@ -100,28 +107,36 @@ const Review = () => {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white">
+                  <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white place-self-center">
                     {current?.term ?? 'No term available'}
                   </p>
                 )}
               </div>
 
     {/* BACK SIDE */}
-    <div className="absolute w-full h-full [backface-visibility:hidden] rotate-y-180 bg-[#FFF8AA] rounded-2xl shadow-lg flex items-center justify-center p-6 md:p-10 text-center cursor-pointer">
-      <div className="scroll-container w-full h-full overflow-y-auto">
-        {isAcronymCard ? (
-          <div className="text-[#6A558D] text-lg md:text-2xl font-semibold space-y-2 text-left">
-            <p>
-              Key Phrase: <b>{currentAcronym?.keyPhrase ?? ''}</b>
-            </p>
-          </div>
-        ) : (
-          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#6A558D]">
-            {correctChoice?.text ?? 'No definition available'}
-          </p>
-        )}
-      </div>
-    </div>
+   <div  className={`absolute w-full h-full [backface-visibility:hidden] rotate-y-180 rounded-2xl shadow-lg flex flex-col items-center justify-center p-10 md:p-4 text-center cursor-pointer ${isAcronymCard ? 'bg-[#5C5C76]' : 'bg-[#FFF8AA]'
+  }`}
+>
+  
+  <div className="scroll-container text-white w-full h-full overflow-y-auto flex flex-col items-center justify-center text-center">
+      {isAcronymCard?<h1 className='text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center'> Key Phrases</h1>:""}
+    {isAcronymCard ? (
+      
+      <div className="bg-[#2E2E40] h-[80%] min-w-[100%] rounded-2xl text-lg md:text-2xl font-semibold flex items-center justify-center text-center">
+  <p className="text-white">
+    <b>{currentAcronym?.keyPhrase ?? ''}</b>
+  </p>
+</div>
+
+    ) : (
+      <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#6A558D] text-center">
+        {correctChoice?.text ?? 'No definition available'}
+      </p>
+    )}
+  </div>
+</div>
+
+    
   </div>
 </div>
 

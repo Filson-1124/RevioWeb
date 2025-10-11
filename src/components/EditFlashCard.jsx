@@ -5,13 +5,17 @@ import { FaSave } from "react-icons/fa";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, collection, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import editLoadingScreen from "../assets/editingLoadingScreen3.png"
+import LoadingBar from './LoadingBar'
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const EditFlashCard = () => {
   const reviewer = useLoaderData()
   const navigate = useNavigate()
-
+  const [isCreating,setIsCreating]=useState(false)
+  const [isDone,setIsDone]=useState(false)
+const [fadeOut, setFadeOut] = useState(false)
   // initialize state from loader but ensure sorting / stable shapes
   const [questions, setQuestions] = useState(() => reviewer?.questions || [])
   const [content, setContent] = useState(() => reviewer?.content || [])
@@ -171,8 +175,10 @@ const EditFlashCard = () => {
 
   //Save edited items to Firestore
   const handleSave = async () => {
+   
     try {
       const user = auth.currentUser;
+     
       if (!user) {
         alert("Not logged in");
         return;
@@ -203,6 +209,8 @@ const EditFlashCard = () => {
           }
         }
       }
+       setIsCreating(true)
+    
 
       const reviewerRef = doc(
         db,
@@ -337,6 +345,8 @@ const EditFlashCard = () => {
           }
         }
       }
+      setIsDone(true)
+       setIsCreating(false)
 
       alert("Changes saved successfully!");
     } catch (error) {
@@ -355,6 +365,22 @@ const EditFlashCard = () => {
       ];
     });
   };
+
+   if (isCreating) {
+    return (
+      <div
+        className={`min-h-screen flex flex-col justify-center items-center text-center p-4 transition-opacity duration-700 ${
+          fadeOut ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        <img src={editLoadingScreen} alt="creationLoadingScreen" className="w-70 sm:w-72 md:w-110 mb-6" />
+        <p className="text-[#9898D9] font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
+          {isDone ? "Editing Complete!" : "Revio is editing your reviewer, please wait..."}
+        </p>
+        <LoadingBar isDone={isDone} />
+      </div>
+    )
+  }
 
   //Add new acronym flashcard
   const handleAddAC = () => {
