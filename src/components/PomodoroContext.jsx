@@ -7,7 +7,7 @@ export const PomodoroProvider = ({ children }) => {
 
   const normalBreak=(5*60)
   const longBreak=(15*60)
-  const focus=(25*60)
+  const focus=(0.1*60)
   const [isRunning, setIsRunning] = useState(false)
   const [timeLeft, setTimeLeft] = useState(focus) // default: 25 mins
   const [mode, setMode] = useState('focus') // 'focus' | 'break' | 'longBreak'

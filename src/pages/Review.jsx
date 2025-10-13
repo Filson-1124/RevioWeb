@@ -70,7 +70,7 @@ const Review = () => {
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="absolute left-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className='md:size-5' />
           Back

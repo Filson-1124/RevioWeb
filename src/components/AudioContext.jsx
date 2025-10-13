@@ -103,9 +103,9 @@ export const AudioProvider = ({ children }) => {
         volume,
       }}
     >
-      <audio ref={audioRef} className="hidden" controls={false}>
+      <audio ref={audioRef} className="hidden" controls={false} loop >
         {currentTrack?.audio && (
-          <source src={currentTrack.audio} type="audio/mpeg" />
+          <source src={currentTrack.audio} type="audio/mpeg"  />
         )}
         Your browser does not support audio.
       </audio>

@@ -16,7 +16,7 @@ const RootLayout = () => {
         <NavBar />
 
         <div
-          className="flex-1 overflow-y-auto pb-[10%] md:pb-0 md:ml-[6rem] relative z-0"
+          className="flex-1 overflow-y-auto pb-[10%] md:pb-0  relative z-0"
         >
           <Outlet />
         </div>

@@ -105,8 +105,19 @@ const CreateReviewer = () => {
         setFadeOut(false)
       }, 1500)
     } catch (err) {
-      console.error("Error creating reviewer:", err)
-      alert("Failed to create reviewer.")
+     console.error("Error creating reviewer:", err)
+      const errText = err?.message || ""
+      // Added backend error handling
+      if (errText.includes("Text content is too large")) {
+        alert("The text is too long (max ~416,000 characters). Please shorten it and try again.")
+      } else if (errText.includes("Failed to generate content with GPT")) {
+        alert("An error occurred while generating content with GPT. Please try again.")
+      } else if (errText.includes("empty") || errText.includes("meaningless")|| errText.includes("meaningful")
+        || errText.includes("No content")) {
+        alert(errText) 
+      } else {
+        alert("Failed to create reviewer. Please try again.")
+      }
       setIsDone(true)
       setTimeout(() => {
         setIsCreating(false)

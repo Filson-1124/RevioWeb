@@ -4,15 +4,18 @@ import gamifiedLogo from '../assets/gamifiedLogo.png'
 import { auth, db } from '../components/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
+import { LuArrowLeft } from "react-icons/lu"
+import { useNavigate } from 'react-router-dom'
 
 const Gamified = () => {
   const reviewer = useLoaderData()
   const isAcronym = reviewer.id.startsWith('ac')
   const questions = isAcronym ? reviewer.content : reviewer.questions
+  const navigate = useNavigate()
 
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(questions.length * 50000000)
+  const [timeLeft, setTimeLeft] = useState(questions.length * 120)
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [startTime] = useState(Date.now())
   const [showResults, setShowResults] = useState(false)
@@ -159,7 +162,9 @@ const Gamified = () => {
   // Splash screen
   if (showSplash) {
     return (
+      
       <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center">
+     
         <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
         <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
           <b className="font-poppinsbold">Direction:</b><br />
@@ -180,6 +185,16 @@ const Gamified = () => {
   // Main game screen
   return (
     <div className="min-h-screen bg-[#121212] text-white w-full p-4 sm:p-6 flex flex-col items-center relative overflow-x-hidden">
+       <div className="w-full flex justify-between items-center relative mb-6">
+              <button
+                onClick={() => navigate(-1)}
+                className=" md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+              >
+                <LuArrowLeft size={18} className='md:size-5' />
+                Back
+              </button>
+            </div>
+      
       {countdown !== null && (
         <div className="absolute inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center text-6xl sm:text-8xl font-bold text-white">
           {countdown}

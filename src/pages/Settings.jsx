@@ -127,19 +127,9 @@ const Settings = () => {
             className="bg-[#252533] text-white p-2 rounded-md"
           />
 
-          <label className="text-white font-poppins text-sm sm:text-base">
-            Password:
-          </label>
-          <input
-            type="password"
-            value="********"
-            readOnly
-            className="bg-[#252533] text-white p-2 rounded-md"
-          />
+         
 
-          <button className="bg-[#B5B5FF] text-[#200448] font-poppins rounded-md py-2 mt-4 hover:opacity-90 transition">
-            Change Password
-          </button>
+       
         </div>
 
         {/* Avatar Section */}
