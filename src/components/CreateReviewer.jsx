@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { CiCirclePlus } from "react-icons/ci"
 import { IoClose } from "react-icons/io5"
 import { useAuth } from '../components/AuthContext'
+import { LuArrowLeft } from "react-icons/lu"
 import LoadingBar from './LoadingBar'
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -185,6 +186,15 @@ const CreateReviewer = () => {
 
   return (
     <div className="flex flex-col text-white w-full items-center px-4 sm:px-8 md:px-[5%] py-10">
+        <div className="w-full flex justify-between items-center relative mb-6">
+              <button
+                onClick={() => navigate(-1)}
+                className="absolute left-0 top-[-4] md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+              >
+                <LuArrowLeft size={18} className='md:size-5' />
+                Back
+              </button>
+            </div>
       <div className="w-full sm:w-[90%] md:w-[80%] text-center md:text-left mb-10">
         {title ? (
           <>

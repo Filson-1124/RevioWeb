@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { LuArrowLeft } from "react-icons/lu"
 import { IoArrowRedoSharp, IoArrowUndo, IoGameController } from "react-icons/io5"
+import { IoMdStarOutline } from "react-icons/io";
+import { FaRegLightbulb } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa"
 
 const Review = () => {
@@ -66,7 +68,7 @@ const Review = () => {
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
-    <div className='flex flex-col items-center justify-start min-h-screen bg-[#121212] pt-6 px-4 md:px-10'>
+    <div className='flex flex-col items-center justify-start min-h-screen bg-[#121212] pt-6 pb-10 md:pb-0 px-4 gap-7 md:px-10'>
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
@@ -85,27 +87,40 @@ const Review = () => {
 
       {isFlashcard && (
         <>
+
+        {isAcronymCard? <div className="flex flex-col md:flex-row lg:flex-row xl:flex-row justify-end  md:justify-between items-center gap-10 ">
+  <h1 className="text-white text-2xl md:text-3xl font-bold">
+    {reviewer.title}
+  </h1>
+  <p className="text-sm text-gray-300 italic place-self-start">
+    Click to flip to reveal the key phrase
+  </p>
+</div>:""}
+      
+
+      
           {/* Flashcard Section */}
-          <div className="relative w-[90vw] sm:w-[35rem] md:w-[38rem] lg:w-[50rem] xl:w-[35rem] h-[18rem] sm:h-[35rem] md:h-[25rem] lg:h-[28rem] xl:h-[30rem] perspective transition-all duration-500">
+          <div className="relative w-[90vw] sm:w-[35rem] md:w-[38rem] lg:w-[50rem] xl:w-[35rem] h-[18rem] sm:h-[35rem] md:h-[25rem] lg:h-[23rem] xl:h-[25rem] perspective transition-all duration-500">
             <div
               className={`transition-transform duration-500 [transform-style:preserve-3d] w-full h-full ${flipped ? 'rotate-y-180' : ''}`}
               onClick={handleFlip}
             >
               {/* FRONT SIDE */}
-        <div  className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-10 md:p-4 text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'
+        <div  className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'
   }`}
 >
-              {isAcronymCard?<h1 className="text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center"> {currentTitle}</h1>:""}
+              {isAcronymCard?<h1 className="text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center"> {currentTitle}</h1>:""}
                 {isAcronymCard ? (
-                  <div className="scroll-container bg-[#5C5C76] p-2 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto">
-                    <div className="text-start text-lg md:text-lg font-extrabold tracking-widest leading-loose place-self-center">
-                      {currentAcronym?.contents?.map((item, index) => (
-                        <p key={index} className="first-letter:text-[#E4FF35] text-white font-poppinsbold">
-                          {item?.word ?? ''}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
+                <div className="scroll-container bg-[#5C5C76] p-3 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto flex">
+  <div className="m-auto text-center text-lg md:text-lg font-extrabold tracking-widest leading-loose font-poppinsbold">
+    {currentAcronym?.contents?.map((item, index) => (
+      <p key={index} className="first-letter:text-[#E4FF35] text-white">
+        {item?.word ?? ''}
+      </p>
+    ))}
+  </div>
+</div>
+
                 ) : (
                   <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white place-self-center">
                     {current?.term ?? 'No term available'}
@@ -129,7 +144,7 @@ const Review = () => {
 </div>
 
     ) : (
-      <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#6A558D] text-center">
+      <p className="text-sm md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
         {correctChoice?.text ?? 'No definition available'}
       </p>
     )}
@@ -185,33 +200,33 @@ const Review = () => {
       {!isFlashcard && reviewer.sections && (
         <div className="text-white w-full max-w-3xl mt-10">
           {reviewer.sections.map((section, idx) => (
-            <div key={idx} className="mb-6">
-              <h2 className="text-xl font-semibold text-[#5EEAD4] mb-2">📘 {section.title}</h2>
-              <ul className="list-disc list-inside space-y-1 text-[#E2E8F0]">
+            <div key={idx} className="mb-6 ">
+              <h2 className="text-xl font-semibold text-[#B5B5FF] mb-2">📘 {section.title}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[#E2E8F0] border-2 border-[#FFF2AF] bg-[#43437d39] rounded-xl p-2">
                 {section.analogy ? (
                   <>
                     <b>Explanation:</b><br />
                     <p>{section.explanation ?? ""}</p>
-                    <b>Analogy: </b><br />
+                    <b className='text-yellow-300 flex'><FaRegLightbulb />Analogy: </b>
                     <p className='ml-2.5'>{section.analogy ?? ""}</p>
 
                     {section.steps?.length > 0 && (
-                      <>
-                        <b>Steps:</b><br />
+                      <div className='text-[#d3d3d3] bg-[#4B556380] border-2 border-[#FDE68A] rounded-lg p-2'>
+                        <b className='text-[#C7D2FE]'>Steps:</b><br />
                         <ol className="list-decimal list-inside space-y-1">
                           {section.steps.map((step, i) => (
                             <li key={i}>{step}</li>
                           ))}
                         </ol>
-                      </>
+                      </div>
                     )}
 
                     {section.keyPoints?.length > 0 && (
                       <>
-                        <b>Key Points:</b><br />
-                        <ul className="list-disc list-inside space-y-1">
+                        <b className='text-[#FDE68A] font-black'>Key Points:</b><br />
+                        <ul className="list-disc list-inside space-y-1 text-[#fbfbffff] border-2 border-[#ff5e00ff] p-2 rounded-lg bg-[#43437d39]">
                           {section.keyPoints.map((point, i) => (
-                            <li key={i}>{point}</li>
+                            <li key={i} className='list-none flex gap-1'><IoMdStarOutline size={20} color='yellow' />{point}</li>
                           ))}
                         </ul>
                       </>
@@ -220,7 +235,8 @@ const Review = () => {
                 ) : (
                   <>
                     <p><b>Summary:</b></p>
-                    <h3>{section.summary}</h3>
+                    <h3 className='text-[#fcfcfcff] border-2 p-2 rounded-xl border-[#FFF2AF] bg-[#43437d]'>{section.summary}</h3>
+                  
                     {section.concept && (
                       <>
                         <b>Concepts:</b><br />
@@ -228,9 +244,10 @@ const Review = () => {
                         <p>{section.concept?.explanation ?? ""}</p>
                         <b>Examples:</b><br />
                         <p>{section.concept?.example ?? ""}</p>
-                      </>
+                     </>
                     )}
-                    <p><b>Key Takeaways:</b> {section.keyTakeaways ?? ""}</p>
+                     
+                    <p className='text-[#fdf2b3ff] font-bold'><b className='text-[#fff]'>Key Takeaways:</b> {section.keyTakeaways ?? ""}</p>
                   </>
                 )}
               </ul>

@@ -4,7 +4,7 @@ import { FaPlay, FaPause, FaRedoAlt, FaClock, FaForward } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const PomodoroControls = () => {
-  const { isRunning, startTimer, pauseTimer, resetTimer, skipPhase, formattedTime, mode } = usePomodoro()
+  const { isRunning, startTimer, pauseTimer, skipPhase, formattedTime, mode } = usePomodoro()
   const [open, setOpen] = useState(false)
   const [isShaking, setIsShaking] = useState(false)
   const [lastMode, setLastMode] = useState(mode)
@@ -23,10 +23,7 @@ const PomodoroControls = () => {
     }
   }, [mode, lastMode])
 
-  const handleReset = () => {
-    resetTimer()
-    setOpen(false)
-  }
+
 
   const handleSkip = () => {
     skipPhase()
@@ -102,12 +99,7 @@ const PomodoroControls = () => {
                   </button>
                 )}
 
-                <button
-                  onClick={handleReset}
-                  className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white w-10 h-10 flex items-center justify-center"
-                >
-                  <FaRedoAlt className="text-sm" />
-                </button>
+              
 
                 <button
                   onClick={handleSkip}

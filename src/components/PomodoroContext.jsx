@@ -1,30 +1,45 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react'
+import notif from '../assets/notification.mp3'
 
 const PomodoroContext = createContext()
 
 export const PomodoroProvider = ({ children }) => {
+  const normalBreak = 5 * 60
+  const longBreak = 15 * 60
+  const focus = 25 * 60
 
-
-  const normalBreak=(5*60)
-  const longBreak=(15*60)
-  const focus=(0.1*60)
   const [isRunning, setIsRunning] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(focus) // default: 25 mins
-  const [mode, setMode] = useState('focus') // 'focus' | 'break' | 'longBreak'
+  const [timeLeft, setTimeLeft] = useState(focus)
+  const [mode, setMode] = useState('focus')
   const [initialTime, setInitialTime] = useState(focus)
-  const [cycleCount, setCycleCount] = useState(0) // 🆕 Track completed focus sessions
+  const [cycleCount, setCycleCount] = useState(0)
 
   const intervalRef = useRef(null)
+  const audioRef = useRef(null)
+
+  // Load notification sound
+  useEffect(() => {
+    audioRef.current = new Audio(notif) // place the file in /public folder
+    audioRef.current.volume = 0.8
+  }, [])
+
+  const playNotification = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0
+      audioRef.current.play().catch((err) => console.warn('Audio playback blocked:', err))
+    }
+  }
 
   const startTimer = () => {
-    if (intervalRef.current) return // prevent duplicates
+    if (intervalRef.current) return
     setIsRunning(true)
     intervalRef.current = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(intervalRef.current)
           intervalRef.current = null
           setIsRunning(false)
+          playNotification() // 🔊 Play sound here
           switchPhase()
           return 0
         }
@@ -39,49 +54,39 @@ export const PomodoroProvider = ({ children }) => {
     intervalRef.current = null
   }
 
-  const resetTimer = () => {
-    pauseTimer()
-    setTimeLeft(initialTime)
-  }
-
   const setCustomTime = (minutes) => {
     pauseTimer()
     setInitialTime(minutes * 60)
     setTimeLeft(minutes * 60)
   }
 
-  // 🆕 Skip to next phase manually
   const skipPhase = () => {
     pauseTimer()
+    playNotification() // optional: play sound when skipping
     switchPhase()
   }
 
-  // 🧠 Switch between focus / short break / long break
   const switchPhase = () => {
     if (mode === 'focus') {
       const newCycle = cycleCount + 1
       setCycleCount(newCycle)
 
-      if (newCycle  === 4) {
-        // 🕒 After 4th focus, long break
+      if (newCycle === 4) {
         setMode('longBreak')
         setInitialTime(longBreak)
         setTimeLeft(longBreak)
       } else {
-        // 🕒 Normal short break
         setMode('break')
         setInitialTime(normalBreak)
         setTimeLeft(normalBreak)
       }
     } else {
-      // 🧩 After a break or long break, go back to focus
       setMode('focus')
       setInitialTime(focus)
       setTimeLeft(focus)
     }
   }
 
-  // Cleanup
   useEffect(() => {
     return () => clearInterval(intervalRef.current)
   }, [])
@@ -98,13 +103,12 @@ export const PomodoroProvider = ({ children }) => {
         isRunning,
         startTimer,
         pauseTimer,
-        resetTimer,
-        skipPhase, // 🆕 Skip feature exposed
+        skipPhase,
         setCustomTime,
         timeLeft,
         formattedTime,
         mode,
-        cycleCount, // 🆕 Optional display
+        cycleCount,
       }}
     >
       {children}
