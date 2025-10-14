@@ -69,7 +69,9 @@ const Gamified = () => {
   const checkAcro = (answers, correctAnswers) => {
     let perfect = true
     for (let i = 0; i < correctAnswers.length; i++) {
-      if (answers[i].toUpperCase() !== correctAnswers[i].toUpperCase()) {
+      console.log(answers[i].toUpperCase())
+      console.log(correctAnswers[i].toUpperCase())
+      if (answers[i].trim().toUpperCase() !== correctAnswers[i].trim().toUpperCase()) {
         perfect = false
         break
       }
