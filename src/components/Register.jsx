@@ -3,28 +3,32 @@ import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth, db } from './firebase';
-import { setDoc, doc, query, where, getDocs } from "firebase/firestore";
+import { setDoc, doc, query, where, getDocs, collection } from "firebase/firestore";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
-import { collection } from 'firebase/firestore';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
+  // Form fields
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [iniPassword, setIniPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [showPass, setShowpass] = useState(false);
 
+  // Password rules
   const [isUpCase, setIsUpperCase] = useState(false);
   const [isNumber, setIsNumber] = useState(false);
   const [isLength, setIsLength] = useState(false);
 
+  // Button states
   const [isDisabled, setIsDisabled] = useState(true);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
+  // Helper to check uppercase
   const isUpperCase = (char) => char === char.toUpperCase() && char !== char.toLowerCase();
 
+  // Check password strength and form validity
   useEffect(() => {
     const hasLength = iniPassword.length >= 8;
     let hasUpper = false;
@@ -53,6 +57,7 @@ const Register = () => {
     setIsSubmitDisabled(!allValid);
   }, [iniPassword, username, email, rePassword]);
 
+  // Handle signup submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -62,11 +67,14 @@ const Register = () => {
     }
 
     try {
+      // Create Firebase Auth user
       const userCredential = await createUserWithEmailAndPassword(auth, email.toLowerCase(), iniPassword);
       const user = userCredential.user;
 
+      // Send verification email
       await sendEmailVerification(user);
 
+      // Check if username is already taken
       const q = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
       const snapshot = await getDocs(q);
 
@@ -76,65 +84,77 @@ const Register = () => {
         return;
       }
 
+      // Save user info in Firestore
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         username: username.toLowerCase()
       });
 
+      await Promise.all([
+        setDoc(doc(db, `users/${user.uid}/folders`, 'AcronymMnemonics'), {
+          id: 'AcronymMnemonics',
+          title: 'Acronym Mnemonics Flashcards',
+          Desc: 'This folder contains flashcards using acronyms + key phrases'
+        }),
+        setDoc(doc(db, `users/${user.uid}/folders`, 'TermsAndDefinitions'), {
+          id: 'TermsAndDefinitions',
+          title: 'Terms and Definitions Flashcards',
+          Desc: 'This folder contains flashcards using Terms and Definitions'
+        }),
+        setDoc(doc(db, `users/${user.uid}/folders`, 'SummarizedReviewers'), {
+          id: 'SummarizedReviewers',
+          title: 'Summarized Reviewers',
+          Desc: 'This folder contains Standard Summarized Reviewers'
+        }),
+        setDoc(doc(db, `users/${user.uid}/folders`, 'SummarizedAIReviewers'), {
+          id: 'SummarizedAIReviewers',
+          title: 'Summarized AI Reviewers',
+          Desc: 'This folder contains Summarized Reviewers with AI explanation'
+        }),
+      ]);
+
       toast.success("Account created! Verification email sent.");
     } catch (error) {
-  console.error(error);
-  
-  switch (error.code) {
-    case "auth/email-already-in-use":
-      toast.error("This email is already registered. Try logging in instead.");
-      break;
+      console.error(error);
 
-    case "auth/invalid-email":
-      toast.error("Please enter a valid email address.");
-      break;
-
-    case "auth/weak-password":
-      toast.error("Your password is too weak. Use at least 6 characters.");
-      break;
-
-    case "auth/missing-email":
-      toast.error("Email field cannot be empty.");
-      break;
-
-    case "auth/missing-password":
-      toast.error("Password field cannot be empty.");
-      break;
-
-    case "auth/network-request-failed":
-      toast.error("Network error. Please check your internet connection.");
-      break;
-
-    case "auth/operation-not-allowed":
-      toast.error("Email sign-up is currently disabled. Contact support.");
-      break;
-
-    case "auth/too-many-requests":
-      toast.error("Too many attempts. Please try again later.");
-      break;
-
-    case "auth/internal-error":
-      toast.error("Something went wrong on our end. Please try again.");
-      break;
-
-    case "auth/invalid-api-key":
-      toast.error("Invalid API configuration. Please contact support.");
-      break;
-
-    case "auth/app-not-authorized":
-      toast.error("This app is not authorized to use Firebase Authentication.");
-      break;
-
-    default:
-      toast.error(error.message || "Something went wrong during registration.");
-  }
-}
-
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          toast.error("This email is already registered. Try logging in instead.");
+          break;
+        case "auth/invalid-email":
+          toast.error("Please enter a valid email address.");
+          break;
+        case "auth/weak-password":
+          toast.error("Your password is too weak. Use at least 6 characters.");
+          break;
+        case "auth/missing-email":
+          toast.error("Email field cannot be empty.");
+          break;
+        case "auth/missing-password":
+          toast.error("Password field cannot be empty.");
+          break;
+        case "auth/network-request-failed":
+          toast.error("Network error. Please check your internet connection.");
+          break;
+        case "auth/operation-not-allowed":
+          toast.error("Email sign-up is currently disabled. Contact support.");
+          break;
+        case "auth/too-many-requests":
+          toast.error("Too many attempts. Please try again later.");
+          break;
+        case "auth/internal-error":
+          toast.error("Something went wrong on our end. Please try again.");
+          break;
+        case "auth/invalid-api-key":
+          toast.error("Invalid API configuration. Please contact support.");
+          break;
+        case "auth/app-not-authorized":
+          toast.error("This app is not authorized to use Firebase Authentication.");
+          break;
+        default:
+          toast.error(error.message || "Something went wrong during registration.");
+      }
+    }
   };
 
   return (
@@ -227,7 +247,7 @@ const Register = () => {
               "
               type="submit"
             >
-              Sign in
+              Sign up
             </button>
           </form>
 

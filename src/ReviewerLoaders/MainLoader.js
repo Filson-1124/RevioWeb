@@ -1,6 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../components/firebase";
-import { loadTermsAndCondition } from "./TDloader";
+import {loadTermsAndDefinitions} from "./TDloader";
 import { loadAcronymMnemonics } from "./ACloader";
 import { loadSummarizedReviewers } from "./STDloader";
 import { loadSummarizedAIReviewers } from "./AIloader";
@@ -20,7 +20,7 @@ export const reviewerQuestionsLoader = async ({ params }) => {
     const { id: folderId } = params;
 
     const map = {
-      TermsAndCondition: loadTermsAndCondition,
+      TermsAndDefinitions: loadTermsAndDefinitions,
       AcronymMnemonics: loadAcronymMnemonics,
       SummarizedReviewers: loadSummarizedReviewers,
       SummarizedAIReviewers: loadSummarizedAIReviewers,

@@ -63,12 +63,10 @@ const CreateReviewer = () => {
 
       const data = await response.json()
       console.log("Reviewer created:", data)
-      console.log("🔍 Debug — folderId:", folderId, "type:", type, "searchParams:", [...searchParams.entries()])
 
       setIsDone(true)
 
-      // Wait for backend + Firestore sync
-      // total delay = creation process + smooth transition (≈ 3 seconds)
+      // Wait for backend and Firestore sync
       setTimeout(async () => {
         const reviewerId = data?.reviewers?.[0]?.id
         if (!reviewerId) {
