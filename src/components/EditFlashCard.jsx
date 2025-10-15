@@ -122,7 +122,6 @@ const EditFlashCard = () => {
         reviewer.id
       )
 
-      // ✅ Save title
       await updateDoc(reviewerRef, { title })
 
       // Delete removed items
@@ -167,12 +166,20 @@ const EditFlashCard = () => {
         }
       }
 
-      // ✅ Finish loading
+      if (isAcronym) {
+        navigate(`/Main/review/acronym/${reviewer.folderId}/${reviewer.id}`)
+      } else if (isTermDef) {
+        navigate(`/Main/review/terms/${reviewer.folderId}/${reviewer.id}`)
+      }
+
       setIsDone(true)
       setTimeout(() => {
-        setIsCreating(false)
-        alert("Changes saved successfully!")
-        setIsDone(false)
+      setIsCreating(false)
+      setIsDone(false)
+
+       
+   
+
       }, 800)
 
     } catch (error) {
@@ -416,7 +423,7 @@ export const editFlashCardLoader = async ({ params }) => {
     //Detect type by folderId
     let type = "flashcard";
     if (folderId === "AcronymMnemonics") type = "acronym";
-    else if (folderId === "TermsAndCondition") type = "terms";
+    else if (folderId === "TermsAndDefinitions") type = "terms";
 
     if (type === "terms") {
       const questionsRef = collection(reviewerRef, "questions");

@@ -16,7 +16,6 @@ export async function loadAcronymMnemonics({ params }) {
   const user = await getUser();
   const { reviewerId, id: folderId } = params;
 
-
   if (!user?.uid) throw new Error("User UID is undefined — check authentication.");
   if (!folderId) throw new Error("folderId is undefined — check your route path (:id param).");
   if (!reviewerId) throw new Error("reviewerId is undefined — check your route path (:reviewerId param).");
@@ -53,6 +52,8 @@ export async function loadAcronymMnemonics({ params }) {
     contentSnap.docs.map(async (contentDoc) => {
       const contentData = contentDoc.data();
 
+      const numericId = parseInt(contentDoc.id.match(/\d+/)?.[0] || 0, 10);
+
       const contentsRef = collection(
         db,
         "users",
@@ -69,14 +70,18 @@ export async function loadAcronymMnemonics({ params }) {
       const contentsSnap = await getDocs(contentsRef);
 
       const contents = contentsSnap.docs
-        .map((d) => ({
-          id: Number(d.data().id),
-          ...d.data(),
-        }))
+        .map((d) => {
+          const rawId = d.data().id ?? d.id;
+          const innerNumericId = parseInt(rawId.toString().match(/\d+/)?.[0] || 0, 10);
+          return {
+            id: innerNumericId,
+            ...d.data(),
+          };
+        })
         .sort((a, b) => a.id - b.id);
 
       return {
-        id: Number(contentDoc.id),
+        id: numericId, 
         title: contentData.title,
         keyPhrase: contentData.keyPhrase,
         contents,
@@ -84,10 +89,10 @@ export async function loadAcronymMnemonics({ params }) {
     })
   );
 
-  //Sort outer content numerically by id
   const sortedContent = content.sort((a, b) => a.id - b.id);
 
   reviewerData.content = sortedContent;
+
   return {
     id: reviewerId,
     ...reviewerData,

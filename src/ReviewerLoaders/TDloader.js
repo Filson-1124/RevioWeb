@@ -12,7 +12,7 @@ const getUser = () =>
     });
   });
 
-export async function loadTermsAndCondition({ params }) {
+export async function loadTermsAndDefinitions({ params }) {
   const user = await getUser();
   const { reviewerId, id: folderId } = params;
 
@@ -55,4 +55,4 @@ export async function loadTermsAndCondition({ params }) {
   };
 }
 
-export default loadTermsAndCondition;
+export default loadTermsAndDefinitions;

@@ -364,7 +364,7 @@ export const gamifiedLoader = async ({ params }) => {
   try {
     const user = await getUser();
 
-    if (folderId === "TermsAndCondition") {
+    if (folderId === "TermsAndDefinitions") {
       const reviewerRef = doc(
         db,
         "users",
