@@ -1,3 +1,4 @@
+// Imports
 import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { LuArrowLeft } from "react-icons/lu"
@@ -9,7 +10,7 @@ import { FaEdit } from "react-icons/fa"
 const Review = () => {
   const reviewer = useLoaderData()
 
-  //Sort the questions (terms) numerically based on their IDs
+  // Sort the questions (terms) numerically based on their IDs
   const sortedQuestions = reviewer.questions
     ? [...reviewer.questions].sort((a, b) => {
         const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
@@ -18,7 +19,7 @@ const Review = () => {
       })
     : []
 
-  //Sort acronym content numerically
+  // Sort acronym content numerically based on their IDs
   const sortedContent = reviewer.content
     ? [...reviewer.content].sort((a, b) => {
         const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
@@ -86,25 +87,33 @@ const Review = () => {
       </div>
       
       {!isAcronymCard && (
-  <h1 className="text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center">
-    {currentTitle}
-  </h1>
-)}
+        <>
+      
+        </>
+      )}
 
       {isFlashcard && (
         <>
 
-        {isAcronymCard? <div className="flex flex-col md:flex-row lg:flex-row xl:flex-row justify-end  md:justify-between items-center gap-10 ">
-  <h1 className="text-white text-2xl md:text-3xl font-bold">
-    {reviewer.title}
-  </h1>
-  <p className="text-sm text-gray-300 italic place-self-start">
-    Click to flip to reveal the key phrase
-  </p>
-</div>:""}
-      
+        {isAcronymCard? 
+        <div className="flex flex-col justify-end  md:justify-between items-center gap-5 ">
+          <h1 className="text-white text-2xl md:text-3xl font-bold">
+            {reviewer.title}
+          </h1>
+          <p className="text-sm text-gray-300 italic place-self-start">
+            Click to flip to reveal the key phrase
+          </p>
+        </div>
+        : 
+        <div className="flex flex-col  md:justify-between items-center gap-5 place-self-center ">
+          <h1 className="text-white text-2xl md:text-3xl font-bold">
+            {reviewer.title}
+          </h1>
+          <p className="text-sm text-gray-300 italic place-self-start">
+            Click to flip to reveal the definition
+          </p>
+        </div>}
 
-      
           {/* Flashcard Section */}
           <div className="relative w-[90vw] sm:w-[35rem] md:w-[38rem] lg:w-[50rem] xl:w-[35rem] h-[18rem] sm:h-[35rem] md:h-[25rem] lg:h-[23rem] xl:h-[25rem] perspective transition-all duration-500">
             <div
@@ -112,21 +121,25 @@ const Review = () => {
               onClick={handleFlip}
             >
               {/* FRONT SIDE */}
-        <div  className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'
-  }`}
->
-              {isAcronymCard?<h1 className="text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center"> {currentTitle}</h1>:""}
-                {isAcronymCard ? (
-                <div className="scroll-container bg-[#5C5C76] p-3 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto flex">
-  <div className="m-auto text-center text-lg md:text-lg font-extrabold tracking-widest leading-loose font-poppinsbold">
-    {currentAcronym?.contents?.map((item, index) => (
-      <p key={index} className="first-letter:text-[#E4FF35] text-white">
-        {item?.word ?? ''}
-      </p>
-    ))}
-  </div>
-</div>
+              <div  
+                className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'}`}
+              >
+                {isAcronymCard ?
+                  <h1 className="text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center"> 
+                    {currentTitle}
+                  </h1>
+                : ""}
 
+                {isAcronymCard ? (
+                  <div className="scroll-container bg-[#5C5C76] p-3 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto flex">
+                    <div className="m-auto text-center text-lg md:text-lg font-extrabold tracking-widest leading-loose font-poppinsbold">
+                      {currentAcronym?.contents?.map((item, index) => (
+                        <p key={index} className="first-letter:text-[#E4FF35] text-white">
+                          {item?.word ?? ''}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white place-self-center">
                     {current?.term ?? 'No term available'}
@@ -134,35 +147,27 @@ const Review = () => {
                 )}
               </div>
 
-    {/* BACK SIDE */}
-   <div  className={`absolute w-full h-full [backface-visibility:hidden] rotate-y-180 rounded-2xl shadow-lg flex flex-col items-center justify-center p-10 md:p-4 text-center cursor-pointer ${isAcronymCard ? 'bg-[#5C5C76]' : 'bg-[#FFF8AA]'
-  }`}
->
-  
-  <div className="scroll-container text-white w-full h-full overflow-y-auto flex flex-col items-center justify-center text-center">
-      {isAcronymCard?<h1 className='text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center'> Key Phrases</h1>:""}
-    {isAcronymCard ? (
-      
-      <div className="bg-[#2E2E40] h-[80%] min-w-[100%] rounded-2xl text-lg md:text-2xl font-semibold flex items-center justify-center text-center">
-  <p className="text-white">
-    <b>{currentAcronym?.keyPhrase ?? ''}</b>
-  </p>
-</div>
-
-    ) : (
-      <p className="text-sm md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
-        {correctChoice?.text ?? 'No definition available'}
-      </p>
-    )}
-  </div>
-</div>
-
-    
-  </div>
-</div>
-
-
-
+              {/* BACK SIDE */}
+              <div  
+                className={`absolute w-full h-full [backface-visibility:hidden] rotate-y-180 rounded-2xl shadow-lg flex flex-col items-center justify-center p-10 md:p-4 text-center cursor-pointer ${isAcronymCard ? 'bg-[#5C5C76]' : 'bg-[#FFF8AA]'}`}
+              >
+                <div className="scroll-container text-white w-full h-full overflow-y-auto flex flex-col items-center justify-center text-center">
+                  {isAcronymCard?<h1 className='text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center'> Key Phrases</h1>:""}
+                  {isAcronymCard ? (
+                    <div className="bg-[#2E2E40] h-[80%] min-w-[100%] rounded-2xl text-lg md:text-2xl font-semibold flex items-center justify-center text-center">
+                      <p className="text-white">
+                        <b>{currentAcronym?.keyPhrase ?? ''}</b>
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
+                      {correctChoice?.text ?? 'No definition available'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-6 flex gap-4">
             <button
@@ -205,16 +210,18 @@ const Review = () => {
       {/* Regular Reviewers */}
       {!isFlashcard && reviewer.sections && (
         <div className="text-white w-full max-w-3xl mt-10">
+          <h1 className='text-white font-black text-3xl mb-4'>{reviewer.title}</h1>
           {reviewer.sections.map((section, idx) => (
             <div key={idx} className="mb-6 ">
-              <h2 className="text-xl font-semibold text-[#e39fa2] mb-2">📘 {section.title}</h2>
-              <ul className="list-disc list-inside space-y-1 text-[#E2E8F0]  bg-transparent rounded-xl p-2">
+              <h2 className="text-xl font-black text-[#B5B5FF] mb-2">{section.title}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[#E2E8F0] bg-transparent rounded-xl p-2">
                 {section.analogy ? (
                   <>
-            
-                    <p>{section.explanation ?? ""}</p>
-                    <b className='text-yellow-300 flex mt-3'><FaRegLightbulb />Analogy: </b>
-                    <p className='ml-2.5'>{section.analogy ?? ""}</p>
+                    <p>{section.explanation ?? ""}</p> 
+                    <p className='ml-2.5 italic '>
+                      <b className='text-yellow-300 flex mt-3'><FaRegLightbulb />Analogy: </b>
+                      {section.analogy ?? ""}
+                    </p>
 
                     {section.steps?.length > 0 && (
                       <div className='text-[#d3d3d3] rounded-lg p-2'>
@@ -232,7 +239,9 @@ const Review = () => {
                         <b className='text-[#FDE68A] font-black'>Key Points:</b><br />
                         <ul className="list-disc list-inside space-y-1 text-[#fbfbffff] border-2 border-[#ff5e00ff] p-2 rounded-lg bg-[#43437d39]">
                           {section.keyPoints.map((point, i) => (
-                            <li key={i} className='list-none flex gap-1'><IoMdStarOutline size={20} color='yellow' />{point}</li>
+                            <li key={i} className='list-none flex gap-1'>
+                              <IoMdStarOutline size={20} color='yellow' />{point}
+                            </li>
                           ))}
                         </ul>
                       </>
@@ -240,20 +249,32 @@ const Review = () => {
                   </>
                 ) : (
                   <>
-                    <p><b>Summary:</b></p>
-                    <h3 className='text-[#fcfcfcff] border-2 p-2 rounded-xl border-[#FFF2AF] bg-[#43437d]'>{section.summary}</h3>
-                  
-                    {section.concept && (
-                      <>
-                        <b>Concepts:</b><br />
-                        <p><b>{section.concept?.term ?? ""}</b></p>
-                        <p>{section.concept?.explanation ?? ""}</p>
-                        <b>Examples:</b><br />
-                        <p>{section.concept?.example ?? ""}</p>
-                     </>
-                    )}
-                     
-                    <p className='text-[#fdf2b3ff] font-bold'><b className='text-[#fff]'>Key Takeaways:</b> {section.keyTakeaways ?? ""}</p>
+                    <h3 className='text-[#fcfcfcff] p-2 rounded-xl'>{section.summary}</h3>
+                    <div className='flex flex-col gap-2 mb-5'>
+                      {section.concepts.map((item,index)=>(
+                        <div key={index} className='bg-[#43437d39] p-2 rounded-sm border-2 border-[#FFF2AF]'>
+                          <h1 className='text-[#f48ab3ff] font-black'>{item.term}</h1>
+                          <h3 className='text-[#fcfbfbff] font-bold'>{item.explanation}</h3>
+                          {item.example ? (
+                            <p className='text-[#FFA500] italic'>
+                              <b>Example: </b>{item.example}
+                            </p>
+                          ) : ""}
+                        </div>
+                      ))}
+                    </div>
+
+                    <p><b className='text-[#fff]'>Key Takeaways</b></p>
+
+                    <div className='pl-10'>
+                      <ul className='flex flex-col list-disc'>
+                        {section.keyTakeaways.map((item,index)=>(
+                          <li key={index} className='text-[#fdf2b3ff] font-semibold'>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </>
                 )}
               </ul>

@@ -75,6 +75,8 @@ export const PomodoroProvider = ({ children }) => {
         setMode('longBreak')
         setInitialTime(longBreak)
         setTimeLeft(longBreak)
+        setCycleCount(0)
+
       } else {
         setMode('break')
         setInitialTime(normalBreak)

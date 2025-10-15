@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useLoaderData } from 'react-router-dom'
+import { useLoaderData, useNavigate } from 'react-router-dom'
 import gamifiedLogo from '../assets/gamifiedLogo.png'
+import gameOverLogo from '../assets/referee.png'
 import { auth, db } from '../components/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import { LuArrowLeft } from "react-icons/lu"
-import { useNavigate } from 'react-router-dom'
 
 const Gamified = () => {
   const reviewer = useLoaderData()
@@ -16,7 +16,7 @@ const Gamified = () => {
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
-  const tdTime = questions.length * 60
+  const tdTime = questions.length * 1
   const acTime = questions.length * 120
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [startTime] = useState(Date.now())
@@ -29,10 +29,10 @@ const Gamified = () => {
   const [shuffledChoices, setShuffledChoices] = useState([])
   const [answers, setAnswers] = useState([])
   const [currentCorrectAnswers, setCurrentCorrectAnswers] = useState([])
+  const [timeUp, setTimeUp] = useState(false)
 
   const current = index < questions.length ? questions[index] : null
 
-  // shuffle choices
   const shuffle = (array) => {
     let arr = [...array]
     for (let i = arr.length - 1; i > 0; i--) {
@@ -69,8 +69,6 @@ const Gamified = () => {
   const checkAcro = (answers, correctAnswers) => {
     let perfect = true
     for (let i = 0; i < correctAnswers.length; i++) {
-      console.log(answers[i].toUpperCase())
-      console.log(correctAnswers[i].toUpperCase())
       if (answers[i].trim().toUpperCase() !== correctAnswers[i].trim().toUpperCase()) {
         perfect = false
         break
@@ -80,7 +78,19 @@ const Gamified = () => {
     return perfect ? 'correct' : ''
   }
 
-  // countdown + timer
+  // Handle time up
+  const handleTimeUp = () => {
+    const unanswered = questions.slice(index) // all remaining questions
+    setWrongAnswers((prev) => [...prev, ...unanswered])
+    setTimeUp(true)
+    setShowSplash(true)
+    setTimeout(() => {
+      setShowSplash(false)
+      setShowResults(true)
+    }, 2000)
+  }
+
+  // Countdown
   useEffect(() => {
     if (countdown === 0) setCountdown(null)
     else if (countdown > 0) {
@@ -89,10 +99,18 @@ const Gamified = () => {
     }
   }, [countdown])
 
+  // Timer
   useEffect(() => {
     if (showResults || countdown !== null || showSplash) return
     const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev <= 1 ? (handleNext(), 0) : prev - 1))
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          handleTimeUp()
+          return 0
+        }
+        return prev - 1
+      })
     }, 1000)
     return () => clearInterval(timer)
   }, [index, showResults, countdown, showSplash])
@@ -133,13 +151,25 @@ const Gamified = () => {
 
   // Results screen
   const renderResults = () => {
-    const timeSpent = Math.ceil((Date.now() - startTime) / 1000)
+    const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
+    const totalAnswered = score + wrongAnswers.length
+
     return (
       <div className="text-center text-white w-full max-w-2xl px-4">
         <h2 className="text-2xl sm:text-3xl font-bold mb-4">Results</h2>
-        <p className="text-base sm:text-lg mb-2">Score: {score} / {questions.length}</p>
-        <p className="text-base sm:text-lg mb-6">Time spent: {timeSpent}s</p>
-        {wrongAnswers.length > 0 ? (
+        <p className="text-base sm:text-lg mb-2">
+          Score: {score} / {questions.length}
+        </p>
+        <p className="text-base sm:text-lg mb-6">Time spent: {timeDisplay}</p>
+
+        {totalAnswered === 0 ? (
+          <p className="text-lg text-yellow-400">
+            You didn’t answer any questions ⏰
+          </p>
+        ) : wrongAnswers.length > 0 ? (
           <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
             <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
             {wrongAnswers.map((item, i) => (
@@ -159,36 +189,48 @@ const Gamified = () => {
               </div>
             ))}
           </div>
-        ) : <p className="text-lg">No mistakes! 🎉</p>}
+        ) : (
+          <p className="text-lg">No mistakes! 🎉</p>
+        )}
       </div>
     )
   }
 
   // Splash screen
-  if (showSplash) {
+  if (showSplash && !showResults) {
     return (
       <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center">
-        <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
-        <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
-          <b className="font-poppinsbold">Direction:</b><br />
-          {isAcronym ? (
-            <> Fill in the blanks using the first letters shown. Type the complete word and press 'Submit Answer.' <br /> You must <b>double check</b> your answers before submitting!</>
-          ) : (
-            "Choose the correct definition!"
-          )}
-        </p>
-        <button
-          onClick={handleStart}
-          className="px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold transition w-[80%] sm:w-auto"
-        >
-          Start Game
-        </button>
-        <button
-          onClick={() => navigate(-1)}
-          className=" md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white  hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
-        >
-          Back
-        </button>
+        {timeUp ? (
+          <>
+            <img src={gameOverLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-pulse" />
+            <h1 className="text-3xl font-bold text-yellow-400 mb-2">Time’s Up!</h1>
+            <p className="text-[#9898D9] text-lg">Game Over ⏰</p>
+          </>
+        ) : (
+          <>
+            <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
+            <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
+              <b className="font-poppinsbold">How to play:</b><br />
+              {isAcronym ? (
+                <> Fill in the blanks using the first letters shown. Type the complete word and press 'Submit Answer.' <br /> You must <b>double check</b> your answers before submitting!</>
+              ) : (
+                "Choose the correct definition!"
+              )}
+            </p>
+            <button
+              onClick={handleStart}
+              className="px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold transition w-[80%] sm:w-auto"
+            >
+              Start Game
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
+            >
+              Back
+            </button>
+          </>
+        )}
       </div>
     )
   }
@@ -199,9 +241,9 @@ const Gamified = () => {
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
-          className=" md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
-          <LuArrowLeft size={18} className='md:size-5' />
+          <LuArrowLeft size={18} className="md:size-5" />
           Back
         </button>
       </div>
@@ -221,9 +263,8 @@ const Gamified = () => {
             <span>Score: {score}</span>
           </div>
 
-          {/* Timer now shows minutes:seconds */}
           <div className="mb-4 text-right text-xs sm:text-sm text-gray-300">
-            Time left: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
+            Total Time: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
           </div>
 
           {current && (
@@ -268,7 +309,6 @@ const Gamified = () => {
             </div>
           )}
 
-          {/* Choices or submit button */}
           {isAcronym ? (
             <>
               <p className="text-center text-sm sm:text-base mb-4 bg-[#171720] p-5 text-[#9898D9] rounded-md">
@@ -305,81 +345,126 @@ const Gamified = () => {
 
 export default Gamified
 
+
 export const gamifiedLoader = async ({ params }) => {
-  const { id: folderId, reviewerId } = params
+  const { id: folderId, reviewerId } = params;
 
   const getUser = () =>
     new Promise((resolve, reject) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
-        unsubscribe()
-        if (user && user.emailVerified) resolve(user)
-        else reject("Unauthorized")
-      })
-    })
+        unsubscribe();
+        if (user && user.emailVerified) {
+          resolve(user);
+        } else {
+          reject("Unauthorized");
+        }
+      });
+    });
 
   try {
-    const user = await getUser()
+    const user = await getUser();
 
     if (folderId === "TermsAndCondition") {
-      const reviewerRef = doc(db, "users", user.uid, "folders", folderId, "reviewers", reviewerId)
-      const reviewerSnap = await getDoc(reviewerRef)
-      if (!reviewerSnap.exists()) throw new Response("Reviewer not found", { status: 404 })
-      const reviewerData = reviewerSnap.data()
+      const reviewerRef = doc(
+        db,
+        "users",
+        user.uid,
+        "folders",
+        folderId,
+        "reviewers",
+        reviewerId
+      );
+      const reviewerSnap = await getDoc(reviewerRef);
+      if (!reviewerSnap.exists()) 
+        throw new Response("Reviewer not found", { status: 404 });
 
-      const questionsRef = collection(db, "users", user.uid, "folders", folderId, "reviewers", reviewerId, "questions")
-      const questionsSnap = await getDocs(questionsRef)
-      const questions = questionsSnap.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .sort((a, b) => {
-          const numA = parseInt(a.id.match(/\d+/)?.[0] || 0, 10)
-          const numB = parseInt(b.id.match(/\d+/)?.[0] || 0, 10)
-          return numA - numB
-        })
+      const reviewerData = reviewerSnap.data();
+      const questionsRef = collection(
+        db,
+        "users",
+        user.uid,
+        "folders",
+        folderId,
+        "reviewers",
+        reviewerId,
+        "questions"
+      );
+      const questionsSnap = await getDocs(questionsRef);
+      const questions = questionsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-      return { id: reviewerId, title: reviewerData.title, questions }
+      return {
+        id: reviewerId,
+        title: reviewerData.title,
+        questions,
+      };
     }
 
     if (folderId === "AcronymMnemonics") {
-      const reviewerRef = doc(db, "users", user.uid, "folders", folderId, "reviewers", reviewerId)
-      const reviewerSnap = await getDoc(reviewerRef)
-      if (!reviewerSnap.exists()) throw new Response("Reviewer not found", { status: 404 })
-      const reviewerData = reviewerSnap.data()
+      const reviewerRef = doc(
+        db,
+        "users",
+        user.uid,
+        "folders",
+        folderId,
+        "reviewers",
+        reviewerId
+      );
+      const reviewerSnap = await getDoc(reviewerRef);
+      if (!reviewerSnap.exists()) throw new Response("Reviewer not found", { status: 404 });
 
-      const contentCollectionRef = collection(db, "users", user.uid, "folders", folderId, "reviewers", reviewerId, "content")
-      const contentSnap = await getDocs(contentCollectionRef)
+      const reviewerData = reviewerSnap.data();
+      const contentCollectionRef = collection(
+        db,
+        "users",
+        user.uid,
+        "folders",
+        folderId,
+        "reviewers",
+        reviewerId,
+        "content"
+      );
+      const contentSnap = await getDocs(contentCollectionRef);
 
       const content = await Promise.all(
         contentSnap.docs.map(async (contentDoc) => {
-          const contentData = contentDoc.data()
-          const numericId = parseInt(contentDoc.id.match(/\d+/)?.[0] || 0, 10)
-
-          const contentsRef = collection(db, "users", user.uid, "folders", folderId, "reviewers", reviewerId, "content", contentDoc.id, "contents")
-          const contentsSnap = await getDocs(contentsRef)
-          const contents = contentsSnap.docs
-            .map((d) => {
-              const rawId = d.data().id ?? d.id
-              const innerNumericId = parseInt(rawId.toString().match(/\d+/)?.[0] || 0, 10)
-              return { id: innerNumericId, ...d.data() }
-            })
-            .sort((a, b) => a.id - b.id)
+          const contentData = contentDoc.data();
+          const contentsRef = collection(
+            db,
+            "users",
+            user.uid,
+            "folders",
+            folderId,
+            "reviewers",
+            reviewerId,
+            "content",
+            contentDoc.id,
+            "contents"
+          );
+          const contentsSnap = await getDocs(contentsRef);
+          const contents = contentsSnap.docs.map((doc) => doc.data());
 
           return {
-            id: numericId,
+            id: contentDoc.id,
             title: contentData.title,
             keyPhrase: contentData.keyPhrase,
             contents,
-          }
+          };
         })
-      )
+      );
 
-      const sortedContent = content.sort((a, b) => a.id - b.id)
-
-      return { id: reviewerId, title: reviewerData.title, content: sortedContent }
+      return {
+        id: reviewerId,
+        title: reviewerData.title,
+        content,
+      };
     }
 
-    throw new Response("Invalid folder", { status: 400 })
+    throw new Response("Invalid folder", { status: 400 });
   } catch (error) {
-    console.error("Loader error:", error)
-    throw new Response("Failed to load reviewer", { status: 500 })
+    console.error("Loader error:", error);
+    throw new Response("Failed to load reviewer", { status: 500 });
   }
-}
+};
