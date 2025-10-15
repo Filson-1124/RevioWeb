@@ -9,15 +9,13 @@ const focusMusic =[
     {
         id:1,
         title:"Focus Music",
-        image:focusImage1,
-        artist:'GPT 5.0',
+        artist:'OpenAI',
         audio:focusSound1
     },
     {
         id:2,
         title:"Intense Focus",
-        image:focusImage1,
-        artist:'GPT 5.0',
+        artist:'OpenAI',
         audio:focusSound2
 
         
@@ -25,24 +23,21 @@ const focusMusic =[
     {
         id:3,
         title:"Focus Concentration",
-        image:focusImage1,
-        artist:'GPT 5.0',
+        artist:'OpenAI',
         audio:focusSound3
 
     },
      {
         id:4,
         title:"Deep Concentration",
-        image:focusImage1,
-        artist:'GPT 5.0',
+        artist:'OpenAI',
         audio:focusSound4
 
     },
     {
         id:5,
         title:"Calm Focus",
-        image:focusImage1,
-        artist:'GPT 5.0',
+        artist:'OpenAI',
         audio:focusSound5
 
     }

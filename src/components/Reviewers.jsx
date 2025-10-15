@@ -30,18 +30,16 @@ const Reviewers = () => {
   } else if (folder.id === "AcronymMnemonics") {
     headingText = "ACRONYM MNEMONICS";
     revIcon = <TbPlayCardAFilled size={90} color='white' />;
-  } else if (folder.id === "SummarizedWithAI") {
+  } else if (folder.id === "SummarizedAIReviewers") {
     headingText = "SUMMARIZED WITH AI REVIEWERS";
-    revIcon = <FaWandMagicSparkles size={90} color='white' />;
+    revIcon = <FaWandMagicSparkles size={75} color='white' />;
   }
 
   return (
     <div>
 
       <div className='flex flex-col gap-7 p-5'>
-        <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>{headingText}</h1>
-        <hr className='text-white' />
-        <div className="w-full p-10 flex justify-between items-center relative">
+         <div className="w-full p-10 flex justify-between items-center relative">
           <button
             onClick={() => navigate(-1)} // 👈 go back one page
             className="absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
@@ -50,9 +48,12 @@ const Reviewers = () => {
             Back
           </button>
         </div>
+        <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>{headingText}</h1>
+        <hr className='text-white' />
+       
       </div>
 
-      <div className="px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {reviewers.map((reviewer) => {
           // Dynamically adjust text size based on title length
           const isLongTitle = reviewer.title.length > 30;

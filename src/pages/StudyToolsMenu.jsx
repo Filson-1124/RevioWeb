@@ -44,7 +44,7 @@ const StudyToolsMenu = () => {
           <div className="p-8 sm:p-10 border border-[#565656] bg-[#2E2E40] text-white font-poppins rounded-xl text-center hover:border-[#B5B5FF] transition-all hover:scale-105">
             <TbNotes size={70} className="mx-auto mb-4 text-white" />
             <h3 className="font-bold text-lg">Standard Summarization</h3>
-            <p className="text-sm text-gray-300">Study using a Pomodoro timer</p>
+            <p className="text-sm text-gray-300">Summarize key ideas, terms, and takeaways for quick review.  </p>
           </div>
         </Link>
 
@@ -52,7 +52,7 @@ const StudyToolsMenu = () => {
           <div className="p-8 sm:p-10 border border-[#565656] bg-[#2E2E40] text-white font-poppins rounded-xl text-center hover:border-[#B5B5FF] transition-all hover:scale-105">
             <HiSparkles size={70} className="mx-auto mb-4 text-white" />
             <h3 className="font-bold text-lg">Summarization + AI Explanation</h3>
-            <p className="text-sm text-gray-300">Study using Pomodoro with AI</p>
+            <p className="text-sm text-gray-300">Use AI to explain concepts with analogies and key insights. </p>
           </div>
         </Link>
 

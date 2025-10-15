@@ -83,9 +83,58 @@ const Register = () => {
 
       toast.success("Account created! Verification email sent.");
     } catch (error) {
-      console.error(error);
+  console.error(error);
+  
+  switch (error.code) {
+    case "auth/email-already-in-use":
+      toast.error("This email is already registered. Try logging in instead.");
+      break;
+
+    case "auth/invalid-email":
+      toast.error("Please enter a valid email address.");
+      break;
+
+    case "auth/weak-password":
+      toast.error("Your password is too weak. Use at least 6 characters.");
+      break;
+
+    case "auth/missing-email":
+      toast.error("Email field cannot be empty.");
+      break;
+
+    case "auth/missing-password":
+      toast.error("Password field cannot be empty.");
+      break;
+
+    case "auth/network-request-failed":
+      toast.error("Network error. Please check your internet connection.");
+      break;
+
+    case "auth/operation-not-allowed":
+      toast.error("Email sign-up is currently disabled. Contact support.");
+      break;
+
+    case "auth/too-many-requests":
+      toast.error("Too many attempts. Please try again later.");
+      break;
+
+    case "auth/internal-error":
+      toast.error("Something went wrong on our end. Please try again.");
+      break;
+
+    case "auth/invalid-api-key":
+      toast.error("Invalid API configuration. Please contact support.");
+      break;
+
+    case "auth/app-not-authorized":
+      toast.error("This app is not authorized to use Firebase Authentication.");
+      break;
+
+    default:
       toast.error(error.message || "Something went wrong during registration.");
-    }
+  }
+}
+
   };
 
   return (

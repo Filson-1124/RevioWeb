@@ -45,7 +45,7 @@ const Library = () => {
           // Determine font size based on folder title length
           const isLongTitle = folder.title.length > 25;
           const textSize = isLongTitle
-            ? 'text-xs sm:text-sm md:text-base'  // smaller font for long titles
+            ? 'text-xs sm:text-sm md:text-md'  // smaller font for long titles
             : 'text-sm sm:text-base md:text-lg'; // normal font for shorter titles
 
           return (

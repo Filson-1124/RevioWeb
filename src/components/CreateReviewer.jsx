@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { CiCirclePlus } from "react-icons/ci"
 import { IoClose } from "react-icons/io5"
 import { useAuth } from '../components/AuthContext'
+import { LuArrowLeft } from "react-icons/lu"
 import LoadingBar from './LoadingBar'
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -18,7 +19,7 @@ const CreateReviewer = () => {
   const [info, setInfo] = useState("")
   const [selectedFile, setSelectedFile] = useState(null)
   const [fileUrl, setFileUrl] = useState(null)
-  const [isCreating, setIsCreating] = useState(false)
+  const [isCreating, setIsCreating] = useState(true)
   const [isDone, setIsDone] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
 
@@ -105,8 +106,19 @@ const CreateReviewer = () => {
         setFadeOut(false)
       }, 1500)
     } catch (err) {
-      console.error("Error creating reviewer:", err)
-      alert("Failed to create reviewer.")
+     console.error("Error creating reviewer:", err)
+      const errText = err?.message || ""
+      // Added backend error handling
+      if (errText.includes("Text content is too large")) {
+        alert("The text is too long (max ~416,000 characters). Please shorten it and try again.")
+      } else if (errText.includes("Failed to generate content with GPT")) {
+        alert("An error occurred while generating content with GPT. Please try again.")
+      } else if (errText.includes("empty") || errText.includes("meaningless")|| errText.includes("meaningful")
+        || errText.includes("No content")) {
+        alert(errText) 
+      } else {
+        alert("Failed to create reviewer. Please try again.")
+      }
       setIsDone(true)
       setTimeout(() => {
         setIsCreating(false)
@@ -128,7 +140,7 @@ const CreateReviewer = () => {
       case 'summarization':
         setTitle("Reviewer Generator")
         setSubTitle("Standard Summarization")
-        setInfo("Revio will summarize your files for you and provide a Pomodoro timer.")
+        setInfo("Revio will summarize your files for you.")
         break
       case 'ai':
         setTitle("Reviewer Generator")
@@ -168,12 +180,23 @@ const CreateReviewer = () => {
           {isDone ? "Reviewer Created — Preparing Display..." : "Revio is generating your reviewer, please wait..."}
         </p>
         <LoadingBar isDone={isDone} />
+
+        <p className=' text-[#808080] p-2 w-[50%] mt-2 rounded-2xl'><b>Disclaimer: </b>This feature uses AI to generate educational content from your materials. While designed for accuracy, please review and verify the results before academic use.</p>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col text-white w-full items-center px-4 sm:px-8 md:px-[5%] py-10">
+        <div className="w-full flex justify-between items-center relative mb-6">
+              <button
+                onClick={() => navigate(-1)}
+                className="absolute left-0 top-[-4] md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+              >
+                <LuArrowLeft size={18} className='md:size-5' />
+                Back
+              </button>
+            </div>
       <div className="w-full sm:w-[90%] md:w-[80%] text-center md:text-left mb-10">
         {title ? (
           <>
@@ -187,7 +210,7 @@ const CreateReviewer = () => {
       </div>
 
       <div className="bg-[#2E2E40] flex flex-col items-center text-center p-6 sm:p-10 rounded-xl gap-4 w-full sm:w-[80%] md:w-[60%]">
-        <input id="fileUpload" type="file" className="hidden" accept=".docx,.pdf,.ppt,.pptx" onChange={handleFileChange} />
+        <input id="fileUpload" type="file" className="hidden" accept=".docx,.pdf,.pptx" onChange={handleFileChange} />
         <label
           htmlFor="fileUpload"
           className={`inline-flex w-[12rem] sm:w-[14rem] md:w-[15rem] h-[4rem] sm:h-[5rem] items-center justify-center gap-2 px-6 py-3 ${
@@ -199,7 +222,7 @@ const CreateReviewer = () => {
         </label>
 
         <p className="text-[#ffffff46] text-xs sm:text-sm text-center">
-          Please upload a file with .docx, .pdf, or .ppt
+          Please upload a file with .docx, .pdf, or .pptx
         </p>
 
         {selectedFile && (
