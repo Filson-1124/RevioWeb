@@ -14,7 +14,7 @@ const StudyToolsMenu = () => {
         <hr className="border-gray-600 w-full md:w-3/4 mx-auto" />
       </div>
 
-      <div className="px-6 sm:px-10 md:px-20 grid grid-cols-1 sm:grid-cols-2 gap-10 pb-10">
+      <div className="px-6 pb-40 sm:px-10 md:px-20 grid grid-cols-1 sm:grid-cols-2 gap-10 ">
 
         <div className="sm:col-span-2 text-center">
           <h2 className="text-white text-2xl sm:text-3xl font-poppinsbold">Flashcards Maker</h2>

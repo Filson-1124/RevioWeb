@@ -16,7 +16,7 @@ const Gamified = () => {
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
-  const tdTime = questions.length * 1
+  const tdTime = questions.length * 60
   const acTime = questions.length * 120
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [startTime] = useState(Date.now())
@@ -56,7 +56,7 @@ const Gamified = () => {
   }
 
   useEffect(() => {
-    if (current?.content) setAnswers(Array(current.contents.length).fill(''))
+    if (current?.contents) setAnswers(Array(current.contents.length).fill(''))
     if (isAcronym) setCurrentCorrectAnswers(current.contents.map((c) => c.word))
   }, [current])
 
