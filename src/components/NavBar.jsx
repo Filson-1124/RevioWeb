@@ -14,6 +14,7 @@ const NavBar = () => {
         fixed bottom-0 left-0 w-full h-[10%] bg-[#0B0B0F]
         flex justify-center items-center z-50
         md:static md:flex-col md:w-[6rem] md:h-screen md:justify-start md:py-10
+        overflow-hidden
       "
     >
       <img src={logo} alt="Logo" className="hidden md:block size-20 mb-10" />

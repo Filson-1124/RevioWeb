@@ -12,17 +12,19 @@ const RootLayout = () => {
 
   return (
     <AudioProvider>
-      <div className="relative flex flex-col md:flex-row h-screen bg-[#12121A] overflow-x-hidden">
-        <NavBar />
-
-        <div
-          className="flex-1 overflow-y-auto pb-[10%] md:pb-0  relative z-0"
-        >
-          <Outlet />
+      {/* Fill viewport and prevent outer scrolling */}
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-[#12121A] relative">
+        {/* NavBar: stay in-flow and non-scrollable (use flex-shrink-0) */}
+        <div className="flex-shrink-0">
+          <NavBar />
         </div>
 
-        {/* Player overlay wrapper — entire screen, but pointer-events-none so it won't block clicks,
-            then pointer-events-auto on the inner container lets the MusicPlayer receive events. */}
+        {/* The only scrollable area: main (Outlet) */}
+        <main className="flex-1 overflow-y-auto no-scrollbar pb-24 md:pb-0 relative z-0">
+          <Outlet />
+        </main>
+
+        {/* Floating music player */}
         <div className="fixed inset-0 pointer-events-none z-[9999]">
           <div className="pointer-events-auto">
             <MusicPlayer />

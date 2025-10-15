@@ -21,8 +21,8 @@ const Reviewers = () => {
   let headingText = "REVIEWERS";
   let revIcon = <TbCardsFilled color='white' size={80} />;
 
-  if (folder.id === "TermsAndCondition") {
-    headingText = "TERMS AND CONDITION";
+  if (folder.id === "TermsAndDefinitions") {
+    headingText = "TERMS AND DEFINITION";
     revIcon = <TbCardsFilled color='white' size={80} />;
   } else if (folder.id === "SummarizedReviewers") {
     headingText = "SUMMARIZED REVIEWERS";
@@ -31,7 +31,7 @@ const Reviewers = () => {
     headingText = "ACRONYM MNEMONICS";
     revIcon = <TbPlayCardAFilled size={90} color='white' />;
   } else if (folder.id === "SummarizedAIReviewers") {
-    headingText = "SUMMARIZED WITH AI REVIEWERS";
+    headingText = "SUMMARIZED AI REVIEWERS";
     revIcon = <FaWandMagicSparkles size={75} color='white' />;
   }
 
@@ -42,13 +42,13 @@ const Reviewers = () => {
   );
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col overflow-hidden">
 
       <div className='flex flex-col gap-7 p-5'>
         <div className="w-full p-10 flex justify-between items-center relative">
           <button
-            onClick={() => navigate(-1)} //go back one page
-            className="absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+            onClick={() => navigate(-1)} // 👈 go back one page
+            className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
           >
             <LuArrowLeft size={20} />
             Back

@@ -184,68 +184,100 @@ const CreateReviewer = () => {
   }
 
   return (
-    <div className="flex flex-col text-white w-full items-center px-4 sm:px-8 md:px-[5%] py-10">
-        <div className="w-full flex justify-between items-center relative mb-6">
-              <button
-                onClick={() => navigate(-1)}
-                className="absolute left-0 top-[-4] md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
-              >
-                <LuArrowLeft size={18} className='md:size-5' />
-                Back
-              </button>
-            </div>
-      <div className="w-full sm:w-[90%] md:w-[80%] text-center md:text-left mb-10">
-        {title ? (
-          <>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{title}</h1>
-            {subTitle && <h2 className="text-lg sm:text-xl font-semibold text-violet-300 mb-2">{subTitle}</h2>}
-            <p className="text-sm sm:text-base text-gray-300 leading-relaxed">{info}</p>
-          </>
-        ) : (
-          <p className="text-red-500">No reviewer type selected.</p>
-        )}
-      </div>
+  <div className="flex flex-col text-white w-full items-center h-screen px-4 sm:px-8 md:px-[5%] py-10 relative">
+  {/* Back button */}
+  <div className="w-full flex justify-between items-center absolute top-6 left-0 px-5">
+    <button
+      onClick={() => navigate(-1)}
+      className="flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+    >
+      <LuArrowLeft size={18} className="md:size-5" />
+      Back
+    </button>
+  </div>
 
-      <div className="bg-[#2E2E40] flex flex-col items-center text-center p-6 sm:p-10 rounded-xl gap-4 w-full sm:w-[80%] md:w-[60%]">
-        <input id="fileUpload" type="file" className="hidden" accept=".docx,.pdf,.pptx" onChange={handleFileChange} />
-        <label
-          htmlFor="fileUpload"
-          className={`inline-flex w-[12rem] sm:w-[14rem] md:w-[15rem] h-[4rem] sm:h-[5rem] items-center justify-center gap-2 px-6 py-3 ${
-            selectedFile ? 'bg-gray-500 cursor-not-allowed opacity-60' : 'bg-[#B5B5FF] hover:bg-violet-700 cursor-pointer'
-          } text-[#200448] rounded-xl font-poppinsbold shadow-md transition-all duration-200 active:scale-95`}
-        >
-          <CiCirclePlus size={30} className="sm:size-[35px]" />
-          <span className="text-sm sm:text-base">{selectedFile ? 'File Uploaded' : 'Upload File'}</span>
-        </label>
+  {/* Centered content */}
+  <div className="flex flex-col items-center justify-center flex-1 w-full gap-10">
+    {/* Second div (title/info) */}
+    <div className="w-full sm:w-[90%] md:w-[80%] text-start">
+      {title ? (
+        <>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">{title}</h1>
+          {subTitle && (
+            <h2 className="text-lg sm:text-xl font-semibold text-violet-300 mb-2">
+              {subTitle}
+            </h2>
+          )}
+          <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+            {info}
+          </p>
+        </>
+      ) : (
+        <p className="text-red-500">No reviewer type selected.</p>
+      )}
+    </div>
 
-        <p className="text-[#ffffff46] text-xs sm:text-sm text-center">
-          Please upload a file with .docx, .pdf, or .pptx
-        </p>
+    {/* Third div (upload section) */}
+    <div className="bg-[#2E2E40] flex flex-col items-center text-center p-6 sm:p-10 rounded-xl gap-4 w-full sm:w-[80%] md:w-[60%]">
+      <input
+        id="fileUpload"
+        type="file"
+        className="hidden"
+        accept=".docx,.pdf,.pptx"
+        onChange={handleFileChange}
+      />
+      <label
+        htmlFor="fileUpload"
+        className={`inline-flex w-[12rem] sm:w-[14rem] md:w-[15rem] h-[4rem] sm:h-[5rem] items-center justify-center gap-2 px-6 py-3 ${
+          selectedFile
+            ? "bg-gray-500 cursor-not-allowed opacity-60"
+            : "bg-[#B5B5FF] hover:bg-violet-700 cursor-pointer"
+        } text-[#200448] rounded-xl font-poppinsbold shadow-md transition-all duration-200 active:scale-95`}
+      >
+        <CiCirclePlus size={30} className="sm:size-[35px]" />
+        <span className="text-sm sm:text-base">
+          {selectedFile ? "File Uploaded" : "Upload File"}
+        </span>
+      </label>
 
-        {selectedFile && (
-          <div className="text-center mt-4 space-y-3 w-full">
-            <p className="text-white text-sm sm:text-base font-medium break-words">{selectedFile.name}</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href={fileUrl} target="_blank" rel="noopener noreferrer"
-                className="px-4 py-2 text-sm sm:text-base bg-violet-500 hover:bg-violet-600 rounded-md text-white font-semibold transition-all">
-                View File
-              </a>
-              <button onClick={handleRemoveFile}
-                className="px-4 py-2 text-sm sm:text-base bg-red-500 hover:bg-red-600 rounded-md text-white font-semibold flex items-center gap-1 transition-all justify-center">
-                <IoClose size={18} /> Remove File
-              </button>
-            </div>
+      <p className="text-[#ffffff46] text-xs sm:text-sm text-center">
+        Please upload a file with .docx, .pdf, or .pptx
+      </p>
 
-            <button
-              className="mt-4 px-6 py-2 text-sm sm:text-base bg-green-500 hover:bg-green-600 text-white rounded-md font-semibold transition-all"
-              onClick={handleCreateReviewer}
+      {selectedFile && (
+        <div className="text-center mt-4 space-y-3 w-full">
+          <p className="text-white text-sm sm:text-base font-medium break-words">
+            {selectedFile.name}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 text-sm sm:text-base bg-violet-500 hover:bg-violet-600 rounded-md text-white font-semibold transition-all"
             >
-              Create Reviewer
+              View File
+            </a>
+            <button
+              onClick={handleRemoveFile}
+              className="px-4 py-2 text-sm sm:text-base bg-red-500 hover:bg-red-600 rounded-md text-white font-semibold flex items-center gap-1 transition-all justify-center"
+            >
+              <IoClose size={18} /> Remove File
             </button>
           </div>
-        )}
-      </div>
+
+          <button
+            className="mt-4 px-6 py-2 text-sm sm:text-base bg-green-500 hover:bg-green-600 text-white rounded-md font-semibold transition-all"
+            onClick={handleCreateReviewer}
+          >
+            Create Reviewer
+          </button>
+        </div>
+      )}
     </div>
+  </div>
+</div>
+
   )
 }
 

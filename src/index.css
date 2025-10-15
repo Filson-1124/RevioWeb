@@ -190,3 +190,16 @@ input:focus {
 .animate-float-breathe {
   animation: float 3s ease-in-out infinite, breathe 4s ease-in-out infinite;
 }
+html, body, #root {
+  height: 100%;
+  overflow: hidden; /* prevent double scroll */
+}
+
+/* Hide scrollbar visually, still allow scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}

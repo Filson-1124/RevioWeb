@@ -16,7 +16,7 @@ const Gamified = () => {
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
-  const tdTime = questions.length * 1
+  const tdTime = questions.length * 60
   const acTime = questions.length * 120
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [startTime] = useState(Date.now())
@@ -56,7 +56,7 @@ const Gamified = () => {
   }
 
   useEffect(() => {
-    if (current?.content) setAnswers(Array(current.contents.length).fill(''))
+    if (current?.contents) setAnswers(Array(current.contents.length).fill(''))
     if (isAcronym) setCurrentCorrectAnswers(current.contents.map((c) => c.word))
   }, [current])
 
@@ -225,7 +225,7 @@ const Gamified = () => {
             </button>
             <button
               onClick={() => navigate(-1)}
-              className="md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
+              className="m left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
             >
               Back
             </button>
