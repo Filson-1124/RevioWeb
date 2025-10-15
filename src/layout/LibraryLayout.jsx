@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom'
 const LibraryLayout = () => {
   return (
     // Full height and block outer scroll
-    <div className="flex flex-col h-screen overflow-hidden bg-[#2B2B40]">
+    <div className="flex flex-col h-screen overflow-hidden">
       
       {/* Static header / section (Library) */}
       <div className="flex-shrink-0">
