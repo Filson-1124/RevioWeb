@@ -225,7 +225,7 @@ const Gamified = () => {
             </button>
             <button
               onClick={() => navigate(-1)}
-              className="md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
+              className="m left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
             >
               Back
             </button>
