@@ -209,16 +209,18 @@ const Review = () => {
       {/* Regular Reviewers */}
       {!isFlashcard && reviewer.sections && (
         <div className="text-white w-full max-w-3xl mt-10">
+          <h1 className='text-white font-black text-3xl mb-4'  >{reviewer.title}</h1>
           {reviewer.sections.map((section, idx) => (
             <div key={idx} className="mb-6 ">
-              <h2 className="text-xl font-semibold text-[#e39fa2] mb-2">📘 {section.title}</h2>
+              <h2 className="text-xl font-black text-[#B5B5FF] mb-2">{section.title}</h2>
               <ul className="list-disc list-inside space-y-1 text-[#E2E8F0]  bg-transparent rounded-xl p-2">
                 {section.analogy ? (
                   <>
             
-                    <p>{section.explanation ?? ""}</p>
+                    <p>{section.explanation ?? ""}</p> 
+                    <p className='ml-2.5 italic '>
                     <b className='text-yellow-300 flex mt-3'><FaRegLightbulb />Analogy: </b>
-                    <p className='ml-2.5'>{section.analogy ?? ""}</p>
+                   {section.analogy ?? ""}</p>
 
                     {section.steps?.length > 0 && (
                       <div className='text-[#d3d3d3] rounded-lg p-2'>
@@ -244,20 +246,40 @@ const Review = () => {
                   </>
                 ) : (
                   <>
-                    <p><b>Summary:</b></p>
-                    <h3 className='text-[#fcfcfcff] border-2 p-2 rounded-xl border-[#FFF2AF] bg-[#43437d]'>{section.summary}</h3>
                   
-                    {section.concept && (
-                      <>
-                        <b>Concepts:</b><br />
-                        <p><b>{section.concept?.term ?? ""}</b></p>
-                        <p>{section.concept?.explanation ?? ""}</p>
-                        <b>Examples:</b><br />
-                        <p>{section.concept?.example ?? ""}</p>
-                     </>
-                    )}
-                     
-                    <p className='text-[#fdf2b3ff] font-bold'><b className='text-[#fff]'>Key Takeaways:</b> {section.keyTakeaways ?? ""}</p>
+                    <h3 className='text-[#fcfcfcff] p-2 rounded-xl'>{section.summary}</h3>
+
+                   
+                    <div className='flex flex-col gap-2 mb-5'>
+                      {section.concepts.map((item,index)=>(
+                          <div key={index} className='bg-[#43437d39] p-2 rounded-sm border-2 border-[#FFF2AF]'>
+                            <h1 className='text-[#f48ab3ff] font-black'>{item.term}</h1>
+                            <h3 className='text-[#fcfbfbff] font-bold'>{item.explanation}</h3>
+                            {item.example? 
+                              <>
+                            
+                              <p className='text-[#FFA500] italic'><b>Example: </b>{item.example}</p>
+                              </>
+
+                            :""}
+                          </div>
+
+
+                      ))}
+                    </div>
+
+                     <p><b className='text-[#fff]'>Key Takeaways</b></p>
+
+                     <div className='pl-10'>
+                          <ul className='flex flex-col list-disc'>
+                          {section.keyTakeaways.map((item,index)=>(
+                                <li className='text-[#fdf2b3ff] font-semibold'>
+                                {item}</li>
+
+                          ))}
+                        </ul>
+                     </div>
+                  
                   </>
                 )}
               </ul>
