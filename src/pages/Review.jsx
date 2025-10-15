@@ -96,11 +96,11 @@ const Review = () => {
         <>
 
         {isAcronymCard? 
-        <div className="flex flex-col justify-end  md:justify-between items-center gap-5 ">
+        <div className="flex flex-col justify-center md:justify-between items-center gap-5 ">
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
-          <p className="text-sm text-gray-300 italic place-self-start">
+          <p className="text-sm text-gray-300 italic place-self-center">
             Click to flip to reveal the key phrase
           </p>
         </div>
@@ -109,7 +109,7 @@ const Review = () => {
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
-          <p className="text-sm text-gray-300 italic place-self-start">
+          <p className="text-sm text-gray-300 italic place-self-center">
             Click to flip to reveal the definition
           </p>
         </div>}

@@ -173,7 +173,7 @@ const Gamified = () => {
           <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
             <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
             {wrongAnswers.map((item, i) => (
-              <div key={i} className="p-3 border rounded-md text-sm sm:text-base">
+              <div key={i} className="p-3 border-2 border-[#672c93] rounded-md text-sm sm:text-base text-[#492f6b] bg-[#fefff7] font-bold">
                 {isAcronym ? (
                   <>
                     <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
@@ -210,7 +210,7 @@ const Gamified = () => {
           <>
             <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
             <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
-              <b className="font-poppinsbold">How to play:</b><br />
+              <b className="font-poppinsbold">How to Play</b><br />
               {isAcronym ? (
                 <> Fill in the blanks using the first letters shown. Type the complete word and press 'Submit Answer.' <br /> You must <b>double check</b> your answers before submitting!</>
               ) : (
