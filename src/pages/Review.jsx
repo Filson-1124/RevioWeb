@@ -201,19 +201,19 @@ const Review = () => {
         <div className="text-white w-full max-w-3xl mt-10">
           {reviewer.sections.map((section, idx) => (
             <div key={idx} className="mb-6 ">
-              <h2 className="text-xl font-semibold text-[#B5B5FF] mb-2">📘 {section.title}</h2>
-              <ul className="list-disc list-inside space-y-1 text-[#E2E8F0] border-2 border-[#FFF2AF] bg-[#43437d39] rounded-xl p-2">
+              <h2 className="text-xl font-semibold text-[#e39fa2] mb-2">📘 {section.title}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[#E2E8F0]  bg-transparent rounded-xl p-2">
                 {section.analogy ? (
                   <>
-                    <b>Explanation:</b><br />
+            
                     <p>{section.explanation ?? ""}</p>
-                    <b className='text-yellow-300 flex'><FaRegLightbulb />Analogy: </b>
+                    <b className='text-yellow-300 flex mt-3'><FaRegLightbulb />Analogy: </b>
                     <p className='ml-2.5'>{section.analogy ?? ""}</p>
 
                     {section.steps?.length > 0 && (
-                      <div className='text-[#d3d3d3] bg-[#4B556380] border-2 border-[#FDE68A] rounded-lg p-2'>
+                      <div className='text-[#d3d3d3] rounded-lg p-2'>
                         <b className='text-[#C7D2FE]'>Steps:</b><br />
-                        <ol className="list-decimal list-inside space-y-1">
+                        <ol className="list-decimal list-inside space-y-1 font-semibold">
                           {section.steps.map((step, i) => (
                             <li key={i}>{step}</li>
                           ))}
