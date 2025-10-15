@@ -304,9 +304,9 @@ const EditFlashCard = () => {
         {isAcronym && (
           <>
             {content.length === 0 && <p className="text-gray-400">No acronym content yet.</p>}
-            <div className="w-full max-w-5xl overflow-auto max-h-[60vh] space-y-6 p-10">
+            <div className="w-full max-w-5xl overflow-auto max-h-[60vh] space-y-6 p-2 md:p-10">
               {content.map((item) => (
-                <div key={item.id} className="flex flex-col bg-[#3F3F54] w-full p-10 text-white gap-6 rounded-xl">
+                <div key={item.id} className="flex flex-col bg-[#3F3F54] w-full p-4 md:p-10 text-white gap-6 rounded-xl">
                   <input
                     type="text"
                     placeholder="Enter title"
