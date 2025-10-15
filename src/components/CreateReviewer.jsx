@@ -19,7 +19,7 @@ const CreateReviewer = () => {
   const [info, setInfo] = useState("")
   const [selectedFile, setSelectedFile] = useState(null)
   const [fileUrl, setFileUrl] = useState(null)
-  const [isCreating, setIsCreating] = useState(true)
+  const [isCreating, setIsCreating] = useState(false)
   const [isDone, setIsDone] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
 
