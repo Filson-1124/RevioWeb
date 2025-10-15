@@ -80,22 +80,32 @@ const Review = () => {
       </div>
       
       {!isAcronymCard && (
-  <h1 className="text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center">
-    {currentTitle}
-  </h1>
+        <>
+      
+        </>
+  
+  
 )}
 
       {isFlashcard && (
         <>
 
-        {isAcronymCard? <div className="flex flex-col md:flex-row lg:flex-row xl:flex-row justify-end  md:justify-between items-center gap-10 ">
+        {isAcronymCard? 
+        <div className="flex flex-col justify-end  md:justify-between items-center gap-5 ">
   <h1 className="text-white text-2xl md:text-3xl font-bold">
     {reviewer.title}
   </h1>
   <p className="text-sm text-gray-300 italic place-self-start">
     Click to flip to reveal the key phrase
   </p>
-</div>:""}
+</div>: <div className="flex flex-col  md:justify-between items-center gap-5 place-self-center ">
+  <h1 className="text-white text-2xl md:text-3xl font-bold">
+    {reviewer.title}
+  </h1>
+  <p className="text-sm text-gray-300 italic place-self-start">
+    Click to flip to reveal the definition
+  </p>
+</div>}
       
 
       

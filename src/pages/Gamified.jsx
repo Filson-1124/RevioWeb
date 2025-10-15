@@ -16,7 +16,7 @@ const Gamified = () => {
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
-  const tdTime=questions.length*60
+  const tdTime=questions.length*1
   const acTime=questions.length*120
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [startTime] = useState(Date.now())
@@ -132,37 +132,56 @@ const Gamified = () => {
   }
 
   // Results screen
-  const renderResults = () => {
-    const timeSpent = Math.ceil((Date.now() - startTime) / 1000)
-    return (
-      <div className="text-center text-white w-full max-w-2xl px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-4">Results</h2>
-        <p className="text-base sm:text-lg mb-2">Score: {score} / {questions.length}</p>
-        <p className="text-base sm:text-lg mb-6">Time spent: {timeSpent}s</p>
-        {wrongAnswers.length > 0 ? (
-          <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
-            <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
-            {wrongAnswers.map((item, i) => (
-              <div key={i} className="p-3 border rounded-md text-sm sm:text-base">
-                {isAcronym ? (
-                  <>
-                    <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
-                    <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
-                    <p><b>Key Phrase:</b> {item.keyPhrase}</p>
-                  </>
-                ) : (
-                  <>
-                    <p><b>Q:</b> {item.term}</p>
-                    <p><b>A:</b> {findCorrectAnswer(item)}</p>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : <p className="text-lg">No mistakes! 🎉</p>}
-      </div>
-    )
-  }
+ const renderResults = () => {
+  const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  const timeDisplay = minutes > 0 
+    ? `${minutes}m ${seconds}s` 
+    : `${seconds}s`
+
+  const totalAnswered = score + wrongAnswers.length
+
+  return (
+    <div className="text-center text-white w-full max-w-2xl px-4">
+      <h2 className="text-2xl sm:text-3xl font-bold mb-4">Results</h2>
+      <p className="text-base sm:text-lg mb-2">
+        Score: {score} / {questions.length}
+      </p>
+      <p className="text-base sm:text-lg mb-6">
+        Time spent: {timeDisplay}
+      </p>
+
+      {totalAnswered === 0 ? (
+        <p className="text-lg text-yellow-400">
+          You didn’t answer any questions ⏰
+        </p>
+      ) : wrongAnswers.length > 0 ? (
+        <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
+          {wrongAnswers.map((item, i) => (
+            <div key={i} className="p-3 border rounded-md text-sm sm:text-base">
+              {isAcronym ? (
+                <>
+                  <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
+                  <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
+                  <p><b>Key Phrase:</b> {item.keyPhrase}</p>
+                </>
+              ) : (
+                <>
+                  <p><b>Q:</b> {item.term}</p>
+                  <p><b>A:</b> {findCorrectAnswer(item)}</p>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-lg">No mistakes! 🎉</p>
+      )}
+    </div>
+  )
+}
 
   // Splash screen
   if (showSplash) {
@@ -172,7 +191,7 @@ const Gamified = () => {
      
         <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
         <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
-          <b className="font-poppinsbold">Direction:</b><br />
+          <b className="font-poppinsbold">How to play:</b><br />
       {isAcronym ? (
   <> Fill in the blanks using the first letters shown. Type the complete word and press 'Submit Answer.' <br /> You must <b>double check</b> your answers before submitting!</>) :(
   "Choose the correct definition!"
