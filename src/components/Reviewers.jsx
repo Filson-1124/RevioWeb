@@ -35,13 +35,19 @@ const Reviewers = () => {
     revIcon = <FaWandMagicSparkles size={75} color='white' />;
   }
 
+  //Sort reviewers by numerically desc
+  //
+  const sortedReviewers = [...reviewers].sort((a, b) =>
+    b.id.localeCompare(a.id, undefined, { numeric: true })
+  );
+
   return (
     <div>
 
       <div className='flex flex-col gap-7 p-5'>
-         <div className="w-full p-10 flex justify-between items-center relative">
+        <div className="w-full p-10 flex justify-between items-center relative">
           <button
-            onClick={() => navigate(-1)} // 👈 go back one page
+            onClick={() => navigate(-1)} //go back one page
             className="absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
           >
             <LuArrowLeft size={20} />
@@ -50,11 +56,11 @@ const Reviewers = () => {
         </div>
         <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>{headingText}</h1>
         <hr className='text-white' />
-       
+
       </div>
 
       <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {reviewers.map((reviewer) => {
+        {sortedReviewers.map((reviewer) => {
           // Dynamically adjust text size based on title length
           const isLongTitle = reviewer.title.length > 30;
           const textSize = isLongTitle
@@ -91,7 +97,6 @@ const Reviewers = () => {
 export default Reviewers;
 
 export const reviewersLoader = async ({ params }) => {
-  // Wrap onAuthStateChanged in a Promise
   const getUser = () => {
     return new Promise((resolve, reject) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -125,7 +130,6 @@ export const reviewersLoader = async ({ params }) => {
     const reviewers = reviewersSnap.docs.map((revDoc) => {
       const revData = revDoc.data();
 
-      // If it's Summary or AI Summary, title is inside reviewers[0]
       const reviewerContent = (revData.reviewers && revData.reviewers[0]) || {};
       const title = revData.title || reviewerContent.title || "Untitled Reviewer";
 
@@ -136,10 +140,14 @@ export const reviewersLoader = async ({ params }) => {
       };
     });
 
+    const sortedReviewers = reviewers.sort((a, b) =>
+      b.id.localeCompare(a.id, undefined, { numeric: true })
+    );
+
     return {
       id: folderId,
       ...folderData,
-      reviewers,
+      reviewers: sortedReviewers,
     };
   } catch (error) {
     console.error("Reviewers loader error:", error);

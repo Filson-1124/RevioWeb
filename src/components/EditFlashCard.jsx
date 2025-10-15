@@ -167,12 +167,22 @@ const EditFlashCard = () => {
         }
       }
 
-      // ✅ Finish loading
+      //Finish loading
       setIsDone(true)
       setTimeout(() => {
         setIsCreating(false)
-        alert("Changes saved successfully!")
         setIsDone(false)
+
+        // ✅ Navigate correctly based on reviewer type
+        if (isAcronym) {
+          navigate(`/Main/review/acronym/${reviewer.folderId}/${reviewer.id}`)
+        } else if (isTermDef) {
+          navigate(`/Main/review/terms/${reviewer.folderId}/${reviewer.id}`)
+        } else {
+          // fallback route if type is neither
+          navigate(`/review/${reviewer.folderId}/${reviewer.id}`)
+        }
+
       }, 800)
 
     } catch (error) {
@@ -242,136 +252,6 @@ const EditFlashCard = () => {
           <FaSave size={25} />
           Save
         </button>
-      </div>
-
-      {/* === FLASHCARD AREA === */}
-      <div className="flex flex-col gap-10 p-3 md:p-5 w-full place-items-center">
-        {isTermDef && (
-          <>
-            {questions.length === 0 && <p className="text-gray-400">No questions yet.</p>}
-            <div className="w-full max-w-4xl overflow-auto max-h-[60vh] space-y-6">
-              {questions.map((q) => ( 
-                <div key={q.id} className="relative flex flex-col md:flex-row items-stretch bg-[#3F3F54] w-full p-4 md:pl-10 md:p-0 gap-3 text-white rounded-xl">
-  {/* Mobile delete button (top-right corner, only visible on mobile) */}
-  <button
-    className="absolute top-3 right-3 w-[55px] h-[55px] flex justify-center items-center bg-[#373749] rounded-xl hover:bg-red-500 active:bg-red-600 transition-all md:hidden"
-    onClick={() => handleDeleteItem(q.id, 'terms')}
-  >
-    <LuTrash />
-  </button>
-
-  <div className="flex flex-col w-full gap-10 my-10">
-    <section>
-      <h4>Term</h4>
-      <textarea
-        className="bg-[#51516B] w-full resize-none p-2 rounded-md"
-        value={q.question || ''}
-        onChange={(e) => handleChange(q.id, 'question', e.target.value)}
-      />
-    </section>
-    <section>
-      <h4>Definition</h4>
-      <textarea
-        className="bg-[#51516B] w-full resize-none p-2 rounded-md h-50 md:h-auto"
-        value={q.answer || ''}
-        onChange={(e) => handleChange(q.id, 'answer', e.target.value)}
-      />
-    </section>
-  </div>
-
-  {/* Original desktop delete button (hidden on mobile) */}
-  <button
-    className="hidden md:flex w-full rounded-xl md:rounded-none p-5 md:w-[50px] 
-               justify-center items-center bg-[#373749] 
-               hover:bg-red-500 active:bg-red-600 transition-all"
-    onClick={() => handleDeleteItem(q.id, 'terms')}
-  >
-    <LuTrash />
-  </button>
-</div>
-
-              ))}
-            </div>
-            <button
-              onClick={handleAddTD}
-              className="w-full max-w-xl bg-[#B5B5FF] hover:bg-green-700 text-white py-3 rounded-xl"
-            >
-              Add Flashcard
-            </button>
-          </>
-        )}
-
-        {isAcronym && (
-          <>
-            {content.length === 0 && <p className="text-gray-400">No acronym content yet.</p>}
-            <div className="w-full max-w-5xl overflow-auto max-h-[60vh] space-y-6 p-2 md:p-10">
-              {content.map((item) => (
-                <div key={item.id} className="flex flex-col bg-[#3F3F54] w-full p-4 md:p-10 text-white gap-6 rounded-xl">
-                  <input
-                    type="text"
-                    placeholder="Enter title"
-                    className="bg-[#51516B] w-full p-3 rounded-lg text-white font-poppinsbold text-xl"
-                    value={item.title ?? ""}
-                    onChange={(e) => handleAcronymChange(item.id, null, "title", e.target.value)}
-                  />
-                  <section>
-                    <h4 className="mb-2">Key Phrase</h4>
-                    <textarea
-                      className="bg-[#51516B] w-full p-3 rounded-lg min-h-20 resize-none text-white"
-                      value={item.keyPhrase ?? ""}
-                      onChange={(e) => handleAcronymChange(item.id, null, "keyPhrase", e.target.value)}
-                    />
-                  </section>
-
-                  <div className="flex flex-col gap-4">
-                    {item.contents.map((c, index) => (
-                      <div key={c.id || index} className="flex items-center gap-4 bg-[#51516B] p-3 rounded-lg">
-                        <input
-                          className="w-12 h-12 text-xl font-bold text-center bg-[#373749] rounded-md"
-                          value={c.letter}
-                          onChange={(e) => handleAcronymChange(item.id, index, "letter", e.target.value)}
-                        />
-                        <textarea
-                          className="flex-1 bg-[#373749] p-2 rounded-md resize-none"
-                          value={c.word}
-                          onChange={(e) => handleAcronymChange(item.id, index, "word", e.target.value)}
-                        />
-                        <button
-                          onClick={() => handleDeleteLetter(item.id, c.id)}
-                          className="flex w-[40px] h-[40px] justify-center items-center bg-[#373749] hover:bg-red-500 rounded-md"
-                        >
-                          <LuTrash />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-center">
-                    <button
-                      onClick={() => addLetter(item.id)}
-                      className="w-[40px] h-[40px] flex justify-center items-center bg-[#373749] hover:bg-green-500 rounded-full shadow-md transition-colors"
-                    >
-                      <LuPlus size={24} />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => handleDeleteItem(item.id, "acronym")}
-                    className="flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
-                  >
-                    <LuTrash />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={handleAddAC}
-              className="w-full max-w-xl bg-[#B5B5FF] hover:text-[#B5B5FF] hover:bg-[#200448] text-[#200448] py-3 rounded-xl font-black"
-            >
-              {isAcronym?"Add Acronym Group":"Add Flashcard"}
-            </button>
-          </>
-        )}
       </div>
     </div>
   )

@@ -9,17 +9,23 @@ import { FaEdit } from "react-icons/fa"
 const Review = () => {
   const reviewer = useLoaderData()
 
-  // Sort only the questions (terms) numerically based on their IDs
+  //Sort the questions (terms) numerically based on their IDs
   const sortedQuestions = reviewer.questions
     ? [...reviewer.questions].sort((a, b) => {
-        const numA = parseInt(a.id.replace(/\D/g, ''), 10)
-        const numB = parseInt(b.id.replace(/\D/g, ''), 10)
+        const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
+        const numB = parseInt(b.id?.toString().match(/\d+/)?.[0] || 0, 10)
         return numA - numB
       })
     : []
 
-  // Acronyms remain in their original order
-  const sortedContent = reviewer.content ? [...reviewer.content] : []
+  //Sort acronym content numerically
+  const sortedContent = reviewer.content
+    ? [...reviewer.content].sort((a, b) => {
+        const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
+        const numB = parseInt(b.id?.toString().match(/\d+/)?.[0] || 0, 10)
+        return numA - numB
+      })
+    : []
 
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0)
   const [currentIndex, setCurrentIndex] = useState(0)
