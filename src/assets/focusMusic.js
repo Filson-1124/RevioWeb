@@ -8,7 +8,7 @@ import focusSound5 from './focusAssets/[5]_CALM_FOCUS.mp3'
 const focusMusic =[
     {
         id:1,
-        title:"Focus Music",
+        title:"Focus",
         artist:'OpenAI',
         audio:focusSound1
     },
