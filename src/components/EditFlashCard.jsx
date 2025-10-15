@@ -36,6 +36,7 @@ const EditFlashCard = () => {
   const isAcronym = reviewer.type === "acronym"
   const isTermDef = reviewer.type === "terms"
 
+  //extract numeric part from ids 
   const extractNumericId = (id) => {
     if (!id && id !== 0) return 0
     const match = String(id).match(/\d+/g)
@@ -122,6 +123,7 @@ const EditFlashCard = () => {
         reviewer.id
       )
 
+      // Update editable title
       await updateDoc(reviewerRef, { title })
 
       // Delete removed items
@@ -137,14 +139,84 @@ const EditFlashCard = () => {
         await deleteDoc(letterRef)
       }
 
-      // Save term/definition questions
+      // Save term/definition questions with distractors
       if (isTermDef) {
+        const token = await user.getIdToken()
+
+        // Fetch existing docs to check for distractors
+        const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id))
+        const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)))
+
+        const existingById = {}
+        const needingDistractors = []
+
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i]
+          const snap = snaps[i]
+          const data = snap.exists() ? snap.data() : null
+          existingById[q.id] = data
+
+          const existingDefs = data?.definition || []
+          const hasWrong = Array.isArray(existingDefs) && existingDefs.some(d => d.type === "wrong")
+
+          if (!hasWrong) {
+            needingDistractors.push({
+              id: q.id,
+              term: q.question,
+              correctDefinition: q.answer,
+            });
+          }
+        }
+
+        // Call backend API for distractors if needed
+        let distractorMap = {}
+        if (needingDistractors.length > 0) {
+          try {
+            const resp = await fetch(`${API_URL}/api/distractors`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+              body: JSON.stringify({ items: needingDistractors, count: 3 }),
+            })
+
+            if (resp.ok) {
+              const body = await resp.json()
+              distractorMap = body?.distractors || {}
+            } else {
+              console.error("Distractor API error:", resp.status, await resp.text())
+            }
+          } catch (err) {
+            console.error("Failed to call distractor API:", err)
+          }
+        }
+
+        // Save all cards (merge with distractors)
         for (const q of questions) {
+          const existing = existingById[q.id]
+          let defs = Array.isArray(existing?.definition) ? existing.definition.slice() : []
+
+          const correctDef = q.answer.trim()
+          const hasCorrect = defs.some(d => d.type === "correct")
+          if (hasCorrect) {
+            defs = defs.map(d => d.type === "correct" ? { ...d, text: correctDef } : d)
+          } else {
+            defs.push({ text: correctDef, type: "correct" })
+          }
+
+          const aiWrongs = Array.isArray(distractorMap[q.id]) ? distractorMap[q.id] : []
+          for (const wrong of aiWrongs) {
+            if (!wrong || !wrong.trim()) continue
+            const trimmed = wrong.trim()
+            const exists = defs.some(d => d.text.trim() === trimmed)
+            if (!exists && trimmed !== correctDef) {
+              defs.push({ text: trimmed, type: "wrong" })
+            }
+          }
+
           const qRef = doc(reviewerRef, "questions", q.id)
-          await setDoc(qRef, {
-            term: q.question,
-            definition: [{ text: q.answer, type: "correct" }]
-          }, { merge: true })
+          await setDoc(qRef, { term: q.question, definition: defs }, { merge: true })
         }
       }
 
@@ -152,34 +224,22 @@ const EditFlashCard = () => {
       if (isAcronym) {
         for (const c of content) {
           const contentRef = doc(reviewerRef, "content", c.id)
-          await setDoc(contentRef, {
-            title: c.title,
-            keyPhrase: c.keyPhrase,
-          }, { merge: true })
+          await setDoc(contentRef, { title: c.title, keyPhrase: c.keyPhrase }, { merge: true })
           for (const item of c.contents) {
             const itemRef = doc(contentRef, "contents", String(item.id))
-            await setDoc(itemRef, {
-              letter: item.letter,
-              word: item.word,
-            }, { merge: true })
+            await setDoc(itemRef, { letter: item.letter, word: item.word }, { merge: true })
           }
         }
       }
 
-      if (isAcronym) {
-        navigate(`/Main/review/acronym/${reviewer.folderId}/${reviewer.id}`)
-      } else if (isTermDef) {
-        navigate(`/Main/review/terms/${reviewer.folderId}/${reviewer.id}`)
-      }
+      // Navigate back to review page
+      if (isAcronym) navigate(`/Main/review/acronym/${reviewer.folderId}/${reviewer.id}`)
+      else if (isTermDef) navigate(`/Main/review/terms/${reviewer.folderId}/${reviewer.id}`)
 
       setIsDone(true)
       setTimeout(() => {
-      setIsCreating(false)
-      setIsDone(false)
-
-       
-   
-
+        setIsCreating(false)
+        setIsDone(false)
       }, 800)
 
     } catch (error) {
@@ -201,10 +261,7 @@ const EditFlashCard = () => {
     setContent(prev => {
       const maxNum = prev.length ? Math.max(...prev.map(p => extractNumericId(p.id))) : 0
       const newId = `q${maxNum + 1}`
-      return [
-        ...prev,
-        { id: newId, title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: "" }] }
-      ]
+      return [...prev, { id: newId, title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: "" }] }]
     })
   }
 
@@ -259,44 +316,39 @@ const EditFlashCard = () => {
             <div className="w-full max-w-4xl overflow-auto max-h-[60vh] space-y-6">
               {questions.map((q) => ( 
                 <div key={q.id} className="relative flex flex-col md:flex-row items-stretch bg-[#3F3F54] w-full p-4 md:pl-10 md:p-0 gap-3 text-white rounded-xl">
-  {/* Mobile delete button (top-right corner, only visible on mobile) */}
-  <button
-    className="absolute top-3 right-3 w-[55px] h-[55px] flex justify-center items-center bg-[#373749] rounded-xl hover:bg-red-500 active:bg-red-600 transition-all md:hidden"
-    onClick={() => handleDeleteItem(q.id, 'terms')}
-  >
-    <LuTrash />
-  </button>
+                  <button
+                    className="absolute top-3 right-3 w-[55px] h-[55px] flex justify-center items-center bg-[#373749] rounded-xl hover:bg-red-500 active:bg-red-600 transition-all md:hidden"
+                    onClick={() => handleDeleteItem(q.id, 'terms')}
+                  >
+                    <LuTrash />
+                  </button>
 
-  <div className="flex flex-col w-full gap-10 my-10">
-    <section>
-      <h4>Term</h4>
-      <textarea
-        className="bg-[#51516B] w-full resize-none p-2 rounded-md"
-        value={q.question || ''}
-        onChange={(e) => handleChange(q.id, 'question', e.target.value)}
-      />
-    </section>
-    <section>
-      <h4>Definition</h4>
-      <textarea
-        className="bg-[#51516B] w-full resize-none p-2 rounded-md h-50 md:h-auto"
-        value={q.answer || ''}
-        onChange={(e) => handleChange(q.id, 'answer', e.target.value)}
-      />
-    </section>
-  </div>
+                  <div className="flex flex-col w-full gap-10 my-10">
+                    <section>
+                      <h4>Term</h4>
+                      <textarea
+                        className="bg-[#51516B] w-full resize-none p-2 rounded-md"
+                        value={q.question || ''}
+                        onChange={(e) => handleChange(q.id, 'question', e.target.value)}
+                      />
+                    </section>
+                    <section>
+                      <h4>Definition</h4>
+                      <textarea
+                        className="bg-[#51516B] w-full resize-none p-2 rounded-md h-50 md:h-auto"
+                        value={q.answer || ''}
+                        onChange={(e) => handleChange(q.id, 'answer', e.target.value)}
+                      />
+                    </section>
+                  </div>
 
-  {/* Original desktop delete button (hidden on mobile) */}
-  <button
-    className="hidden md:flex w-full rounded-xl md:rounded-none p-5 md:w-[50px] 
-               justify-center items-center bg-[#373749] 
-               hover:bg-red-500 active:bg-red-600 transition-all"
-    onClick={() => handleDeleteItem(q.id, 'terms')}
-  >
-    <LuTrash />
-  </button>
-</div>
-
+                  <button
+                    className="hidden md:flex w-full rounded-xl md:rounded-none p-5 md:w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500 active:bg-red-600 transition-all"
+                    onClick={() => handleDeleteItem(q.id, 'terms')}
+                  >
+                    <LuTrash />
+                  </button>
+                </div>
               ))}
             </div>
             <button
@@ -384,8 +436,7 @@ const EditFlashCard = () => {
   )
 }
 
-export default EditFlashCard
-
+export default EditFlashCard;
 
 export const editFlashCardLoader = async ({ params }) => {
   const { id: folderId, reviewerId } = params;
@@ -394,115 +445,71 @@ export const editFlashCardLoader = async ({ params }) => {
     new Promise((resolve, reject) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         unsubscribe();
-        if (user && user.emailVerified) {
-          resolve(user);
-        } else {
-          reject("Unauthorized");
-        }
+        if (user && user.emailVerified) resolve(user);
+        else reject("Unauthorized");
       });
     });
 
   try {
     const user = await getUser();
 
-    const reviewerRef = doc(
-      db,
-      "users",
-      user.uid,
-      "folders",
-      folderId,
-      "reviewers",
-      reviewerId
-    );
-    const reviewerSnap = await getDoc(reviewerRef);
-    if (!reviewerSnap.exists())
-      throw new Response("Reviewer not found", { status: 404 });
-
-    const reviewerData = reviewerSnap.data();
+    const reviewerRef = doc(db, "users", user.uid, "folders", folderId, "reviewers", reviewerId)
+    const reviewerSnap = await getDoc(reviewerRef)
+    if (!reviewerSnap.exists()) throw new Response("Reviewer not found", { status: 404 })
+    const reviewerData = reviewerSnap.data()
 
     //Detect type by folderId
-    let type = "flashcard";
-    if (folderId === "AcronymMnemonics") type = "acronym";
-    else if (folderId === "TermsAndDefinitions") type = "terms";
+    let type = "flashcard"
+    if (folderId === "AcronymMnemonics") type = "acronym"
+    else if (folderId === "TermsAndDefinitions") type = "terms"
 
     if (type === "terms") {
-      const questionsRef = collection(reviewerRef, "questions");
-      const questionsSnap = await getDocs(questionsRef);
-      const questions = questionsSnap.docs.map((doc) => {
-        const data = doc.data();
-
-        let answer = "";
+      const questionsRef = collection(reviewerRef, "questions")
+      const questionsSnap = await getDocs(questionsRef)
+      const questions = questionsSnap.docs.map(doc => {
+        const data = doc.data()
+        let answer = ""
         if (Array.isArray(data.definition)) {
-          const correct = data.definition.find(d => d && d.type === "correct") || data.definition[0];
-          answer = correct?.text ?? "";
+          const correct = data.definition.find(d => d && d.type === "correct") || data.definition[0]
+          answer = correct?.text ?? ""
         } else if (data.definition && typeof data.definition === "object") {
-          // single map stored as definition
-          answer = data.definition.text ?? "";
+          answer = data.definition.text ?? ""
         } else if (typeof data.definition === "string") {
-          answer = data.definition;
+          answer = data.definition
         }
+        return { id: doc.id, question: data.term || "", answer }
+      })
 
-        return {
-          id: doc.id,
-          question: data.term || "",
-          answer,
-        };
-      });
-
-      // sort questions numerically before returning so UI receives ordered q1,q2,...
       const sortedQuestions = questions.sort((a, b) => {
-        const aNum = Number(String(a.id).match(/\d+/)?.[0] || 0);
-        const bNum = Number(String(b.id).match(/\d+/)?.[0] || 0);
-        return aNum - bNum;
-      });
+        const aNum = Number(String(a.id).match(/\d+/)?.[0] || 0)
+        const bNum = Number(String(b.id).match(/\d+/)?.[0] || 0)
+        return aNum - bNum
+      })
 
-      return {
-        id: reviewerId,
-        title: reviewerData.title,
-        type: "terms",
-        questions: sortedQuestions,
-        folderId,
-      };
+      return { id: reviewerId, title: reviewerData.title, type: "terms", questions: sortedQuestions, folderId }
     }
 
     if (type === "acronym") {
-      const contentCollectionRef = collection(reviewerRef, "content");
-      const contentSnap = await getDocs(contentCollectionRef);
+      const contentCollectionRef = collection(reviewerRef, "content")
+      const contentSnap = await getDocs(contentCollectionRef)
 
       const content = await Promise.all(
         contentSnap.docs.map(async (contentDoc) => {
-          const contentData = contentDoc.data();
-          const contentsRef = collection(contentDoc.ref, "contents");
-          const contentsSnap = await getDocs(contentsRef);
-          let contents = contentsSnap.docs.map((d) => ({
-            id: d.id,
-            ...d.data(),
-          }));
-
-          //Sort by numeric ID
-          contents = contents.sort((a, b) => Number(a.id) - Number(b.id));
-
-          return {
-            id: contentDoc.id,
-            title: contentData.title,
-            keyPhrase: contentData.keyPhrase,
-            contents,
-          };
+          const contentData = contentDoc.data()
+          const contentsRef = collection(contentDoc.ref, "contents")
+          const contentsSnap = await getDocs(contentsRef)
+          let contents = contentsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+          contents = contents.sort((a, b) => Number(a.id) - Number(b.id))
+          return { id: contentDoc.id, title: contentData.title, keyPhrase: contentData.keyPhrase, contents }
         })
-      );
+      )
 
-      return {
-        id: reviewerId,
-        title: reviewerData.title,
-        type: "acronym",
-        content,
-        folderId,
-      };
+      return { id: reviewerId, title: reviewerData.title, type: "acronym", content, folderId }
     }
 
-    throw new Response("Unsupported reviewer type", { status: 400 });
+    throw new Response("Unsupported reviewer type", { status: 400 })
   } catch (error) {
-    console.error("Loader error:", error);
-    throw new Response("Failed to load reviewer", { status: 500 });
+    console.error("Loader error:", error)
+    throw new Response("Failed to load reviewer", { status: 500 })
   }
-};
+}
