@@ -21,8 +21,8 @@ const Reviewers = () => {
   let headingText = "REVIEWERS";
   let revIcon = <TbCardsFilled color='white' size={80} />;
 
-  if (folder.id === "TermsAndCondition") {
-    headingText = "TERMS AND CONDITION";
+  if (folder.id === "TermsAndDefinitions") {
+    headingText = "TERMS AND DEFINITION";
     revIcon = <TbCardsFilled color='white' size={80} />;
   } else if (folder.id === "SummarizedReviewers") {
     headingText = "SUMMARIZED REVIEWERS";
@@ -31,7 +31,7 @@ const Reviewers = () => {
     headingText = "ACRONYM MNEMONICS";
     revIcon = <TbPlayCardAFilled size={90} color='white' />;
   } else if (folder.id === "SummarizedAIReviewers") {
-    headingText = "SUMMARIZED WITH AI REVIEWERS";
+    headingText = "SUMMARIZED AI REVIEWERS";
     revIcon = <FaWandMagicSparkles size={75} color='white' />;
   }
 
