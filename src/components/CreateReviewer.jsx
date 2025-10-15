@@ -19,7 +19,7 @@ const CreateReviewer = () => {
   const [info, setInfo] = useState("")
   const [selectedFile, setSelectedFile] = useState(null)
   const [fileUrl, setFileUrl] = useState(null)
-  const [isCreating, setIsCreating] = useState(false)
+  const [isCreating, setIsCreating] = useState(true)
   const [isDone, setIsDone] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
 
@@ -175,13 +175,13 @@ const CreateReviewer = () => {
           fadeOut ? 'opacity-0' : 'opacity-100'
         }`}
       >
-        <img src={createLoadingScreen} alt="creationLoadingScreen" className="w-56 sm:w-72 md:w-80 mb-6" />
+        <img src={createLoadingScreen} alt="creationLoadingScreen" className="w-40 sm:w-40 md:w-80 mb-6" />
         <p className="text-[#9898D9] font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
           {isDone ? "Reviewer Created — Preparing Display..." : "Revio is generating your reviewer, please wait..."}
         </p>
         <LoadingBar isDone={isDone} />
 
-        <p className=' text-[#808080] p-2 w-[50%] mt-2 rounded-2xl'><b>Disclaimer: </b>This feature uses AI to generate educational content from your materials. While designed for accuracy, please review and verify the results before academic use.</p>
+        <p className=' text-[10px] text-[#808080] p-2 w-full md:w-[50%] mt-2 rounded-2xl'><b>Disclaimer: </b>This feature uses AI to generate educational content from your materials. While designed for accuracy, please review and verify the results before academic use.</p>
       </div>
     )
   }
