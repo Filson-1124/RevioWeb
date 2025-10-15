@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import gamifiedLogo from '../assets/gamifiedLogo.png'
+import gameOverLogo from '../assets/referee.png'
 import { auth, db } from '../components/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
@@ -201,7 +202,7 @@ const Gamified = () => {
       <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center">
         {timeUp ? (
           <>
-            <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-pulse" />
+            <img src={gameOverLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-pulse" />
             <h1 className="text-3xl font-bold text-yellow-400 mb-2">Time’s Up!</h1>
             <p className="text-[#9898D9] text-lg">Game Over ⏰</p>
           </>
