@@ -10,6 +10,7 @@ import { FaEyeSlash } from "react-icons/fa6"
 import { useAuth } from './AuthContext'
 import LoadingBar from './LoadingBar'
 import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer } from 'react-toastify';
 
 const Login = () => {
   const [email, setEmail] = useState("")
@@ -25,18 +26,28 @@ const Login = () => {
 
   // check auth state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        setIsLoggedIn(true)
-        setIsDone(true)
-        localStorage.setItem('isLoggedInWeb', true)
-        navigate('/Main/Library')
-      } else {
-        setIsLoggingIn(false)
-      }
-    })
-    return () => unsubscribe()
-  }, [navigate, setIsLoggedIn])
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user && user.emailVerified) {
+      setIsLoggedIn(true)
+      setIsDone(true)
+      localStorage.setItem('isLoggedInWeb', true)
+      navigate('/Main/Library')
+    } else {
+      setIsLoggingIn(false)
+    }
+  })
+
+  // failsafe: stop loading after 3 seconds if nothing happens
+  const timeout = setTimeout(() => {
+    setIsLoggingIn(false)
+  }, 3000)
+
+  return () => {
+    clearTimeout(timeout)
+    unsubscribe()
+  }
+}, [navigate, setIsLoggedIn])
+
 
   // resend timer countdown
   useEffect(() => {
@@ -62,9 +73,14 @@ const Login = () => {
         setIsLoggingIn(true)
         setIsLoggedIn(true)
         setIsDone(true)
-        toast.success("User logged in successfully")
-        localStorage.setItem('isLoggedInWeb', true)
-        navigate('/Main/Library')
+     
+        
+       
+        toast.success("User logged in successfully");
+        setTimeout(() => {
+          localStorage.setItem('isLoggedInWeb', true)
+          navigate('/Main/Library');
+        }, 500); 
       } else {
         setIsVerified(false)
         toast.warning("Email not verified. Please check your inbox.")
@@ -186,6 +202,7 @@ const Login = () => {
           </Link>
         </div>
       </div>
+       
     </div>
   )
 }

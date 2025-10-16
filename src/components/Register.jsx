@@ -7,8 +7,13 @@ import { setDoc, doc, query, where, getDocs, collection } from "firebase/firesto
 import { IoEyeSharp } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
 import 'react-toastify/dist/ReactToastify.css';
+import createLoadingScreen from '../assets/creationLoadingScreen.png';
+import LoadingBar from '../components/LoadingBar'; // your existing loading bar component
 
 const Register = () => {
+  // Toggle this to simulate loading without Firebase
+  const TEST_MODE = false;
+
   // Form fields
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -25,10 +30,14 @@ const Register = () => {
   const [isDisabled, setIsDisabled] = useState(true);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-  // Helper to check uppercase
+  // Loading screen states
+  const [isCreating, setIsCreating] = useState(false);
+  const [isDone, setIsDone] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+
   const isUpperCase = (char) => char === char.toUpperCase() && char !== char.toLowerCase();
 
-  // Check password strength and form validity
+  // Password validation + button enable
   useEffect(() => {
     const hasLength = iniPassword.length >= 8;
     let hasUpper = false;
@@ -57,7 +66,7 @@ const Register = () => {
     setIsSubmitDisabled(!allValid);
   }, [iniPassword, username, email, rePassword]);
 
-  // Handle signup submission
+  // Handle Sign-up
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -66,25 +75,35 @@ const Register = () => {
       return;
     }
 
+    setIsCreating(true); // Show loading screen
+
     try {
-      // Create Firebase Auth user
+      // TEST MODE — no Firebase involved
+      if (TEST_MODE) {
+        await new Promise((res) => setTimeout(res, 2500)); // simulate delay
+        setIsDone(true);
+        setTimeout(() => setFadeOut(true), 1000);
+        setTimeout(() => setIsCreating(false), 1800);
+        toast.success("Simulated: Account created successfully!");
+        return;
+      }
+
+      // REAL MODE — actual Firebase registration
       const userCredential = await createUserWithEmailAndPassword(auth, email.toLowerCase(), iniPassword);
       const user = userCredential.user;
 
-      // Send verification email
       await sendEmailVerification(user);
 
-      // Check if username is already taken
       const q = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
         toast.error("Username Taken, Please choose another one");
         await user.delete();
+        setIsCreating(false);
         return;
       }
 
-      // Save user info in Firestore
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         username: username.toLowerCase()
@@ -113,9 +132,13 @@ const Register = () => {
         }),
       ]);
 
+      setIsDone(true);
+      setTimeout(() => setFadeOut(true), 1000);
+      setTimeout(() => setIsCreating(false), 1800);
       toast.success("Account created! Verification email sent.");
     } catch (error) {
       console.error(error);
+      setIsCreating(false);
 
       switch (error.code) {
         case "auth/email-already-in-use":
@@ -127,29 +150,8 @@ const Register = () => {
         case "auth/weak-password":
           toast.error("Your password is too weak. Use at least 6 characters.");
           break;
-        case "auth/missing-email":
-          toast.error("Email field cannot be empty.");
-          break;
-        case "auth/missing-password":
-          toast.error("Password field cannot be empty.");
-          break;
         case "auth/network-request-failed":
           toast.error("Network error. Please check your internet connection.");
-          break;
-        case "auth/operation-not-allowed":
-          toast.error("Email sign-up is currently disabled. Contact support.");
-          break;
-        case "auth/too-many-requests":
-          toast.error("Too many attempts. Please try again later.");
-          break;
-        case "auth/internal-error":
-          toast.error("Something went wrong on our end. Please try again.");
-          break;
-        case "auth/invalid-api-key":
-          toast.error("Invalid API configuration. Please contact support.");
-          break;
-        case "auth/app-not-authorized":
-          toast.error("This app is not authorized to use Firebase Authentication.");
           break;
         default:
           toast.error(error.message || "Something went wrong during registration.");
@@ -157,22 +159,39 @@ const Register = () => {
     }
   };
 
+  // Show loading screen while creating account
+  if (isCreating) {
+    return (
+      <div
+        className={`min-h-screen flex flex-col justify-center items-center text-center p-4 transition-opacity duration-700 ${
+          fadeOut ? 'opacity-0' : 'opacity-100'
+        } bg-[#12121A]`}
+      >
+        <img src={createLoadingScreen} alt="Creating Account..." className="w-40 sm:w-40 md:w-80 mb-6" />
+        <p className="text-[#9898D9] font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
+          {isDone ? "Account Created — Sending Verification..." : "Creating your account, please wait..."}
+        </p>
+        <LoadingBar isDone={isDone} />
+        <p className="text-[10px] text-[#808080] p-2 w-full md:w-[50%] mt-2 rounded-2xl">
+          <b>Note:</b> This process may take a few seconds depending on your internet speed.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex justify-center items-center h-screen w-screen bg-[#12121A] p-4 sm:p-6 md:p-10">
         <div className="bg-[#1C1C26] w-full max-w-md sm:max-w-lg lg:max-w-xl p-6 sm:p-8 md:p-10 border border-[#5C5B5B] rounded-2xl shadow-lg">
-          
           <h1 className="text-[#FFFBEF] text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold mb-6 text-center md:text-left">
             Create Account
           </h1>
 
           <form className="flex flex-col text-[#FFFBEF] gap-3 sm:gap-4" onSubmit={handleSubmit}>
-            
             <div className="flex flex-col">
               <label htmlFor="username">Username</label>
               <input
                 type="text"
-                name="username"
                 id="username"
                 placeholder="Enter your Username"
                 className="border border-[#5C5B5B] rounded-lg p-2 bg-[#21212C] text-sm sm:text-base"
@@ -185,7 +204,6 @@ const Register = () => {
               <label htmlFor="email">Email</label>
               <input
                 type="email"
-                name="email"
                 id="email"
                 placeholder="Enter your Email"
                 className="border border-[#5C5B5B] rounded-lg p-2 bg-[#21212C] text-sm sm:text-base"
@@ -200,13 +218,11 @@ const Register = () => {
                 <input
                   type={showPass ? 'text' : 'password'}
                   id="password"
-                  name="password"
                   placeholder="Password"
                   value={iniPassword}
                   onChange={(e) => setIniPassword(e.target.value)}
                   className="w-full rounded-lg border border-[#9E9E9E] p-2 pr-10 text-white placeholder:text-[#9E9E9E] bg-transparent text-sm sm:text-base"
                 />
-
                 <div className="absolute inset-y-0 right-2 flex items-center">
                   {showPass ? (
                     <IoEyeSharp color="white" size={20} className="cursor-pointer" onClick={() => setShowpass(false)} />
@@ -228,7 +244,6 @@ const Register = () => {
               <input
                 disabled={isDisabled}
                 type={showPass ? 'text' : 'password'}
-                name="reEnterPassword"
                 id="reEnterPassword"
                 placeholder="Re-enter your Password"
                 className="border border-[#5C5B5B] rounded-lg p-2 bg-[#21212C] disabled:cursor-not-allowed text-sm sm:text-base"
@@ -239,12 +254,10 @@ const Register = () => {
 
             <button
               disabled={isSubmitDisabled}
-              className="
-                bg-[#B5B5FF] text-[#200448] font-poppinsbold p-2 rounded-2xl border border-[#200448]
+              className="bg-[#B5B5FF] text-[#200448] font-poppinsbold p-2 rounded-2xl border border-[#200448]
                 w-[70%] sm:w-[60%] self-center mt-4
                 active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448]
-                disabled:bg-gray-400 disabled:cursor-not-allowed disabled:active:scale-100
-              "
+                disabled:bg-gray-400 disabled:cursor-not-allowed disabled:active:scale-100"
               type="submit"
             >
               Sign up
@@ -260,7 +273,7 @@ const Register = () => {
         </div>
       </div>
 
-      <ToastContainer position="bottom-center" />
+   
     </>
   );
 };

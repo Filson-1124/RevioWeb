@@ -106,10 +106,12 @@ const App = () => {
       <AudioProvider>
         <PomodoroProvider>
           <RouterProvider router={router} />
-          <ToastContainer position="top-center" autoClose={3000} />
+          
         </PomodoroProvider>
       </AudioProvider>
+      <ToastContainer position="bottom-center" />
     </AuthProvider>
+    
   )
 }
 

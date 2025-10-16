@@ -160,7 +160,7 @@ const Review = () => {
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
+                    <p className="text-sm sm:text-2xl md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
                       {correctChoice?.text ?? 'No definition available'}
                     </p>
                   )}
