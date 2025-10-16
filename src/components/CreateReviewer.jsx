@@ -153,16 +153,36 @@ const CreateReviewer = () => {
 
   
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  let safeFile;
+
+  try {
     const arrayBuffer = await file.arrayBuffer();
     const blobCopy = new Blob([arrayBuffer], { type: file.type });
-    const safeFile = new File([blobCopy], file.name, { type: file.type });
-    if (fileUrl) URL.revokeObjectURL(fileUrl);
-    const newUrl = URL.createObjectURL(safeFile);
-    setSelectedFile(safeFile);
-    setFileUrl(newUrl);
-  };
+    safeFile = new File([blobCopy], file.name, { type: file.type });
+  } catch (err) {
+    console.warn("arrayBuffer() failed, retrying with FileReader:", err);
+
+    safeFile = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const blobCopy = new Blob([reader.result], { type: file.type });
+        resolve(new File([blobCopy], file.name, { type: file.type }));
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  if (fileUrl) URL.revokeObjectURL(fileUrl);
+  const newUrl = URL.createObjectURL(safeFile);
+
+  setSelectedFile(safeFile);
+  setFileUrl(newUrl);
+};
+
 
 
   const handleRemoveFile = () => {
@@ -171,13 +191,6 @@ const CreateReviewer = () => {
     document.getElementById('fileUpload').value = ""
   }
 
-  useEffect(() => {
-    return () => {
-      // for cleanup (together with handlefilechange modification)
-      if (fileUrl) URL.revokeObjectURL(fileUrl);
-    };
-  }, [fileUrl]);
-  
 
   if (isCreating) {
     return (
