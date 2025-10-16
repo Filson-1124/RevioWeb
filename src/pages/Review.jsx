@@ -122,16 +122,16 @@ const Review = () => {
             >
               {/* FRONT SIDE */}
               <div  
-                className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'}`}
+                className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'}  transition-all duration-200ms `}
               >
                 {isAcronymCard ?
-                  <h1 className="text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center"> 
+                  <h1 className={`text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms]`}> 
                     {currentTitle}
                   </h1>
                 : ""}
 
                 {isAcronymCard ? (
-                  <div className="scroll-container bg-[#5C5C76] p-3 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto flex">
+                  <div className={` scroll-container bg-[#5C5C76] p-3 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto flex ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms] `}>
                     <div className="m-auto text-center text-lg md:text-lg font-extrabold tracking-widest leading-loose font-poppinsbold">
                       {currentAcronym?.contents?.map((item, index) => (
                         <p key={index} className="first-letter:text-[#E4FF35] text-white">
@@ -149,12 +149,12 @@ const Review = () => {
 
               {/* BACK SIDE */}
               <div  
-                className={`absolute w-full h-full [backface-visibility:hidden] rotate-y-180 rounded-2xl shadow-lg flex flex-col items-center justify-center p-10 md:p-4 text-center cursor-pointer ${isAcronymCard ? 'bg-[#5C5C76]' : 'bg-[#FFF8AA]'}`}
+                className={`absolute w-full h-full [backface-visibility:hidden] rotate-y-180 rounded-2xl shadow-lg flex flex-col items-center justify-center p-4 md:p-4 text-center cursor-pointer ${isAcronymCard ? 'bg-[#5C5C76]' : 'bg-[#FFF8AA]'}`}
               >
                 <div className="scroll-container text-white w-full h-full overflow-y-auto flex flex-col items-center justify-center text-center">
                   {isAcronymCard?<h1 className='text-white text-2xl md:text-3xl font-bold mt-6 mb-6 text-center'> Key Phrases</h1>:""}
                   {isAcronymCard ? (
-                    <div className="bg-[#2E2E40] h-[80%] min-w-[100%] rounded-2xl text-lg md:text-2xl font-semibold flex items-center justify-center text-center">
+                    <div className="bg-[#2E2E40] p-2 h-[80%] min-w-[100%] rounded-2xl text-lg md:text-2xl font-semibold flex items-center justify-center text-center">
                       <p className="text-white">
                         <b>{currentAcronym?.keyPhrase ?? ''}</b>
                       </p>
