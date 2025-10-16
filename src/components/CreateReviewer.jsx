@@ -151,13 +151,20 @@ const CreateReviewer = () => {
     }
   }, [type])
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setSelectedFile(file)
-      setFileUrl(URL.createObjectURL(file))
-    }
+ const handleFileChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const buffer = await file.arrayBuffer();
+    const fixedFile = new File([buffer], file.name, { type: file.type });
+
+    setSelectedFile(fixedFile);
+    setFileUrl(URL.createObjectURL(fixedFile));
+  } catch (err) {
+    alert("Failed to read file. Please try again.");
   }
+};
 
   const handleRemoveFile = () => {
     setSelectedFile(null)
