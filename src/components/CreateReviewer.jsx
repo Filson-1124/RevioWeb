@@ -152,38 +152,14 @@ const CreateReviewer = () => {
   }, [type])
 
   
-  const handleFileChange = async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-
-  let safeFile;
-
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const blobCopy = new Blob([arrayBuffer], { type: file.type });
-    safeFile = new File([blobCopy], file.name, { type: file.type });
-  } catch (err) {
-    console.warn("arrayBuffer() failed, retrying with FileReader:", err);
-
-    safeFile = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const blobCopy = new Blob([reader.result], { type: file.type });
-        resolve(new File([blobCopy], file.name, { type: file.type }));
-      };
-      reader.onerror = () => reject(reader.error);
-      reader.readAsArrayBuffer(file);
-    });
-  }
-
-  if (fileUrl) URL.revokeObjectURL(fileUrl);
-  const newUrl = URL.createObjectURL(safeFile);
-
-  setSelectedFile(safeFile);
-  setFileUrl(newUrl);
-};
-
-
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (fileUrl) URL.revokeObjectURL(fileUrl);
+    const newUrl = URL.createObjectURL(file);
+    setSelectedFile(file);
+    setFileUrl(newUrl);
+  };
 
   const handleRemoveFile = () => {
     setSelectedFile(null)
