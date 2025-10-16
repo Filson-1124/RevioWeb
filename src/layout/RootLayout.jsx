@@ -13,7 +13,7 @@ const RootLayout = () => {
   return (
     <AudioProvider>
       {/* Fill viewport and prevent outer scrolling */}
-      <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-[#12121A] relative">
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden md:overflow-auto bg-[#12121A] relative">
         {/* NavBar: stay in-flow and non-scrollable (use flex-shrink-0) */}
         <div className="flex-shrink-0">
           <NavBar />

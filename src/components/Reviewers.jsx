@@ -42,7 +42,7 @@ const Reviewers = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col overflow-hidden">
+    <div className="min-h-screen pb-[20%] flex flex-col overflow-hidden">
 
       <div className='flex flex-col gap-7 p-5'>
         <div className="w-full p-10 flex justify-between items-center relative">

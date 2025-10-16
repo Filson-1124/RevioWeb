@@ -75,7 +75,7 @@ const Review = () => {
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
-    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-20 md:pb-10 px-4 gap-7 md:px-10'>
+    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[25%] md:pb-10 px-4 gap-7 md:px-10'>
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
