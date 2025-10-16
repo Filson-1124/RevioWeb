@@ -152,19 +152,31 @@ const CreateReviewer = () => {
   }, [type])
 
   
-const handleFileChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const safeFile = new File([file], file.name, { type: file.type });
+    const newUrl = URL.createObjectURL(safeFile);
+    if (fileUrl) URL.revokeObjectURL(fileUrl);
 
-  setSelectedFile(file);
-  setFileUrl(URL.createObjectURL(file));
-};
+    setSelectedFile(safeFile);
+    setFileUrl(newUrl);
+  };
+
 
   const handleRemoveFile = () => {
     setSelectedFile(null)
     setFileUrl(null)
     document.getElementById('fileUpload').value = ""
   }
+
+  useEffect(() => {
+    return () => {
+      // for cleanup (together with handlefilechange modification)
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+    };
+  }, [fileUrl]);
+  
 
   if (isCreating) {
     return (
