@@ -75,11 +75,11 @@ const Review = () => {
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
-    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-10 md:pb-10 px-4 gap-7 md:px-10'>
+    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-20 md:pb-10 px-4 gap-7 md:px-10'>
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="absolute left-0 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className='md:size-5' />
           Back

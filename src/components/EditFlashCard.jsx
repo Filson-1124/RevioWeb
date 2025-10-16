@@ -309,11 +309,11 @@ const EditFlashCard = () => {
       </div>
 
       {/* === FLASHCARD AREA === */}
-      <div className="flex flex-col gap-10 p-3 md:p-5 w-full place-items-center">
+      <div className="flex flex-col pb-20 gap-10 p-3 md:p-5 w-full place-items-center">
         {isTermDef && (
           <>
             {questions.length === 0 && <p className="text-gray-400">No questions yet.</p>}
-            <div className="w-full max-w-4xl overflow-auto max-h-[60vh] space-y-6">
+            <div className="w-full max-w-4xl overflow-auto max-h-[50vh] space-y-6">
               {questions.map((q) => ( 
                 <div key={q.id} className="relative flex flex-col md:flex-row items-stretch bg-[#3F3F54] w-full p-4 md:pl-10 md:p-0 gap-3 text-white rounded-xl">
                   <button

@@ -20,7 +20,7 @@ const RootLayout = () => {
         </div>
 
         {/* The only scrollable area: main (Outlet) */}
-        <main className="flex-1 overflow-y-auto no-scrollbar pb-24 md:pb-0 relative z-0">
+        <main className="flex-1 overflow-y-auto no-scrollbar relative z-0">
           <Outlet />
         </main>
 

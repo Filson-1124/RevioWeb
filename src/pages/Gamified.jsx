@@ -199,7 +199,7 @@ const Gamified = () => {
   // Splash screen
   if (showSplash && !showResults) {
     return (
-      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center">
+      <div className="h-[100%] bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center">
         {timeUp ? (
           <>
             <img src={gameOverLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-pulse" />
@@ -237,7 +237,7 @@ const Gamified = () => {
 
   // Main game screen
   return (
-    <div className="min-h-screen bg-[#121212] text-white w-full p-4 sm:p-6 flex flex-col items-center relative overflow-x-hidden">
+    <div className="h-full bg-[#121212] text-white w-full pb-20 p-5 flex flex-col items-center relative overflow-x-hidden">
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
@@ -249,9 +249,9 @@ const Gamified = () => {
       </div>
 
       {countdown !== null && (
-        <div className="absolute inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center text-6xl sm:text-8xl font-bold text-white">
-          {countdown}
-        </div>
+       <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center text-6xl sm:text-8xl font-bold text-white">
+  {countdown}
+</div>
       )}
 
       {showResults ? (
