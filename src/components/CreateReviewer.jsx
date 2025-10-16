@@ -152,15 +152,17 @@ const CreateReviewer = () => {
   }, [type])
 
   
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const arrayBuffer = await file.arrayBuffer();
+    const blobCopy = new Blob([arrayBuffer], { type: file.type });
+    const safeFile = new File([blobCopy], file.name, { type: file.type });
     if (fileUrl) URL.revokeObjectURL(fileUrl);
-    const newUrl = URL.createObjectURL(file);
-    setSelectedFile(file);
+    const newUrl = URL.createObjectURL(safeFile);
+    setSelectedFile(safeFile);
     setFileUrl(newUrl);
   };
-
 
 
   const handleRemoveFile = () => {
