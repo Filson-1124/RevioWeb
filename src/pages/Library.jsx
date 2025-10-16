@@ -32,7 +32,7 @@ const Library = () => {
   */
 
   return (
-    <div>
+    <div className='pb-[30%]'>
       {/* Header Section */}
       <div className='flex flex-col gap-7 p-10'>
         <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>LIBRARY</h1>

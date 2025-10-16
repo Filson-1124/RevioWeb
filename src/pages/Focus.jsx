@@ -18,7 +18,7 @@ const Focus = () => {
   }, [])
 
   return (
-    <div className="flex flex-col gap-7 pb-40 p-5 md:p-10">
+    <div className="flex flex-col gap-7 pb-[55%] p-5 md:p-10">
       <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
         FOCUS
       </h1>

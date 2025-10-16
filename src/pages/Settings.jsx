@@ -100,7 +100,7 @@ const Settings = () => {
     return <p className="text-white text-center py-20">Loading user data...</p>
 
   return (
-    <div className="flex flex-col mb-10 gap-8 p-6 sm:p-10 md:p-16 lg:p-20">
+    <div className="flex flex-col mb-10 gap-8 p-6 pb-[45%] sm:p-10 md:p-16 md:pb-0 lg:p-20">
       <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
         SETTINGS
       </h1>
