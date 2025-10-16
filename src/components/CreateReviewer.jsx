@@ -153,15 +153,14 @@ const CreateReviewer = () => {
 
   
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
-    const safeFile = new File([file], file.name, { type: file.type });
-    const newUrl = URL.createObjectURL(safeFile);
     if (fileUrl) URL.revokeObjectURL(fileUrl);
-
-    setSelectedFile(safeFile);
+    const newUrl = URL.createObjectURL(file);
+    setSelectedFile(file);
     setFileUrl(newUrl);
   };
+
 
 
   const handleRemoveFile = () => {
