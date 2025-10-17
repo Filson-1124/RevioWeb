@@ -106,8 +106,13 @@ const CreateReviewer = () => {
     } catch (err) {
      console.error("Error creating reviewer:", err)
       const errText = err?.message || ""
+      //for cloud files like from drive
+      if (errText.includes("ERR_UPLOAD_FILE_CHANGED") || errText.includes("ERR_FAILED") || errText.includes("Failed to fetch") ) {
+      alert(
+        "The selected file is from cloud storage. Please download it to your device first and try again."
+      )
       // Added backend error handling
-      if (errText.includes("text content is too long")) {
+      } else if (errText.includes("text content is too long")) {
         alert("The text content is too long. Please shorten it and try again.")
       } else if (errText.includes("Failed to generate content with AI")) {
         alert("An error occurred while generating content with AI. Please try again.")
@@ -155,16 +160,17 @@ const CreateReviewer = () => {
   const handleFileChange = (e) => {
   const file = e.target.files[0];
   if (!file) return;
-
+  console.log("Selected file before upload:", file);
   setSelectedFile(file);
   setFileUrl(URL.createObjectURL(file));
 };
 
   useEffect(() => {
-    return () => {
-      if (fileUrl) URL.revokeObjectURL(fileUrl);
-    };
-  }, [fileUrl]);
+  let prevUrl = fileUrl;
+  return () => {
+    if (prevUrl) URL.revokeObjectURL(prevUrl);
+  };
+}, [fileUrl]);
 
 
   const handleRemoveFile = () => {
