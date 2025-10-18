@@ -229,8 +229,8 @@ const Review = () => {
       )}
 
        {isDeleting && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px]">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 ">
+          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border-1  border-[#B5B5FF]">
             <h2 className="text-white text-lg font-bold mb-3">
              Delete Flashcard Set
             </h2>
@@ -255,7 +255,7 @@ const Review = () => {
 
         {isDeletingSum && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px]">
+          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border-1  border-[#B5B5FF]">
             <h2 className="text-white text-lg font-bold mb-3">
              Delete Summarized Reviewer
             </h2>
