@@ -54,6 +54,7 @@ const Review = () => {
   const { id, reviewerId } = useParams()
   const navigate = useNavigate()
 
+  //muntik na idelete ang repo, nag kanda letche letche sa push pull 
 const handleDelete = async (reviewerId) => {
   setIsDone(false)
   setDeleting(true)
