@@ -64,7 +64,10 @@ const handleDelete = async (reviewerId) => {
     // ✅ Correct Firestore document reference with template literals
     const reviewerRef = doc(db, `users/${uid}/folders/${id}/reviewers/${reviewerId}`)
     await deleteDoc(reviewerRef)
+
     setIsDone(true)
+    
+
     // ✅ Correct navigation with template literals
     navigate(`/Main/Library/${id}`)
   } catch (error) {
