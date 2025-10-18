@@ -6,6 +6,7 @@ import { IoArrowRedoSharp, IoArrowUndo, IoGameController } from "react-icons/io5
 import { IoMdStarOutline } from "react-icons/io";
 import { FaRegLightbulb } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa"
+import { FaTrashAlt } from "react-icons/fa";
 
 const Review = () => {
   const reviewer = useLoaderData()
@@ -20,6 +21,14 @@ const Review = () => {
     : []
 
   // Sort acronym content numerically based on their IDs
+
+  //reviewerDelete
+  //ALDEN DITO KA MAG LAGAY HA
+      const handleDelete=(id)=>{
+
+
+      }
+
   const sortedContent = reviewer.content
     ? [...reviewer.content].sort((a, b) => {
         const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
@@ -32,6 +41,8 @@ const Review = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [message, setMessage] = useState('')
+  const [isDeleting, setIsDeleting]=useState(false)
+  const [isDeletingSum, setIsDeletingSum]=useState(false)
   const isFlashcard = reviewer.id.startsWith('td') || reviewer.id.startsWith('ac')
   const isAcronymCard = reviewer.id.startsWith('ac')
 
@@ -75,7 +86,7 @@ const Review = () => {
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
-    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[25%] md:pb-10 px-4 gap-7 md:px-10'>
+    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[45%] md:pb-10 px-4 gap-7 md:px-10'>
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(-1)}
@@ -203,14 +214,82 @@ const Review = () => {
                 Game Mode
               </span>
             </button>
+            
+             <button
+              onClick={() => setIsDeleting(true) }
+              className=" text-red-800 flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+            >
+              <FaTrashAlt color='red' size={18}/>
+            
+                Delete Flashcard set
+           
+            </button>
           </div>
         </>
       )}
 
+       {isDeleting && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px]">
+            <h2 className="text-white text-lg font-bold mb-3">
+             Delete Flashcard Set
+            </h2>
+            <p className="text-gray-400 text-sm mb-6"> Are you sure you want to delete this reviewer? This action cannot be undone.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setIsDeleting(false)}
+                className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(reviewerId)}
+                className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+        {isDeletingSum && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px]">
+            <h2 className="text-white text-lg font-bold mb-3">
+             Delete Summarized Reviewer
+            </h2>
+            <p className="text-gray-400 text-sm mb-6"> Are you sure you want to delete this reviewer? This action cannot be undone.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setIsDeletingSum(false)}
+                className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(reviewerId)}
+                className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Regular Reviewers */}
       {!isFlashcard && reviewer.sections && (
         <div className="text-white w-full max-w-3xl mt-10">
+        <button
+  onClick={() => setIsDeletingSum(true)}
+  className="ml-auto mb-5 text-red-800 flex gap-2 items-center justify-center p-3 border border-[#E93209] rounded-xl active:scale-95"
+>
+  <FaTrashAlt color="red" size={18} />
+</button>
           <h1 className='text-white font-black text-3xl mb-4'>{reviewer.title}</h1>
+         
           {reviewer.sections.map((section, idx) => (
             <div key={idx} className="mb-6 ">
               <h2 className="text-xl font-black text-[#B5B5FF] mb-2">{section.title}</h2>
@@ -278,8 +357,10 @@ const Review = () => {
                   </>
                 )}
               </ul>
+              
             </div>
           ))}
+            
         </div>
       )}
     </div>

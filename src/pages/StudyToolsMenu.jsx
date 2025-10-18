@@ -6,7 +6,7 @@ import { HiSparkles } from "react-icons/hi"
 
 const StudyToolsMenu = () => {
   return (
-    <>
+    <div className='pb-[25%] md:pb-0'>
       <div className="flex flex-col gap-5 p-6 sm:p-10 md:p-20 text-center">
         <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-poppinsbold">
           STUDY TOOLS
@@ -57,7 +57,7 @@ const StudyToolsMenu = () => {
         </Link>
 
       </div>
-    </>
+    </div>
   )
 }
 

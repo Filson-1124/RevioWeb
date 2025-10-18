@@ -16,6 +16,8 @@ const CreateReviewer = () => {
 
   const [title, setTitle] = useState("")
   const [subTitle, setSubTitle] = useState("")
+  const [createTitle,setCreateTitle]=useState("")
+  const [createSubTitle,setCreateSubTitle]=useState("")
   const [info, setInfo] = useState("")
   const [selectedFile, setSelectedFile] = useState(null)
   const [fileUrl, setFileUrl] = useState(null)
@@ -134,25 +136,35 @@ const CreateReviewer = () => {
       case 'acronym':
         setTitle("Acronym Mnemonics")
         setInfo("Acronym mnemonics is a powerful tool that enhances memory and recall by associating information with memorable phrases or words.")
+        setCreateTitle("Generating Acronym Flashcards...")
+        setCreateSubTitle("Hang tight while we turn your file into mnemonic flashcards!")
         break
       case 'terms':
         setTitle("Terms and Definitions")
         setInfo("Revio will help you memorize terms and definitions using the Leitner spaced repetition technique.")
+        setCreateTitle("Creating Term & Definition Set...")
+        setCreateSubTitle("We’re organizing your key terms and definitions for easy recall.")
         break
       case 'summarization':
         setTitle("Reviewer Generator")
         setSubTitle("Standard Summarization")
         setInfo("Revio will summarize your files for you.")
+        setCreateTitle("Summarizing Your Reviewer...")
+        setCreateSubTitle("Revio is condensing your document into digestible notes!")
         break
       case 'ai':
         setTitle("Reviewer Generator")
         setSubTitle("Summarization + AI Explanation")
         setInfo("Revio will summarize and explain content with AI for deeper understanding.")
+        setCreateTitle("AI Explanation in Progress...")
+        setCreateSubTitle("Our AI is summarizing + explaining your material in detail.")
         break
       default:
         setTitle("")
         setSubTitle("")
         setInfo("")
+        setCreateSubTitle("")
+        setCreateTitle("")
     }
   }, [type])
 
@@ -183,14 +195,16 @@ const CreateReviewer = () => {
   if (isCreating) {
     return (
       <div
-        className={`min-h-screen flex flex-col justify-center items-center text-center p-4 transition-opacity duration-700 ${
+        className={`min-h-screen flex flex-col justify-center items-center text-center pb-[40%] md:pb-0 p-4 transition-opacity duration-700 ${
           fadeOut ? 'opacity-0' : 'opacity-100'
         }`}
       >
         <img src={createLoadingScreen} alt="creationLoadingScreen" className="w-40 sm:w-40 md:w-80 mb-6" />
-        <p className="text-[#9898D9] font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
-          {isDone ? "Reviewer Created — Preparing Display..." : "Revio is generating your reviewer, please wait..."}
+        <p className="text-white font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
+          {isDone ? "Reviewer Created — Preparing Display..." :createTitle}
+        
         </p>
+        <p className='w-full sm:w-40 md:w-80 text-[#ffffff3b] font-poppinsbold text-sm sm:text-base md:text-sm mb-4'>{isDone?"":createSubTitle}</p>
         <LoadingBar isDone={isDone} />
 
         <p className=' text-[10px] text-[#808080] p-2 w-full md:w-[50%] mt-2 rounded-2xl'><b>Disclaimer: </b>This feature uses AI to generate educational content from your materials. While designed for accuracy, please review and verify the results before academic use.</p>
@@ -199,7 +213,7 @@ const CreateReviewer = () => {
   }
 
   return (
-  <div className="flex flex-col text-white w-full items-center h-screen px-4 sm:px-8 md:px-[5%] py-10 relative">
+  <div className="flex flex-col text-white w-full items-center h-screen px-4 pb-[45%] md:pb-0 sm:px-8 md:px-[5%] py-10 relative">
   {/* Back button */}
   <div className="w-full flex justify-between items-center absolute top-6 left-0 px-5">
     <button
