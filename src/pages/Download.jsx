@@ -20,6 +20,7 @@ const Download = () => {
         </p>
 
         {/* Download Buttons */}
+        {/*popopop booom booom*/}
         <div className="flex flex-col gap-3">
             <button
           onClick={() => window.open('https://expo.dev/accounts/mari_dev1/projects/Revio-Mobile/builds/d323445d-4493-465e-aa73-24213365b238?fbclid=IwY2xjawNgYe1leHRuA2FlbQIxMQABHn9175SgJ6g1e1GBJ0R5YBBIPYTi9HGaN03SBPi7-sEfaClXQBBNsgvGow23_aem_SgMzXfzaeVITEUAt4rXmCw', '_blank')}
