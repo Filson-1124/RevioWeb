@@ -21,9 +21,12 @@ const Download = () => {
 
         {/* Download Buttons */}
         <div className="flex flex-col gap-3">
-          <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
-            Download for Android
-          </button>
+            <button
+          onClick={() => window.open('https://expo.dev/accounts/mari_dev1/projects/Revio-Mobile/builds/d323445d-4493-465e-aa73-24213365b238?fbclid=IwY2xjawNgYe1leHRuA2FlbQIxMQABHn9175SgJ6g1e1GBJ0R5YBBIPYTi9HGaN03SBPi7-sEfaClXQBBNsgvGow23_aem_SgMzXfzaeVITEUAt4rXmCw', '_blank')}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+        > 
+  Download Revio Mobile
+</button>
         </div>
 
       </div>
