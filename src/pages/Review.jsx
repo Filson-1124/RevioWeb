@@ -7,6 +7,10 @@ import { IoMdStarOutline } from "react-icons/io";
 import { FaRegLightbulb } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa"
 import { FaTrashAlt } from "react-icons/fa";
+import deletingScreen from '../assets/deletingScreen.png'
+import LoadingBar from '../components/LoadingBar';
+import { auth, db } from "../components/firebase"
+import { doc, deleteDoc } from "firebase/firestore"
 
 const Review = () => {
   const reviewer = useLoaderData()
@@ -23,11 +27,8 @@ const Review = () => {
   // Sort acronym content numerically based on their IDs
 
   //reviewerDelete
-  //ALDEN DITO KA MAG LAGAY HA
-      const handleDelete=(id)=>{
 
-
-      }
+      
 
   const sortedContent = reviewer.content
     ? [...reviewer.content].sort((a, b) => {
@@ -42,12 +43,37 @@ const Review = () => {
   const [flipped, setFlipped] = useState(false)
   const [message, setMessage] = useState('')
   const [isDeleting, setIsDeleting]=useState(false)
+  const [deleting, setDeleting]=useState(false)
+  const [fadeOut,setFadeOut]=useState(false)
+  const [isDone,setIsDone]=useState(false)
   const [isDeletingSum, setIsDeletingSum]=useState(false)
   const isFlashcard = reviewer.id.startsWith('td') || reviewer.id.startsWith('ac')
   const isAcronymCard = reviewer.id.startsWith('ac')
+  
 
   const { id, reviewerId } = useParams()
   const navigate = useNavigate()
+
+const handleDelete = async (reviewerId) => {
+  setIsDone(false)
+  setDeleting(true)
+  try {
+    const uid = auth.currentUser?.uid
+    if (!uid) throw new Error("User not authenticated")
+
+    // ✅ Correct Firestore document reference with template literals
+    const reviewerRef = doc(db, `users/${uid}/folders/${id}/reviewers/${reviewerId}`)
+    await deleteDoc(reviewerRef)
+    setIsDone(true)
+    // ✅ Correct navigation with template literals
+    navigate(`/Main/Library/${id}`)
+  } catch (error) {
+    console.error("Error deleting reviewer:", error)
+    alert("Failed to delete reviewer. Please try again.")
+    setDeleting(false)
+  }
+}
+
 
   const handleFlip = () => setFlipped(!flipped)
 
@@ -84,8 +110,26 @@ const Review = () => {
   const correctChoice = !isAcronymCard && current?.definition?.find(c => c.type === "correct")
   const currentAcronym = isAcronymCard ? current : null
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
+   if (deleting) {
+    return (
+      <div
+        className={`min-h-screen flex flex-col justify-center items-center text-center pb-[40%] md:pb-0 p-4 transition-opacity duration-700 ${
+          fadeOut ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        <img src={deletingScreen} alt="creationLoadingScreen" className="w-40 sm:w-40 md:w-80 mb-6" />
+        <p className="text-white font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
+          {isDone ? "Reviewer Deleted" :"Deleting Reviewer, please wait"}
+        
+        </p>
+     
+        <LoadingBar isDone={isDone} />
+      </div>
+    )
+  }
 
   return (
+    
     <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[45%] md:pb-10 px-4 gap-7 md:px-10'>
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
@@ -216,7 +260,7 @@ const Review = () => {
             </button>
             
              <button
-              onClick={() => setIsDeleting(true) }
+              onClick={() => setIsDeleting(true)}
               className=" text-red-800 flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
               <FaTrashAlt color='red' size={18}/>
@@ -271,7 +315,7 @@ const Review = () => {
                 onClick={() => handleDelete(reviewerId)}
                 className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
               >
-                Yes, Delete
+                 Delete
               </button>
             </div>
           </div>
