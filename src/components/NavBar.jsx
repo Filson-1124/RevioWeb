@@ -40,7 +40,7 @@ const NavBar = () => {
           </li>
         </NavLink>
         <NavLink to='/Main/Download'>
-          <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110 md:hidden">
+          <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110 ">
             <FaMobileAlt color="white" size={30} />
           </li>
         </NavLink>
