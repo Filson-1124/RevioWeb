@@ -7,12 +7,15 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, collection, getDocs, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import editLoadingScreen from "../assets/editingLoadingScreen3.png"
 import LoadingBar from './LoadingBar'
+import { useParams } from "react-router-dom";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const EditFlashCard = () => {
   const reviewer = useLoaderData()
   const navigate = useNavigate()
+const { id: folderId, reviewerId } = useParams();
 
   const [isCreating, setIsCreating] = useState(false)
   const [isDone, setIsDone] = useState(false)
@@ -281,12 +284,13 @@ const EditFlashCard = () => {
     <div>
       <div className="w-full p-5 md:p-10 flex flex-col md:flex-row justify-between gap-10 items-start md:items-center relative">
         <button
-          onClick={() => navigate(-1)}
+           onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
           className="static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
         >
           <LuArrowLeft size={20} />
           Back
         </button>
+        
 
         {/* Editable title */}
         <div className="w-full flex gap-[1.5rem] justify-center items-center">

@@ -6,9 +6,14 @@ import { auth, db } from '../components/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import { LuArrowLeft } from "react-icons/lu"
+import { useParams } from "react-router-dom";
 
 const Gamified = () => {
+   const { id: folderId, reviewerId } = useParams();
+ 
   const reviewer = useLoaderData()
+ 
+
   const isAcronym = reviewer.id.startsWith('ac')
   const questions = isAcronym ? reviewer.content : reviewer.questions
   const navigate = useNavigate()
@@ -224,7 +229,7 @@ const Gamified = () => {
               Start Game
             </button>
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
               className="m left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
             >
               Back
@@ -240,7 +245,7 @@ const Gamified = () => {
     <div className="h-full bg-[#121212] text-white w-full pb-20 p-5 flex flex-col items-center relative overflow-x-hidden">
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
-          onClick={() => navigate(-1)}
+       onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
           className="md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className="md:size-5" />

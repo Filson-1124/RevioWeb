@@ -217,7 +217,7 @@ const CreateReviewer = () => {
   {/* Back button */}
   <div className="w-full flex justify-between items-center absolute top-6 left-0 px-5">
     <button
-      onClick={() => navigate(-1)}
+      onClick={() => navigate(`/Main/Create`)}
       className="flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
     >
       <LuArrowLeft size={18} className="md:size-5" />
