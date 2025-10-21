@@ -87,13 +87,13 @@ const CreateReviewer = () => {
 
         //To display upon create
         if (type === "terms") {
-          navigate(`/Main/review/terms/${folderId}/${reviewerId}`)
+          navigate(`/Main/Library/TermsAndDefinitions/${reviewerId}`)
         } else if (type === "acronym") {
-          navigate(`/Main/review/acronym/${folderId}/${reviewerId}`)
+          navigate(`/Main/Library/AcronymMnemonics/${reviewerId}`)
         } else if (type === "summarization") {
-          navigate(`/Main/review/summarized/${folderId}/${reviewerId}`)
+          navigate(`/Main/Library/SummarizedReviewers/${reviewerId}`)
         } else if (type === "ai") {
-          navigate(`/Main/review/ai/${folderId}/${reviewerId}`)
+          navigate(`/Main/Library/SummarizedAIReviewers/${reviewerId}`)
         }
 
         await new Promise((resolve) => setTimeout(resolve, 7000))

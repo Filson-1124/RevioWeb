@@ -237,6 +237,7 @@ const Gamified = () => {
           </>
         )}
       </div>
+      
     )
   }
 
