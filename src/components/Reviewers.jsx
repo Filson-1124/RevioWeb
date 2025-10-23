@@ -46,6 +46,12 @@ const Reviewers = () => {
   return milestones;
 };
 
+const isAllMilestonesDone = (milestones) => {
+  const today = new Date();
+  // Check if the last milestone is in the past
+  return today > milestones[milestones.length - 1];
+};
+
 
   const getMilestoneColor = (milestones) => {
     const today = new Date();
@@ -82,11 +88,11 @@ const Reviewers = () => {
             : 'text-sm sm:text-base md:text-lg';
 
          // Convert Firestore timestamp to JS Date
-          const startDate = reviewer.startDate?.toDate ? reviewer.startDate.toDate() : new Date(reviewer.startDate);
-
-          // Calculate milestones based on startDate
+         const startDate = reviewer.startDate?.toDate ? reviewer.startDate.toDate() : new Date(reviewer.startDate);
           const milestones = calculateMilestones(startDate);
           const color = getMilestoneColor(milestones);
+          const allDone = isAllMilestonesDone(milestones);
+
 
 
           return (
@@ -96,10 +102,16 @@ const Reviewers = () => {
               className="relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
             >
               {/* Colored Dot */}
-              <span
-                className={`absolute top-2 right-2 w-4 h-4 rounded-full`}
-                style={{ backgroundColor: color }}
-              ></span>
+             {/* Colored Dot or Checkmark */}
+              {allDone ? (
+                <span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>
+              ) : (
+                <span
+                  className={`absolute top-2 right-2 w-4 h-4 rounded-full`}
+                  style={{ backgroundColor: color }}
+                ></span>
+              )}
+
 
               <div className="flex-shrink-0">{revIcon}</div>
               <h4 className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`} title={reviewer.title}>
