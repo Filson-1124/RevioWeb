@@ -1,22 +1,16 @@
-import React from 'react'
-import { Link, useLoaderData } from 'react-router-dom'
-import { TbCardsFilled } from "react-icons/tb";
+import React from 'react';
+import { Link, useLoaderData, useNavigate } from 'react-router-dom';
+import { TbCardsFilled, TbPlayCardAFilled } from "react-icons/tb";
 import { LuStickyNote, LuArrowLeft } from "react-icons/lu";
 import { FaWandMagicSparkles } from "react-icons/fa6";
-import { TbPlayCardAFilled } from "react-icons/tb";
 import { auth, db } from '../components/firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
-import { useNavigate } from 'react-router-dom';
 
 const Reviewers = () => {
-
   const folder = useLoaderData();
   const reviewers = folder.reviewers;
   const navigate = useNavigate();
-
-  //this is where we load and dissect the api po
-  //kung makikita nyo po we turn it into manageable pieces para po makapag dive in tayo sa laman ng API
 
   let headingText = "REVIEWERS";
   let revIcon = <TbCardsFilled color='white' size={80} />;
@@ -35,19 +29,41 @@ const Reviewers = () => {
     revIcon = <FaWandMagicSparkles size={75} color='white' />;
   }
 
-  //Sort reviewers by numerically desc
-  //
   const sortedReviewers = [...reviewers].sort((a, b) =>
     b.id.localeCompare(a.id, undefined, { numeric: true })
   );
 
+  // --- Milestone Functions ---
+  const calculateMilestones = (startDate) => {
+  const milestones = [];
+
+  for (let i = 1; i <= 4; i++) {
+    const milestone = new Date(startDate);
+    milestone.setDate(startDate.getDate() + i * 7); // add 7, 14, 21, 28 days
+    milestones.push(milestone);
+  }
+
+  return milestones;
+};
+
+
+  const getMilestoneColor = (milestones) => {
+    const today = new Date();
+    const nextMilestone = milestones.find(date => today <= date) || milestones[milestones.length - 1];
+
+    const diffInDays = Math.floor((nextMilestone - today) / (1000 * 60 * 60 * 24));
+
+    if (diffInDays <= 1) return "red";        // almost due
+    if (diffInDays <= 3) return "yellow";     // middle of the week
+    return "green";                            // week just started
+  };
+
   return (
     <div className="min-h-screen pb-[20%] flex flex-col overflow-hidden">
-
       <div className='flex flex-col gap-7 p-5'>
         <div className="w-full p-10 flex justify-between items-center relative">
           <button
-            onClick={() => navigate(`/Main/Library`)} // 👈 go back one page
+            onClick={() => navigate(`/Main/Library`)}
             className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
           >
             <LuArrowLeft size={20} />
@@ -56,46 +72,50 @@ const Reviewers = () => {
         </div>
         <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>{headingText}</h1>
         <hr className='text-white' />
-
       </div>
 
       <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {sortedReviewers.map((reviewer) => {
-          // Dynamically adjust text size based on title length
           const isLongTitle = reviewer.title.length > 30;
           const textSize = isLongTitle
-            ? 'text-xs sm:text-sm md:text-base' // smaller for long titles
-            : 'text-sm sm:text-base md:text-lg'; // normal for short titles
+            ? 'text-xs sm:text-sm md:text-base'
+            : 'text-sm sm:text-base md:text-lg';
+
+         // Convert Firestore timestamp to JS Date
+          const startDate = reviewer.startDate?.toDate ? reviewer.startDate.toDate() : new Date(reviewer.startDate);
+
+          // Calculate milestones based on startDate
+          const milestones = calculateMilestones(startDate);
+          const color = getMilestoneColor(milestones);
+
 
           return (
             <Link
               key={reviewer.id}
               to={reviewer.id.toString()}
-              className="w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
+              className="relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
             >
-              {/* Keep icon size constant */}
-              <div className="flex-shrink-0">
-                {revIcon}
-              </div>
+              {/* Colored Dot */}
+              <span
+                className={`absolute top-2 right-2 w-4 h-4 rounded-full`}
+                style={{ backgroundColor: color }}
+              ></span>
 
-              {/* Title adjusts size automatically if long */}
-              <h4
-                className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
-                title={reviewer.title}
-              >
+              <div className="flex-shrink-0">{revIcon}</div>
+              <h4 className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`} title={reviewer.title}>
                 {reviewer.title}
               </h4>
             </Link>
           );
         })}
       </div>
-
     </div>
   );
 };
 
 export default Reviewers;
 
+// --- Loader ---
 export const reviewersLoader = async ({ params }) => {
   const getUser = () => {
     return new Promise((resolve, reject) => {
@@ -129,7 +149,6 @@ export const reviewersLoader = async ({ params }) => {
 
     const reviewers = reviewersSnap.docs.map((revDoc) => {
       const revData = revDoc.data();
-
       const reviewerContent = (revData.reviewers && revData.reviewers[0]) || {};
       const title = revData.title || reviewerContent.title || "Untitled Reviewer";
 

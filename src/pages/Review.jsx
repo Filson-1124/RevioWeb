@@ -10,7 +10,12 @@ import { FaTrashAlt } from "react-icons/fa";
 import deletingScreen from '../assets/deletingScreen.png'
 import LoadingBar from '../components/LoadingBar';
 import { auth, db } from "../components/firebase"
-import { doc, deleteDoc } from "firebase/firestore"
+import { doc, deleteDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore"
+
+import { FaMapPin } from "react-icons/fa";
+import { CiMapPin } from "react-icons/ci";
+import { TbPinned } from "react-icons/tb";
+import { TbPinnedFilled } from "react-icons/tb";
 
 const Review = () => {
   const reviewer = useLoaderData()
@@ -49,10 +54,46 @@ const Review = () => {
   const [isDeletingSum, setIsDeletingSum]=useState(false)
   const isFlashcard = reviewer.id.startsWith('td') || reviewer.id.startsWith('ac')
   const isAcronymCard = reviewer.id.startsWith('ac')
-  
+  const [isMarked,setIsMarked]=useState(false)
+  const [displayMarked,setDisplayMarked]=useState(false)
+  const [markedCards,setMarkedCards]=useState([])
+  const [defFaced,setDefFaced]=useState(false)
 
   const { id, reviewerId } = useParams()
   const navigate = useNavigate()
+
+
+ 
+
+const handleSetStartDate = async (folderId, reviewerId) => {
+  try {
+    const uid = auth.currentUser?.uid
+    if (!uid) return
+
+    // Reference to your reviewer document (adjust path if needed)
+    const reviewerRef = doc(db, `users/${uid}/folders/${folderId}/reviewers/${reviewerId}`)
+
+    // Check if the document exists first
+    const snap = await getDoc(reviewerRef)
+
+    if (snap.exists()) {
+      // ✅ Update or create the field if it already exists
+      await updateDoc(reviewerRef, {
+        startDate: serverTimestamp(), // uses Firebase server time
+      })
+      console.log("✅ startDate field updated!")
+    } else {
+      // ✅ Create the doc with startDate if it doesn't exist
+      await setDoc(reviewerRef, {
+        startDate: serverTimestamp(),
+      })
+      console.log("✅ Document created with startDate field!")
+    }
+  } catch (err) {
+    console.error("❌ Error setting startDate:", err)
+  }
+}
+
 
   //muntik na idelete ang repo, nag kanda letche letche sa push pull 
 const handleDelete = async (reviewerId) => {
@@ -81,27 +122,206 @@ const handleDelete = async (reviewerId) => {
 
   const handleFlip = () => setFlipped(!flipped)
 
-  const handleNext = () => {
-    setFlipped(false)
-    if (isAcronymCard) {
-      if (currentGroupIndex < sortedContent.length - 1) setCurrentGroupIndex(currentGroupIndex + 1)
-      else setMessage("You've reached the last card")
-    } else {
-      if (currentIndex < sortedQuestions.length - 1) setCurrentIndex(currentIndex + 1)
-      else setMessage("You've reached the last card")
+
+
+  useEffect(() => {
+  const fetchMarkStatus = async () => {
+    try {
+      const uid = auth.currentUser?.uid
+      if (!current?.id) return
+
+      if (!uid || !current?.id) return
+
+      // choose the right path depending on card type
+      const reviewerRef = isAcronymCard
+        ? doc(db, `users/${uid}/folders/${id}/reviewers/${reviewerId}/content/q${current.id}`)
+        : doc(db, `users/${uid}/folders/${id}/reviewers/${reviewerId}/questions/${current.id}`)
+
+      const snap = await getDoc(reviewerRef)
+
+      if (snap.exists()) {
+        const data = snap.data()
+        setIsMarked(data.isMarked ?? false)
+        console.log(data.isMarked)
+      } else {
+        setIsMarked(false)
+      }
+    } catch (err) {
+      console.error("Error fetching marked status:", err)
     }
   }
 
-  const handlePrev = () => {
-    setFlipped(false)
-    if (isAcronymCard) {
-      if (currentGroupIndex > 0) setCurrentGroupIndex(currentGroupIndex - 1)
-      else setMessage('This is the first card')
+  fetchMarkStatus()
+}, [currentIndex, currentGroupIndex, displayMarked])
+ 
+
+// --- MARK HANDLER ---
+const handleMark = async (revId) => {
+  try {
+    const uid = auth.currentUser?.uid
+    if (!uid || !current?.id) return
+
+    const reviewerRef = isAcronymCard
+      ? doc(db, `users/${uid}/folders/${id}/reviewers/${reviewerId}/content/q${revId}`)
+      : doc(db, `users/${uid}/folders/${id}/reviewers/${reviewerId}/questions/${revId}`)
+
+    await updateDoc(reviewerRef, { isMarked: !isMarked })
+    setIsMarked(!isMarked)
+
+    console.log("Marked status updated!")
+  } catch (err) {
+    console.error("Error updating mark status:", err)
+  }
+}
+
+
+const clearEmptyIndexes = (arr) => arr.filter(item => item != null && item !== '')
+
+
+// --- FETCH MARKED CARDS (fixed for acronym subcollections) ---
+const getMarkedCards = async (folderId, reviewerId, isAcronymCard) => {
+  try {
+    const uid = auth.currentUser?.uid
+    if (!uid) throw new Error("User not logged in")
+
+    const path = isAcronymCard
+      ? `users/${uid}/folders/${folderId}/reviewers/${reviewerId}/content`
+      : `users/${uid}/folders/${folderId}/reviewers/${reviewerId}/questions`
+
+    const cardsRef = collection(db, path)
+    const q = query(cardsRef, where("isMarked", "==", true))
+    const snapshot = await getDocs(q)
+
+    const markedCards = await Promise.all(
+      snapshot.docs.map(async (docSnap) => {
+        const data = docSnap.data()
+
+        // ✅ Fetch nested subcollection for acronym cards (e.g., contents)
+        let contents = []
+        if (isAcronymCard) {
+          const contentsRef = collection(
+            db,
+            `users/${uid}/folders/${folderId}/reviewers/${reviewerId}/content/${docSnap.id}/contents`
+          )
+          const contentsSnap = await getDocs(contentsRef)
+          contents = contentsSnap.docs.map((c) => c.data())
+        }
+
+        return {
+          id: docSnap.id,
+          ...data,
+          contents,
+        }
+      })
+    )
+
+    console.log("📦 Raw docs:", snapshot.docs.map((d) => d.data()))
+    console.log("✅ Marked cards with contents:", markedCards)
+    return markedCards
+  } catch (err) {
+    console.error("Error fetching marked cards:", err)
+    return []
+  }
+}
+
+
+// --- RESET & LOAD MARKED CARDS ---
+useEffect(() => {
+  const fetchMarked = async () => {
+    if (displayMarked) {
+      const cards = await getMarkedCards(id, reviewerId, isAcronymCard)
+      setMarkedCards(cards)
+      setCurrentIndex(0)
+      setCurrentGroupIndex(0)
     } else {
-      if (currentIndex > 0) setCurrentIndex(currentIndex - 1)
-      else setMessage('This is the first card')
+      setCurrentIndex(0)
+      setCurrentGroupIndex(0)
     }
   }
+
+  fetchMarked()
+}, [displayMarked])
+
+useEffect(() => {
+  if (displayMarked) {
+    const fetchMarked = async () => {
+      const cards = await getMarkedCards(id, reviewerId, isAcronymCard)
+      setMarkedCards(cards)
+      console.log(markedCards)
+      setCurrentIndex(0) // ✅ reset index
+    }
+    fetchMarked()
+  } else {
+    setCurrentIndex(0) // also reset when returning to normal
+  }
+}, [displayMarked])
+useEffect(() => {
+  if (displayMarked && markedCards.length > 0) {
+    setCurrentIndex(0)
+  } else if (!displayMarked) {
+    setCurrentIndex(0)
+  }
+}, [displayMarked, markedCards.length])
+
+
+useEffect(() => {
+  const fetchMarked = async () => {
+    const cards = await getMarkedCards(id, reviewerId, isAcronymCard)
+    setMarkedCards(cards)
+  }
+
+  if (displayMarked) {
+    fetchMarked()
+  }
+}, [displayMarked])
+
+
+ const handleNext = () => {
+  setFlipped(false)
+
+  if (isAcronymCard) {
+    setCurrentGroupIndex(prev => {
+      const next = prev + 1
+      if (next >= activeCards.length) {
+        setMessage("You've reached the last card")
+        return prev
+      }
+      return next
+    })
+  } else {
+    setCurrentIndex(prev => {
+      const next = prev + 1
+      if (next >= activeCards.length) {
+        setMessage("You've reached the last card")
+        return prev
+      }
+      return next
+    })
+  }
+}
+
+const handlePrev = () => {
+  setFlipped(false)
+
+  if (isAcronymCard) {
+    setCurrentGroupIndex(prev => {
+      if (prev <= 0) {
+        setMessage("This is the first card")
+        return prev
+      }
+      return prev - 1
+    })
+  } else {
+    setCurrentIndex(prev => {
+      if (prev <= 0) {
+        setMessage("This is the first card")
+        return prev
+      }
+      return prev - 1
+    })
+  }
+}
+
 
   useEffect(() => {
     if (message) {
@@ -110,7 +330,17 @@ const handleDelete = async (reviewerId) => {
     }
   }, [message])
 
-  const current = isAcronymCard ? sortedContent?.[currentGroupIndex] : sortedQuestions?.[currentIndex]
+const activeCards = displayMarked
+  ? markedCards
+  : isAcronymCard
+    ? sortedContent
+    : sortedQuestions
+
+const current = isAcronymCard
+  ? activeCards?.[currentGroupIndex] || {}
+  : activeCards?.[currentIndex] || {}
+
+
   const correctChoice = !isAcronymCard && current?.definition?.find(c => c.type === "correct")
   const currentAcronym = isAcronymCard ? current : null
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
@@ -143,6 +373,25 @@ const handleDelete = async (reviewerId) => {
           <LuArrowLeft size={18} className='md:size-5' />
           Back
         </button>
+         <button
+          onClick={() => setDisplayMarked(!displayMarked)}
+          className="absolute  top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
+        >
+        
+          {displayMarked?<TbPinnedFilled size={40}/>:<TbPinned size={40}/>}
+
+        </button>
+        <button
+  onClick={() => handleSetStartDate(id, reviewerId)}
+  className="absolute right-0 top-20  flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+>
+  Set Start Date
+</button>
+      </div>
+
+       <div className="w-full flex justify-between items-center relative mb-6">
+       
+  
       </div>
       
       {!isAcronymCard && (
@@ -183,11 +432,17 @@ const handleDelete = async (reviewerId) => {
               <div  
                 className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'}  transition-all duration-200ms `}
               >
+                <button className='absolute top-3 right-3 text-white text-xl cursor-pointer bg-[#6A558D] rounded-full p-4'  
+                onClick={(e)=>{e.stopPropagation();  handleMark(current.id);}}>
+                  {displayMarked || isMarked ? <FaMapPin size={30} /> : <CiMapPin size={30} />}
+
+                </button>
                 {isAcronymCard ?
                   <h1 className={`text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms]`}> 
                     {currentTitle}
-                  </h1>
-                : ""}
+                  </h1>   
+                : ""} 
+                
 
                 {isAcronymCard ? (
                   <div className={` scroll-container bg-[#5C5C76] p-3 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto flex ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms] `}>
@@ -201,7 +456,9 @@ const handleDelete = async (reviewerId) => {
                   </div>
                 ) : (
                   <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white place-self-center">
+                    
                     {current?.term ?? 'No term available'}
+                    
                   </p>
                 )}
               </div>
@@ -244,8 +501,7 @@ const handleDelete = async (reviewerId) => {
           </div>
 
           {message && <p className="mt-4 text-yellow-300 font-semibold text-sm md:text-base">{message}</p>}
-
-          <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
+        {!displayMarked && <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
               className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
@@ -265,14 +521,15 @@ const handleDelete = async (reviewerId) => {
             
              <button
               onClick={() => setIsDeleting(true)}
-              className=" text-red-800 flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className=" text-red-800 flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209]  rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
               <FaTrashAlt color='red' size={18}/>
             
                 Delete Flashcard set
            
             </button>
-          </div>
+          </div>}
+          
         </>
       )}
 
