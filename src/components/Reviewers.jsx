@@ -64,7 +64,7 @@ const isAllMilestonesDone = (milestones) => {
     const nextMilestone = milestones.find(date => today <= date) || milestones[milestones.length - 1];
 
     const diffInDays = Math.floor((nextMilestone - today) / (1000 * 60 * 60 * 24));
-
+  
     if (diffInDays <= 1) return "red";        // almost due
     if (diffInDays <= 3) return "yellow";     // middle of the week
     return "green";                            // week just started
@@ -94,10 +94,18 @@ const isAllMilestonesDone = (milestones) => {
             : 'text-sm sm:text-base md:text-lg';
 
          // Convert Firestore timestamp to JS Date
+
+          let color="gray"
+          let allDone=false;
+
+       if(reviewer.startDate){
          const startDate = reviewer.startDate?.toDate ? reviewer.startDate.toDate() : new Date(reviewer.startDate);
-          const milestones = calculateMilestones(startDate);
-          const color = getMilestoneColor(milestones);
-          const allDone = isAllMilestonesDone(milestones);
+         const milestones = calculateMilestones(startDate);
+         color = getMilestoneColor(milestones);
+         allDone = isAllMilestonesDone(milestones);
+       }
+        
+        
 
 
 
@@ -112,7 +120,7 @@ const isAllMilestonesDone = (milestones) => {
 
                 {isFlashCard?(allDone?(<span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>): (<span
                   className={`absolute top-2 right-2 w-4 h-4 rounded-full`}
-                  style={{ backgroundColor: color }}
+                  style={{ backgroundColor: color || "gray" }}
                 ></span>)):""}
 
                 

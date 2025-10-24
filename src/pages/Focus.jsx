@@ -53,8 +53,8 @@ const Focus = () => {
     color='yellow'
     className="pointer-events-none transition-transform duration-100 group-active:scale-90"
   />
-  <div>
-    <h3 className="text-sm md:text-lg font-semibold">{track.title}</h3>
+  <div className='group-active:scale-90'>
+    <h3 className="text-sm md:text-lg font-semibold ">{track.title}</h3>
     <p className='text-[#837f7f]'>{track.artist}</p>
   </div>
 </li>
