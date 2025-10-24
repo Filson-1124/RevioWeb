@@ -16,6 +16,7 @@ import { FaMapPin } from "react-icons/fa";
 import { CiMapPin } from "react-icons/ci";
 import { TbPinned } from "react-icons/tb";
 import { TbPinnedFilled } from "react-icons/tb";
+import { FaRegCalendarAlt } from "react-icons/fa";
 
 const Review = () => {
   const reviewer = useLoaderData()
@@ -383,8 +384,9 @@ const current = isAcronymCard
         </button>
         <button
   onClick={() => handleSetStartDate(id, reviewerId)}
-  className="absolute right-0 top-20  flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+  className="absolute right-0 top-20  flex items-center gap-2 text-white bg-transparent border-1 border-[#B5B5FF] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
 >
+  <FaRegCalendarAlt color='#B5B5FF'/>
   Set Start Date
 </button>
       </div>
