@@ -37,7 +37,7 @@ const PomodoroControls = () => {
   }
 
   return (
-    <div className="fixed bottom-40 right-4 md:bottom-20 md:right-6 z-50">
+    <div className="fixed bottom-40 right-4 md:bottom-20 md:right-6 z-50 cursor-pointer">
       <div className="relative">
         {/* Floating Toggle Button (shakes when phase ends) */}
         <motion.button
@@ -55,7 +55,7 @@ const PomodoroControls = () => {
                 }
               : { scale: 1, rotate: 0, transition: { duration: 0.3 } }
           }
-          className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-lg flex items-center justify-center"
+          className="cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-lg flex items-center justify-center"
         >
           <FaClock className="text-base" />
         </motion.button>

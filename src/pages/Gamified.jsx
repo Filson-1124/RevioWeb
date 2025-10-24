@@ -139,7 +139,7 @@ const Gamified = () => {
       if (isCorrect) setScore((p) => p + 1)
       else if (current) setWrongAnswers((p) => [...p, current])
       handleNext()
-    }, 500)
+    }, 2000)
   }
 
   const handleCheck = () => {

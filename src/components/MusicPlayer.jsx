@@ -64,19 +64,14 @@ const MusicPlayer = () => {
   };
 
   return (
-    <Draggable
-      nodeRef={nodeRef}
-      bounds="body"
-      cancel=".no-drag"
-      enableUserSelectHack={false}
-    >
+  
       <div
         ref={nodeRef}
-        className="fixed z-[9999] right-4 bottom-[5.5rem] md:right-6 md:bottom-6 w-max cursor-move pointer-events-auto"
+        className="fixed z-[9999] right-4 bottom-[5.5rem] md:right-6 md:bottom-6 w-max cursor-pointer pointer-events-auto"
       >
         {/* Floating Button */}
         <button
-          className="no-drag bg-purple-700 text-white p-3 rounded-full shadow-lg hover:bg-purple-800 transition-all active:scale-95 focus:outline-none"
+          className=" cursor-pointer  bg-purple-700 text-white p-3 rounded-full shadow-lg hover:bg-purple-800 transition-all active:scale-95 focus:outline-none"
           onClick={toggleHandlerFromClick}
           onTouchEnd={toggleHandlerFromTouch}
         >
@@ -121,7 +116,7 @@ const MusicPlayer = () => {
           </div>
         )}
       </div>
-    </Draggable>
+   
   );
 };
 

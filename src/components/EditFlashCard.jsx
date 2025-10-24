@@ -386,7 +386,7 @@ setLoadingCountdown(7);
       <div className="w-full p-5 md:p-10 flex flex-col md:flex-row justify-between gap-10 items-start md:items-center relative">
         <button
            onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
-          className="static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+          className="cursor-pointer static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
         >
           <LuArrowLeft size={20} />
           Back
@@ -406,7 +406,7 @@ setLoadingCountdown(7);
 
         <button
           onClick={handleSave}
-          className="w-full place-content-center md:w-auto font-poppinsbold text-white bg-[#6ada6dff] text-lg flex gap-1 p-5 rounded-2xl place-self-start md:place-self-end"
+          className="cursor-pointer w-full place-content-center md:w-auto font-poppinsbold text-white bg-[#6ada6dff] text-lg flex gap-1 p-5 rounded-2xl place-self-start md:place-self-end"
         >
           <FaSave size={25} />
           Save
@@ -448,7 +448,7 @@ setLoadingCountdown(7);
                   </div>
 
                   <button
-                    className="hidden md:flex w-full rounded-xl md:rounded-none p-5 md:w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500 active:bg-red-600 transition-all"
+                    className="cursor-pointer hidden md:flex w-full rounded-xl md:rounded-none p-5 md:w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500 active:bg-red-600 transition-all"
                     onClick={() => handleDeleteItem(q.id, 'terms')}
                   >
                     <LuTrash />
@@ -458,7 +458,7 @@ setLoadingCountdown(7);
             </div>
             <button
               onClick={handleAddTD}
-              className="w-full max-w-xl bg-[#B5B5FF] hover:bg-green-700 text-white py-3 rounded-xl"
+              className=" cursor-pointer w-full max-w-xl bg-[#B5B5FF] hover:bg-green-700 text-white py-3 rounded-xl"
             >
               Add Flashcard
             </button>
@@ -502,7 +502,7 @@ setLoadingCountdown(7);
                         />
                         <button
                           onClick={() => handleDeleteLetter(item.id, c.id)}
-                          className="flex w-[40px] h-[40px] justify-center items-center bg-[#373749] hover:bg-red-500 rounded-md"
+                          className="cursor-pointer flex w-[40px] h-[40px] justify-center items-center bg-[#373749] hover:bg-red-500 rounded-md"
                         >
                           <LuTrash />
                         </button>
@@ -513,7 +513,7 @@ setLoadingCountdown(7);
                   <div className="flex justify-center">
                     <button
                       onClick={() => addLetter(item.id)}
-                      className="w-[40px] h-[40px] flex justify-center items-center bg-[#373749] hover:bg-green-500 rounded-full shadow-md transition-colors"
+                      className="cursor-pointer w-[40px] h-[40px] flex justify-center items-center bg-[#373749] hover:bg-green-500 rounded-full shadow-md transition-colors"
                     >
                       <LuPlus size={24} />
                     </button>
@@ -521,7 +521,7 @@ setLoadingCountdown(7);
 
                   <button
                     onClick={() => handleDeleteItem(item.id, "acronym")}
-                    className="flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
+                    className="cursor-pointer flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
                   >
                     <LuTrash />
                   </button>
@@ -530,7 +530,7 @@ setLoadingCountdown(7);
             </div>
             <button
               onClick={handleAddAC}
-              className="w-full max-w-xl bg-[#B5B5FF] hover:text-[#B5B5FF] hover:bg-[#200448] text-[#200448] py-3 rounded-xl font-black"
+              className="cursor-pointer w-full max-w-xl bg-[#B5B5FF] hover:text-[#B5B5FF] hover:bg-[#200448] text-[#200448] py-3 rounded-xl font-black"
             >
               {isAcronym?"Add Acronym Group":"Add Flashcard"}
             </button>
@@ -552,13 +552,13 @@ setLoadingCountdown(7);
             setIsDeleting(false)
             setDeleteTarget(null)
           }}
-          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+          className="cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
         >
           Cancel
         </button>
         <button
           onClick={confirmDelete}
-          className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+          className="cursor-pointer px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
         >
           Delete
         </button>
@@ -587,7 +587,7 @@ setLoadingCountdown(7);
             setModalTitle("")
             setModalMess("")
            }}
-          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+          className=" cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
         >
           Okay
         </button>
@@ -633,7 +633,7 @@ setLoadingCountdown(7);
             setIsFailed(false)
            
            }}
-          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+          className=" cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
         >
           Okay
         </button>

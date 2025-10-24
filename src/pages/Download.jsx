@@ -25,7 +25,7 @@ const Download = () => {
         <div className="flex flex-col gap-3">
             <button
           onClick={() => window.open('https://expo.dev/accounts/mari_dev1/projects/Revio-Mobile/builds/c07ea047-ce47-43fe-8d62-1a42f5691a5e', '_blank')}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className=" cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
         > 
   Download Revio Mobile
 </button>
