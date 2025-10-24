@@ -142,6 +142,13 @@ const EditFlashCard = () => {
       }
 
       //validation
+      if (!title || !title.trim()) {
+  setIsEmptySaved(true)
+  setModalTitle("Missing Title")
+  setModalMess("Please enter a title for your reviewer before saving.")
+  return
+}
+
       if (isAcronym) {
         for (const c of content) {
           if (!c.title || !c.title.trim()) {
@@ -537,7 +544,8 @@ const EditFlashCard = () => {
       {isEmptySaved && 
       (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+       <Lottie animationData={failedMark} loop={false} />
       <h2 className="text-white text-lg font-bold mb-3">
         {modalTitle}
       </h2>
