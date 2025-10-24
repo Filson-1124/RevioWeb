@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const EditFlashCard = () => {
+  
   const reviewer = useLoaderData()
   const navigate = useNavigate()
 const { id: folderId, reviewerId } = useParams();
@@ -31,6 +32,11 @@ const { id: folderId, reviewerId } = useParams();
   // track deleted acronym letters & items
   const [deletedLetters, setDeletedLetters] = useState([]);
   const [deletedItems, setDeletedItems] = useState([]);
+
+
+const [deleteTarget, setDeleteTarget] = useState(null)
+
+   const [isDeleting, setIsDeleting]=useState(false)
 
   useEffect(() => {
     if (reviewer?.title) setTitle(reviewer.title)
@@ -99,11 +105,26 @@ const { id: folderId, reviewerId } = useParams();
   }
 
   const handleDeleteItem = (id, type) => {
-    if (!window.confirm(`Delete this ${type === "terms" ? "term" : "acronym"}?`)) return
-    setDeletedItems(prev => [...prev, { id, type }])
-    if (type === "terms") setQuestions(prev => prev.filter(q => q.id !== id))
-    else setContent(prev => prev.filter(c => c.id !== id))
+    setDeleteTarget({ id, type })
+      setIsDeleting(true)
+
   }
+
+  const confirmDelete = () => {
+  if (!deleteTarget) return
+
+  const { id, type } = deleteTarget
+  setDeletedItems(prev => [...prev, { id, type }])
+
+  if (type === "terms") {
+    setQuestions(prev => prev.filter(q => q.id !== id))
+  } else {
+    setContent(prev => prev.filter(c => c.id !== id))
+  }
+
+  setIsDeleting(false)
+  setDeleteTarget(null)
+}
 
   const handleSave = async () => {
     try {
@@ -270,7 +291,7 @@ const { id: folderId, reviewerId } = useParams();
 
   if (isCreating) {
     return (
-      <div className={`min-h-screen flex flex-col justify-center items-center text-center p-4 transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={` fixed inset-0 z-[9999] min-h-screen flex flex-col justify-center items-center text-center p-4 transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
         <img src={editLoadingScreen} alt="creationLoadingScreen" className="w-70 sm:w-72 md:w-110 mb-6" />
         <p className="text-[#9898D9] font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
           {isDone ? "Editing Complete!" : "Revio is editing your reviewer, please wait..."}
@@ -279,6 +300,8 @@ const { id: folderId, reviewerId } = useParams();
       </div>
     )
   }
+
+  
 
   return (
     <div>
@@ -317,7 +340,7 @@ const { id: folderId, reviewerId } = useParams();
         {isTermDef && (
           <>
             {questions.length === 0 && <p className="text-gray-400">No questions yet.</p>}
-            <div className="w-full max-w-4xl overflow-auto max-h-[50vh] space-y-6">
+            <div className="w-full max-w-4xl overflow-auto max-h-[50vh] md:max-h-[65vh] space-y-6">
               {questions.map((q) => ( 
                 <div key={q.id} className="relative flex flex-col md:flex-row items-stretch bg-[#3F3F54] w-full p-4 md:pl-10 md:p-0 gap-3 text-white rounded-xl">
                   <button
@@ -435,6 +458,37 @@ const { id: folderId, reviewerId } = useParams();
             </button>
           </>
         )}
+
+          {isDeleting && (
+  <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+      <h2 className="text-white text-lg font-bold mb-3">
+        Delete Flashcard
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        Are you sure you want to delete this flashcard? This action cannot be undone.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsDeleting(false)
+            setDeleteTarget(null)
+          }}
+          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={confirmDelete}
+          className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   )

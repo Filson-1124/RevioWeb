@@ -224,13 +224,14 @@ const Gamified = () => {
             </p>
             <button
               onClick={handleStart}
-              className="px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold transition w-[80%] sm:w-auto"
+              className=" cursor-pointer px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold transition w-[80%] sm:w-auto"
             >
               Start Game
             </button>
+           
             <button
               onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
-              className="m left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
+              className="cursor-pointer mt-3 left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
             >
               Back
             </button>
@@ -247,7 +248,7 @@ const Gamified = () => {
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
        onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
-          className="md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="cursor-pointer md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className="md:size-5" />
           Back

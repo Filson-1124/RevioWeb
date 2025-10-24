@@ -19,6 +19,25 @@ body {
   background-color: #12121A;
 }
 
+::-webkit-scrollbar {
+  width: 8px; /* Adjust this value to make it thinner or thicker */
+}
+
+/* Scrollbar track */
+::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Optional: change the background color */
+}
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background-color: #888; /* The draggable part */
+  border-radius: 8px;
+}
+
+/* Scrollbar thumb hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 .active {
   @apply bg-linear-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl;
 }

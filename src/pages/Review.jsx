@@ -248,26 +248,26 @@ const handleDelete = async (reviewerId) => {
           <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
-              className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className="flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white  justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
-              <FaEdit color="#B5B5FF" size={18} /> Edit
+              <FaEdit size={18} /> Edit
             </button>
 
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
-              className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
             >
-              <IoGameController color="white" size={18} />
-              <span className="font-bold bg-gradient-to-r from-[#F0EDB6] to-[#E93209] bg-clip-text text-transparent">
+              <IoGameController size={18} />
+              <span className="font-bold ">
                 Game Mode
               </span>
             </button>
             
              <button
               onClick={() => setIsDeleting(true)}
-              className=" text-red-800 flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className=" text-red-800 flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
-              <FaTrashAlt color='red' size={18}/>
+              <FaTrashAlt size={18}/>
             
                 Delete Flashcard set
            
