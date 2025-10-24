@@ -119,7 +119,7 @@ const Login = () => {
     )
   }
 
-  // LOGIN FORM
+  // LOGIN FORm
   return (
     <div className="overflow-y-hidden flex justify-center items-center min-h-screen bg-[#12121A] p-4 sm:p-6 md:p-10">
       <div className="bg-[#1C1C26] border border-[#5C5B5B] rounded-2xl w-full max-w-[500px] p-6 sm:p-8 md:p-10">
