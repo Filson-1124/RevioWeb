@@ -14,19 +14,25 @@ const Reviewers = () => {
 
   let headingText = "REVIEWERS";
   let revIcon = <TbCardsFilled color='white' size={80} />;
+  let isFlashCard=false;
 
   if (folder.id === "TermsAndDefinitions") {
     headingText = "TERMS AND DEFINITION";
     revIcon = <TbCardsFilled color='white' size={80} />;
+    isFlashCard=true;
+    
   } else if (folder.id === "SummarizedReviewers") {
     headingText = "SUMMARIZED REVIEWERS";
     revIcon = <LuStickyNote color='white' size={80} />;
+    isFlashCard=false;
   } else if (folder.id === "AcronymMnemonics") {
     headingText = "ACRONYM MNEMONICS";
     revIcon = <TbPlayCardAFilled size={90} color='white' />;
+    isFlashCard=true;
   } else if (folder.id === "SummarizedAIReviewers") {
     headingText = "SUMMARIZED AI REVIEWERS";
     revIcon = <FaWandMagicSparkles size={75} color='white' />;
+    isFlashCard=false;
   }
 
   const sortedReviewers = [...reviewers].sort((a, b) =>
@@ -103,14 +109,14 @@ const isAllMilestonesDone = (milestones) => {
             >
               {/* Colored Dot */}
              {/* Colored Dot or Checkmark */}
-              {allDone ? (
-                <span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>
-              ) : (
-                <span
+
+                {isFlashCard?(allDone?(<span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>): (<span
                   className={`absolute top-2 right-2 w-4 h-4 rounded-full`}
                   style={{ backgroundColor: color }}
-                ></span>
-              )}
+                ></span>)):""}
+
+                
+               
 
 
               <div className="flex-shrink-0">{revIcon}</div>
