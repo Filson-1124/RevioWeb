@@ -45,6 +45,7 @@ const EditFlashCard = () => {
   const [modalTitle,setModalTitle]=useState("")
   const [isSaved,setIsSaved]=useState(false)
   const[isFailed,setIsFailed]=useState(false)
+  const[loadingCountdown,setLoadingCountdown]=useState(5)
 
   useEffect(() => {
     if (reviewer?.title) setTitle(reviewer.title)
@@ -315,7 +316,13 @@ const EditFlashCard = () => {
           setFadeOut(false)
         }, 1000)
       }, 2000)
+      
       setIsSaved(true)
+     setIsSaved(true);
+setLoadingCountdown(7);
+
+
+      
       
     } catch (error) {
       console.error("Error saving:", error)
@@ -323,6 +330,27 @@ const EditFlashCard = () => {
    
     }
   }
+  useEffect(() => {
+  if (isSaved) {
+    const timer = setInterval(() => {
+      setLoadingCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          if (isAcronym) {
+            navigate(`/Main/Library/AcronymMnemonics/${reviewerId}`);
+          } else {
+            navigate(`/Main/Library/TermsAndDefinitions/${reviewerId}`);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }
+}, [isSaved]);
+
 
   const handleAddTD = () => {
     setQuestions(prev => {
@@ -581,15 +609,9 @@ const EditFlashCard = () => {
         Your Changes Have Been Saved.
       </p>
       <div className="flex justify-center gap-4">
-        <button
-          onClick={() => {
-            setIsSaved(false)
-           
-           }}
-          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
-        >
-          Okay
-        </button>
+      <p className="text-gray-400 text-sm mb-6">
+        Redirecting to your reviewer in {loadingCountdown} ...
+      </p>
         
       </div>
     </div>
