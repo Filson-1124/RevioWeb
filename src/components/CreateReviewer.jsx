@@ -227,7 +227,7 @@ if (isCreating) {
       <div className="w-full flex justify-between items-center absolute top-6 left-0 px-5">
         <button
           onClick={() => navigate(`/Main/Create`)}
-          className="flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className=" cursor-pointer flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className="md:size-5" />
           Back
@@ -289,20 +289,20 @@ if (isCreating) {
                   href={fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 text-sm sm:text-base bg-violet-500 hover:bg-violet-600 rounded-md text-white font-semibold transition-all"
+                  className="cursor-pointer px-4 py-2 text-sm sm:text-base bg-violet-500 hover:bg-violet-600 rounded-md text-white font-semibold transition-all"
                 >
                   View File
                 </a>
                 <button
                   onClick={handleRemoveFile}
-                  className="px-4 py-2 text-sm sm:text-base bg-red-500 hover:bg-red-600 rounded-md text-white font-semibold flex items-center gap-1 transition-all justify-center"
+                  className="cursor-pointer px-4 py-2 text-sm sm:text-base bg-red-500 hover:bg-red-600 rounded-md text-white font-semibold flex items-center gap-1 transition-all justify-center"
                 >
                   <IoClose size={18} /> Remove File
                 </button>
               </div>
 
               <button
-                className="mt-4 px-6 py-2 text-sm sm:text-base bg-green-500 hover:bg-green-600 text-white rounded-md font-semibold transition-all"
+                className="cursor-pointer mt-4 px-6 py-2 text-sm sm:text-base bg-green-500 hover:bg-green-600 text-white rounded-md font-semibold transition-all"
                 onClick={handleCreateReviewer}
               >
                 Create Reviewer

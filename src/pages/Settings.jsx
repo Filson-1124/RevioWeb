@@ -180,13 +180,13 @@ const Settings = () => {
       <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
         <button
           onClick={handleLogout}
-          className="bg-[#B5B5FF] text-[#200448] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition"
+          className="cursor-pointer bg-[#B5B5FF] text-[#200448] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition"
         >
           Logout
         </button>
         <button
           onClick={handleDeleteAccount}
-          className="bg-[#CD3232] text-[#FFFFFF] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:bg-[#8B1E1E] transition"
+          className="cursor-pointer bg-[#CD3232] text-[#FFFFFF] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:bg-[#8B1E1E] transition"
         >
           Delete Account
         </button>

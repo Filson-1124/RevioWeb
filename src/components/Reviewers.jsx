@@ -48,7 +48,7 @@ const Reviewers = () => {
         <div className="w-full p-10 flex justify-between items-center relative">
           <button
             onClick={() => navigate(`/Main/Library`)} // 👈 go back one page
-            className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+            className="cursor-pointer absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
           >
             <LuArrowLeft size={20} />
             Back

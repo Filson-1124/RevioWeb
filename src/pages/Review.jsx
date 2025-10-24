@@ -138,18 +138,14 @@ const handleDelete = async (reviewerId) => {
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(`/Main/Library/${id}`)}
-          className="absolute left-0 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="cursor-pointer absolute left-0 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className='md:size-5' />
           Back
         </button>
       </div>
       
-      {!isAcronymCard && (
-        <>
       
-        </>
-      )}
 
       {isFlashcard && (
         <>
@@ -231,13 +227,13 @@ const handleDelete = async (reviewerId) => {
           <div className="mt-6 flex gap-4">
             <button
               onClick={handlePrev}
-              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
+              className="cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
               <IoArrowUndo color='black' size={25} />
             </button>
             <button
               onClick={handleNext}
-              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
+              className=" cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
               <IoArrowRedoSharp color='black' size={25} />
             </button>
@@ -248,14 +244,14 @@ const handleDelete = async (reviewerId) => {
           <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
-              className="flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white  justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className="cursor-pointer flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white  justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
               <FaEdit size={18} /> Edit
             </button>
 
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
-              className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
+              className="cursor-pointer flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
             >
               <IoGameController size={18} />
               <span className="font-bold ">
@@ -265,7 +261,7 @@ const handleDelete = async (reviewerId) => {
             
              <button
               onClick={() => setIsDeleting(true)}
-              className=" text-red-800 flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className=" cursor-pointer flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-red-800 rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
               <FaTrashAlt size={18}/>
             
@@ -332,9 +328,9 @@ const handleDelete = async (reviewerId) => {
         <div className="text-white w-full max-w-3xl mt-10">
         <button
   onClick={() => setIsDeletingSum(true)}
-  className="ml-auto mb-5 text-red-800 flex gap-2 items-center justify-center p-3 border border-[#E93209] rounded-xl active:scale-95"
+  className="cursor-pointer ml-auto mb-5 text-red-800 hover:text-white hover:bg-red-800 flex gap-2 items-center justify-center p-3 border border-[#E93209] rounded-xl active:scale-95"
 >
-  <FaTrashAlt color="red" size={18} />
+  <FaTrashAlt  size={18} />
 </button>
           <h1 className='text-white font-black text-3xl mb-4'>{reviewer.title}</h1>
          
