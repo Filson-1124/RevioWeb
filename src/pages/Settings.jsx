@@ -6,6 +6,7 @@ import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { avatarOptions } from '../assets/3D Avatars/avatars'
+import accountDeleteImage from '../assets/deleteAccount.png'
 
 const Settings = () => {
   const { setIsLoggedIn, isLoggedIn } = useAuth()
@@ -14,6 +15,7 @@ const Settings = () => {
   const [profilePicId, setProfilePicId] = useState('')
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
   const [profilePic, setProfilePic] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false) // custom modal control
   const navigate = useNavigate()
 
   // Fetch user data
@@ -36,28 +38,28 @@ const Settings = () => {
     return () => unsubscribe()
   }, [])
 
-  // Delete Account
-  const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      'Are you sure you want to permanently delete your account?'
-    )
-    if (!confirmDelete) return
+  // Delete Account (open modal)
+  const handleDeleteAccount = () => {
+    setIsDeleting(true)
+  }
 
+  // Confirm account deletion
+  const confirmDeleteAccount = async () => {
     const currentUser = auth.currentUser
-    if (currentUser) {
-      try {
-        await deleteDoc(doc(db, 'users', currentUser.uid))
-        await deleteUser(currentUser)
-        alert('Your account has been permanently deleted.')
+    if (!currentUser) return
+
+    try {
+      await deleteDoc(doc(db, 'users', currentUser.uid))
+      await deleteUser(currentUser)
+      toast.success('Your account has been permanently deleted.')
+      navigate('/login')
+    } catch (error) {
+      console.error('Delete Account Error:', error)
+      if (error.code === 'auth/requires-recent-login') {
+        toast.error('Please log in again to delete your account.')
         navigate('/login')
-      } catch (error) {
-        console.error('Delete Account Error:', error)
-        if (error.code === 'auth/requires-recent-login') {
-          alert('Please log in again to delete your account.')
-          navigate('/login')
-        } else {
-          alert('Could not delete account.')
-        }
+      } else {
+        toast.error('Could not delete account.')
       }
     }
   }
@@ -126,10 +128,6 @@ const Settings = () => {
             readOnly
             className="bg-[#252533] text-white p-2 rounded-md"
           />
-
-         
-
-       
         </div>
 
         {/* Avatar Section */}
@@ -180,7 +178,6 @@ const Settings = () => {
 
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-       
         <button
           onClick={handleLogout}
           className="bg-[#B5B5FF] text-[#200448] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition"
@@ -194,6 +191,43 @@ const Settings = () => {
           Delete Account
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {isDeleting && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border border-[#B5B5FF]">
+        
+              <img src={accountDeleteImage} alt="Warning" className=" h-50 md:h-80 mx-auto mb-4" />
+
+              
+         
+
+            <h2 className="text-white text-lg font-bold mb-3">
+              Delete Account
+            </h2>
+            <p className="text-gray-400 text-sm mb-6">
+              Are you sure you want to permanently delete your account?
+              <br />
+              This action cannot be undone.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setIsDeleting(false)}
+                className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteAccount}
+                className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

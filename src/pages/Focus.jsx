@@ -33,29 +33,32 @@ const Focus = () => {
         </div>
 
 
-      <ol className="list-decimal">
+      <ol className="flex flex-col gap-2 list-decimal">
         {focusMusic.map((track) => (
           <li
-            key={track.id}
-            onClick={() => {
-              setCurrentTrack(track)
-              setTimeout(() => {
-                audioRef.current.load()
-                audioRef.current
-                  .play()
-                  .catch((err) => console.warn('Autoplay failed:', err))
-              }, 0)
-            }}
-            className="flex items-center gap-3 border-y border-[#797777] p-3 text-white active:scale-95 cursor-pointer md:gap-4 md:p-4"
-          >
-            {/* Smaller on mobile, bigger on PC */}
-          <FaRegCirclePlay size={40} color='yellow' />
-            <div>
-             <h3 className="text-sm md:text-lg font-semibold">{track.title}</h3>
-            <p className='text-[#837f7f]'>{track.artist}</p>
-            </div>
-           
-          </li>
+  key={track.id}
+  onClick={() => {
+    setCurrentTrack(track)
+    setTimeout(() => {
+      audioRef.current.load()
+      audioRef.current
+        .play()
+        .catch((err) => console.warn('Autoplay failed:', err))
+    }, 0)
+  }}
+  className="group flex items-center gap-3 border-y border-[#797777] p-3 text-white cursor-pointer md:gap-4 md:p-4 transition-all duration-100 hover:bg-[#33205e]"
+>
+  <FaRegCirclePlay
+    size={40}
+    color='yellow'
+    className="pointer-events-none transition-transform duration-100 group-active:scale-90"
+  />
+  <div>
+    <h3 className="text-sm md:text-lg font-semibold">{track.title}</h3>
+    <p className='text-[#837f7f]'>{track.artist}</p>
+  </div>
+</li>
+
         ))}
       </ol>
     </div>
