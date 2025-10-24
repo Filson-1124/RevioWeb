@@ -8,15 +8,16 @@ import { doc, getDoc, collection, getDocs, setDoc, deleteDoc, updateDoc } from "
 import editLoadingScreen from "../assets/editingLoadingScreen3.png"
 import LoadingBar from './LoadingBar'
 import { useParams } from "react-router-dom";
-
+import checkMark from '../assets/animation/checkmark.json'
+import failedMark from '../assets/animation/Icon Failed.json'
+import Lottie from "lottie-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const EditFlashCard = () => {
-  
   const reviewer = useLoaderData()
   const navigate = useNavigate()
-const { id: folderId, reviewerId } = useParams();
+  const { id: folderId, reviewerId } = useParams();
 
   const [isCreating, setIsCreating] = useState(false)
   const [isDone, setIsDone] = useState(false)
@@ -33,10 +34,17 @@ const { id: folderId, reviewerId } = useParams();
   const [deletedLetters, setDeletedLetters] = useState([]);
   const [deletedItems, setDeletedItems] = useState([]);
 
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-const [deleteTarget, setDeleteTarget] = useState(null)
 
-   const [isDeleting, setIsDeleting]=useState(false)
+  //displaying modals
+
+  const [isEmptySaved,setIsEmptySaved]=useState(false)
+  const [modalMess, setModalMess]=useState("")
+  const [modalTitle,setModalTitle]=useState("")
+  const [isSaved,setIsSaved]=useState(false)
+  const[isFailed,setIsFailed]=useState(false)
 
   useEffect(() => {
     if (reviewer?.title) setTitle(reviewer.title)
@@ -106,25 +114,24 @@ const [deleteTarget, setDeleteTarget] = useState(null)
 
   const handleDeleteItem = (id, type) => {
     setDeleteTarget({ id, type })
-      setIsDeleting(true)
-
+    setIsDeleting(true)
   }
 
   const confirmDelete = () => {
-  if (!deleteTarget) return
+    if (!deleteTarget) return
 
-  const { id, type } = deleteTarget
-  setDeletedItems(prev => [...prev, { id, type }])
+    const { id, type } = deleteTarget
+    setDeletedItems(prev => [...prev, { id, type }])
 
-  if (type === "terms") {
-    setQuestions(prev => prev.filter(q => q.id !== id))
-  } else {
-    setContent(prev => prev.filter(c => c.id !== id))
+    if (type === "terms") {
+      setQuestions(prev => prev.filter(q => q.id !== id))
+    } else {
+      setContent(prev => prev.filter(c => c.id !== id))
+    }
+
+    setIsDeleting(false)
+    setDeleteTarget(null)
   }
-
-  setIsDeleting(false)
-  setDeleteTarget(null)
-}
 
   const handleSave = async () => {
     try {
@@ -132,6 +139,46 @@ const [deleteTarget, setDeleteTarget] = useState(null)
       if (!user) {
         alert("Not logged in")
         return
+      }
+
+      //validation
+      if (!title || !title.trim()) {
+  setIsEmptySaved(true)
+  setModalTitle("Missing Title")
+  setModalMess("Please enter a title for your reviewer before saving.")
+  return
+}
+
+      if (isAcronym) {
+        for (const c of content) {
+          if (!c.title || !c.title.trim()) {
+             setIsEmptySaved(true)
+               setModalTitle("Title Missing.")
+              setModalMess("Each acronym flashcard must have a TITLE before saving.")
+           
+            return
+          }
+          for (const item of c.contents) {
+            if (!item.letter.trim() || !item.word.trim()) {
+               setIsEmptySaved(true)
+               setModalTitle("Empty Fields.")
+              setModalMess("Each acronym entry must have both a LETTER and a WORD before saving.")
+              return
+            }
+          }
+        }
+      }
+
+      if (isTermDef) {
+        for (const q of questions) {
+          if (!q.question.trim() || !q.answer.trim()) {
+            setIsEmptySaved(true)
+            setModalTitle("Empty Flash Card.")
+            setModalMess("Each flashcard must have both a TERM and a DEFINITION before saving.")
+            
+            return
+          }
+        }
       }
 
       setIsCreating(true)
@@ -167,7 +214,6 @@ const [deleteTarget, setDeleteTarget] = useState(null)
       if (isTermDef) {
         const token = await user.getIdToken()
 
-        // Fetch existing docs to check for distractors
         const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id))
         const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)))
 
@@ -188,11 +234,10 @@ const [deleteTarget, setDeleteTarget] = useState(null)
               id: q.id,
               term: q.question,
               correctDefinition: q.answer,
-            });
+            })
           }
         }
 
-        // Call backend API for distractors if needed
         let distractorMap = {}
         if (needingDistractors.length > 0) {
           try {
@@ -216,10 +261,11 @@ const [deleteTarget, setDeleteTarget] = useState(null)
           }
         }
 
-        // Save all cards (merge with distractors)
         for (const q of questions) {
           const existing = existingById[q.id]
-          let defs = Array.isArray(existing?.definition) ? existing.definition.slice() : []
+          let defs = Array.isArray(existing?.definition)
+            ? existing.definition.slice()
+            : []
 
           const correctDef = q.answer.trim()
           const hasCorrect = defs.some(d => d.type === "correct")
@@ -244,33 +290,37 @@ const [deleteTarget, setDeleteTarget] = useState(null)
         }
       }
 
-      // Save acronym content
       if (isAcronym) {
         for (const c of content) {
           const contentRef = doc(reviewerRef, "content", c.id)
-          await setDoc(contentRef, { title: c.title, keyPhrase: c.keyPhrase }, { merge: true })
+          await setDoc(contentRef, {
+            title: c.title,
+            keyPhrase: c.keyPhrase,
+          }, { merge: true })
           for (const item of c.contents) {
             const itemRef = doc(contentRef, "contents", String(item.id))
-            await setDoc(itemRef, { letter: item.letter, word: item.word }, { merge: true })
+            await setDoc(itemRef, {
+              letter: item.letter,
+              word: item.word,
+            }, { merge: true })
           }
         }
       }
 
-      // Navigate back to review page
-      if (isAcronym) navigate(`/Main/review/acronym/${reviewer.folderId}/${reviewer.id}`)
-      else if (isTermDef) navigate(`/Main/review/terms/${reviewer.folderId}/${reviewer.id}`)
-
       setIsDone(true)
       setTimeout(() => {
-        setIsCreating(false)
-        setIsDone(false)
-      }, 800)
-
+        setFadeOut(true)
+        setTimeout(() => {
+          setIsCreating(false)
+          setFadeOut(false)
+        }, 1000)
+      }, 2000)
+      setIsSaved(true)
+      
     } catch (error) {
       console.error("Error saving:", error)
-      setIsCreating(false)
-      setIsDone(false)
-      alert("Failed to save changes. Check console for details.")
+      setIsFailed(true)
+   
     }
   }
 
@@ -490,6 +540,86 @@ const [deleteTarget, setDeleteTarget] = useState(null)
 )}
 
       </div>
+
+      {isEmptySaved && 
+      (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+       <Lottie animationData={failedMark} loop={false} />
+      <h2 className="text-white text-lg font-bold mb-3">
+        {modalTitle}
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        {modalMess}
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsEmptySaved(false)
+            setModalTitle("")
+            setModalMess("")
+           }}
+          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Okay
+        </button>
+        
+      </div>
+    </div>
+  </div>
+
+      )}
+
+      {isSaved&&(
+         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+        <Lottie animationData={checkMark} loop={false} />
+      <h2 className="text-white text-lg font-bold mb-3">
+        Reviewer Saved!
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        Your Changes Have Been Saved.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsSaved(false)
+           
+           }}
+          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Okay
+        </button>
+        
+      </div>
+    </div>
+  </div>
+      )}
+       {isFailed&&(
+         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+        <Lottie animationData={failedMark} loop={false} />
+      <h2 className="text-white text-lg font-bold mb-3">
+        Reviewer Not Saved!
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        Something went wrong.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsFailed(false)
+           
+           }}
+          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Okay
+        </button>
+        
+      </div>
+    </div>
+  </div>
+      )}
     </div>
   )
 }
