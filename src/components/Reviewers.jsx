@@ -58,37 +58,43 @@ const Reviewers = () => {
         <hr className='text-white' />
 
       </div>
+      {sortedReviewers && sortedReviewers.length > 0 ? (
+  <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    {sortedReviewers.map((reviewer) => {
+      const isLongTitle = reviewer.title.length > 30;
+      const textSize = isLongTitle
+        ? 'text-xs sm:text-sm md:text-base'
+        : 'text-sm sm:text-base md:text-lg';
 
-      <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {sortedReviewers.map((reviewer) => {
-          // Dynamically adjust text size based on title length
-          const isLongTitle = reviewer.title.length > 30;
-          const textSize = isLongTitle
-            ? 'text-xs sm:text-sm md:text-base' // smaller for long titles
-            : 'text-sm sm:text-base md:text-lg'; // normal for short titles
+      return (
+        <Link
+          key={reviewer.id}
+          to={reviewer.id.toString()}
+          className="w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
+        >
+          <div className="flex-shrink-0">
+            {revIcon}
+          </div>
 
-          return (
-            <Link
-              key={reviewer.id}
-              to={reviewer.id.toString()}
-              className="w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
-            >
-              {/* Keep icon size constant */}
-              <div className="flex-shrink-0">
-                {revIcon}
-              </div>
+          <h4
+            className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
+            title={reviewer.title}
+          >
+            {reviewer.title}
+          </h4>
+        </Link>
+      );
+    })}
+  </div>
+) : (
+  <div className='flex flex-col gap-2'> 
+   <p className="text-center text-gray-400 mt-10">No reviewers yet</p>
+     <button className='bg-[#B5B5FF] w-[200px] p-3 rounded-2xl place-self-center text-sm text-white font-black cursor-pointer hover:bg-[#333353]' onClick={()=> navigate(`/Main/Create`)}>Create</button>
 
-              {/* Title adjusts size automatically if long */}
-              <h4
-                className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
-                title={reviewer.title}
-              >
-                {reviewer.title}
-              </h4>
-            </Link>
-          );
-        })}
-      </div>
+    </div>
+ 
+)}
+
 
     </div>
   );
