@@ -85,56 +85,44 @@ const isAllMilestonesDone = (milestones) => {
         <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>{headingText}</h1>
         <hr className='text-white' />
       </div>
+      {sortedReviewers && sortedReviewers.length > 0 ? (
+  <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    {sortedReviewers.map((reviewer) => {
+      const isLongTitle = reviewer.title.length > 30;
+      const textSize = isLongTitle
+        ? 'text-xs sm:text-sm md:text-base'
+        : 'text-sm sm:text-base md:text-lg';
 
-      <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {sortedReviewers.map((reviewer) => {
-          const isLongTitle = reviewer.title.length > 30;
-          const textSize = isLongTitle
-            ? 'text-xs sm:text-sm md:text-base'
-            : 'text-sm sm:text-base md:text-lg';
+      return (
+        <Link
+          key={reviewer.id}
+          to={reviewer.id.toString()}
+          className="w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
+        >
+          <div className="flex-shrink-0">
+            {revIcon}
+          </div>
 
-         // Convert Firestore timestamp to JS Date
+          <h4
+            className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
+            title={reviewer.title}
+          >
+            {reviewer.title}
+          </h4>
+        </Link>
+      );
+    })}
+  </div>
+) : (
+  <div className='flex flex-col gap-2'> 
+   <p className="text-center text-gray-400 mt-10">No reviewers yet</p>
+     <button className='bg-[#B5B5FF] w-[200px] p-3 rounded-2xl place-self-center text-sm text-white font-black cursor-pointer hover:bg-[#333353]' onClick={()=> navigate(`/Main/Create`)}>Create</button>
 
-          let color="gray"
-          let allDone=false;
-
-       if(reviewer.startDate){
-         const startDate = reviewer.startDate?.toDate ? reviewer.startDate.toDate() : new Date(reviewer.startDate);
-         const milestones = calculateMilestones(startDate);
-         color = getMilestoneColor(milestones);
-         allDone = isAllMilestonesDone(milestones);
-       }
-        
-        
-
-
-
-          return (
-            <Link
-              key={reviewer.id}
-              to={reviewer.id.toString()}
-              className="relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
-            >
-              {/* Colored Dot */}
-             {/* Colored Dot or Checkmark */}
-
-                {isFlashCard?(allDone?(<span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>): (<span
-                  className={`absolute top-2 right-2 w-4 h-4 rounded-full`}
-                  style={{ backgroundColor: color || "gray" }}
-                ></span>)):""}
-
-                
-               
+    </div>
+ 
+)}
 
 
-              <div className="flex-shrink-0">{revIcon}</div>
-              <h4 className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`} title={reviewer.title}>
-                {reviewer.title}
-              </h4>
-            </Link>
-          );
-        })}
-      </div>
     </div>
   );
 };
