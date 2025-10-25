@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLoaderData, useNavigate } from 'react-router-dom';
 import { TbCardsFilled, TbPlayCardAFilled } from "react-icons/tb";
 import { LuStickyNote, LuArrowLeft } from "react-icons/lu";
+import { CiCirclePlus } from "react-icons/ci";
 import { FaWandMagicSparkles } from "react-icons/fa6";
 import { auth, db } from '../components/firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
@@ -143,7 +144,7 @@ const isAllMilestonesDone = (milestones) => {
         })):(
              <div className='empty flex flex-col gap-2 w-full justify-center'> 
    <p className="text-center text-gray-400 mt-10">No reviewers yet</p>
-     <button className='bg-[#B5B5FF] w-[200px] p-3 rounded-2xl place-self-center text-sm text-white font-black cursor-pointer hover:bg-[#333353]' onClick={()=> navigate(`/Main/Create`)}>Create</button>
+     <button className='bg-[#B5B5FF] w-[200px] p-3 rounded-2xl place-self-center text-sm text-[#140538] font-bold cursor-pointer hover:bg-[#A3A3FF] justify-center place-items-center flex gap-3' onClick={()=> navigate(`/Main/Create`)}>  <CiCirclePlus size={30} />Create a Reviewer</button>
 
     </div>
           
