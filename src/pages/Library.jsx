@@ -4,6 +4,7 @@ import { FaFolder } from "react-icons/fa";
 import { auth, db } from '../components/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
+import { FaFolderOpen } from "react-icons/fa";
 
 const Library = () => {
   const foldersData = useLoaderData();
@@ -33,11 +34,12 @@ const Library = () => {
             <Link
               key={folder.id}
               to={folder.id}
-              className='flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105'
+              className='group flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105'
             >
               {/* Keep the icon size fixed */}
-              <div className="flex-shrink-0">
-                <FaFolder color='white' size={80} />
+              <div className=" relative flex-shrink-0 w-20 h-20">
+                <FaFolder color='white' size={80}  className='absolute top-0 left-0 opacity-100 group-hover:opacity-0 transition-all duration-200' />
+                <FaFolderOpen color='white' size={80} className='absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-all duration-200' />
               </div>
 
               {/* Title automatically resizes if long */}

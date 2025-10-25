@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLoaderData, useNavigate } from 'react-router-dom';
 import { TbCardsFilled, TbPlayCardAFilled } from "react-icons/tb";
 import { LuStickyNote, LuArrowLeft } from "react-icons/lu";
@@ -7,6 +7,7 @@ import { FaWandMagicSparkles } from "react-icons/fa6";
 import { auth, db } from '../components/firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
+import { useScroll } from 'framer-motion';
 
 const Reviewers = () => {
   const folder = useLoaderData();
@@ -16,6 +17,8 @@ const Reviewers = () => {
   let headingText = "REVIEWERS";
   let revIcon = <TbCardsFilled color='white' size={80} />;
   let isFlashCard=false;
+
+  const [extended,setExtended]=useState(false)
 
   if (folder.id === "TermsAndDefinitions") {
     headingText = "TERMS AND DEFINITION";
@@ -84,6 +87,19 @@ const isAllMilestonesDone = (milestones) => {
           </button>
         </div>
         <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>{headingText}</h1>
+        {isFlashCard?(
+          <div className='text-[#cfcdcd]'>
+          <p>Each reviewer has a progress indicator: </p>
+          <p className='ml-3'>
+    <p>🟢 Fresh week just started </p>
+    <p className={extended?"block":"hidden"}>🟡 Mid-week: review recommended soon </p>
+    <p className={extended?"block":"hidden"}>🔴 Near or past milestone: review now</p>
+    <p className={extended?"block":"hidden"}>✔️ All milestones completed</p>
+    <p className={extended?"block":"hidden"}>⚫ No start date yet (tap “Set Start Date” in the reviewer to begin)</p>
+    <a onClick={()=> setExtended(!extended)} className='cursor-pointer text-[#ae57ff] hover:text-[#4b2370] '>{extended?"see less...":"see more..."}</a>
+      </p>
+      </div>
+        ):""}
         <hr className='text-white' />
       </div>
 
@@ -130,12 +146,7 @@ const isAllMilestonesDone = (milestones) => {
                   className={`absolute top-2 right-2 w-4 h-4 rounded-full`}
                   style={{ backgroundColor: color || "gray" }}
                 ></span>)):""}
-
-                
-               
-
-
-              <div className="flex-shrink-0">{revIcon}</div>
+             <div className="flex-shrink-0">{revIcon}</div>
               <h4 className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`} title={reviewer.title}>
                 {reviewer.title}
               </h4>
