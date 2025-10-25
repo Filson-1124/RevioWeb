@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import gamifiedLogo from '../assets/gamifiedLogo.png'
 import gameOverLogo from '../assets/referee.png'
@@ -7,199 +7,92 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import { LuArrowLeft } from "react-icons/lu"
 import { useParams } from "react-router-dom";
+import { useGamified } from '../functions/useGamified'
 
 const Gamified = () => {
+   const loaderData = useLoaderData();
    const { id: folderId, reviewerId } = useParams();
- 
-  const reviewer = useLoaderData()
- 
+   const isAcronym = !!loaderData.content;
+  const questions = isAcronym ? loaderData.content : loaderData.questions;
+  const { state, actions } = useGamified({ questions: questions || content || [], isAcronym });
+  
 
-  const isAcronym = reviewer.id.startsWith('ac')
-  const questions = isAcronym ? reviewer.content : reviewer.questions
+ 
+   
+   const {
+    score,
+    timeLeft,
+    wrongAnswers,
+    startTime,
+    showResults,
+    isPressed,
+    showSplash,
+    countdown,
+    isAnimating,
+    isCorrectAnimation,
+    shuffledChoices,
+    answers,
+    currentCorrectAnswers,
+    timeUp,
+    current,}=state
+
+    const{ 
+    setIsPressed,
+    handleStart,
+    handleChange,
+    checkAcro,
+    checkAnswer,findCorrectAnswer
+  }=actions
+
   const navigate = useNavigate()
 
-  const [index, setIndex] = useState(0)
-  const [score, setScore] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(0)
-  const tdTime = questions.length * 60
-  const acTime = questions.length * 120
-  const [wrongAnswers, setWrongAnswers] = useState([])
-  const [startTime] = useState(Date.now())
-  const [showResults, setShowResults] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
-  const [showSplash, setShowSplash] = useState(true)
-  const [countdown, setCountdown] = useState(null)
-  const [isAnimating, setIsAnimating] = useState(false)
-  const [isCorrectAnimation, setIsCorrectAnimation] = useState()
-  const [shuffledChoices, setShuffledChoices] = useState([])
-  const [answers, setAnswers] = useState([])
-  const [currentCorrectAnswers, setCurrentCorrectAnswers] = useState([])
-  const [timeUp, setTimeUp] = useState(false)
-
-  const current = index < questions.length ? questions[index] : null
-
-  const shuffle = (array) => {
-    let arr = [...array]
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[arr[i], arr[j]] = [arr[j], arr[i]]
-    }
-    return arr
-  }
-
-  useEffect(() => {
-    if (current && current.definition) setShuffledChoices(shuffle(current.definition))
-    setIsPressed(false)
-  }, [current?.definition])
-
-  const findCorrectAnswer = (current) =>
-    current.definition.find((c) => c.type === 'correct')?.text
-
-  const checkAnswer = (isCorrectAnswer) => {
-    if (isCorrectAnswer === 'correct') handleCheck()
-    else handleWrong()
-  }
-
-  useEffect(() => {
-    if (current?.contents) setAnswers(Array(current.contents.length).fill(''))
-    if (isAcronym) setCurrentCorrectAnswers(current.contents.map((c) => c.word))
-  }, [current])
-
-  const handleChange = (index, value) => {
-    const updated = [...answers]
-    updated[index] = value
-    setAnswers(updated)
-  }
-
-  const checkAcro = (answers, correctAnswers) => {
-    let perfect = true
-    for (let i = 0; i < correctAnswers.length; i++) {
-      if (answers[i].trim().toUpperCase() !== correctAnswers[i].trim().toUpperCase()) {
-        perfect = false
-        break
-      }
-    }
-    setAnswers(Array(correctAnswers.length).fill(''))
-    return perfect ? 'correct' : ''
-  }
-
-  // Handle time up
-  const handleTimeUp = () => {
-    const unanswered = questions.slice(index) // all remaining questions
-    setWrongAnswers((prev) => [...prev, ...unanswered])
-    setTimeUp(true)
-    setShowSplash(true)
-    setTimeout(() => {
-      setShowSplash(false)
-      setShowResults(true)
-    }, 2000)
-  }
-
-  // Countdown
-  useEffect(() => {
-    if (countdown === 0) setCountdown(null)
-    else if (countdown > 0) {
-      const t = setTimeout(() => setCountdown((p) => p - 1), 1000)
-      return () => clearTimeout(t)
-    }
-  }, [countdown])
-
-  // Timer
-  useEffect(() => {
-    if (showResults || countdown !== null || showSplash) return
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          handleTimeUp()
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [index, showResults, countdown, showSplash])
-
-  const handleStart = () => {
-    setShowSplash(false)
-    setCountdown(3)
-    isAcronym ? setTimeLeft(acTime) : setTimeLeft(tdTime)
-  }
-
-  const handleNext = () => {
-    if (index >= questions.length - 1) setShowResults(true)
-    else setIndex((p) => Math.min(p + 1, questions.length - 1))
-  }
-
-  const triggerNextWithAnimation = (isCorrect) => {
-    if (isAnimating || showResults) return
-    setIsAnimating(true)
-    setTimeout(() => {
-      setIsAnimating(false)
-      if (isCorrect) setScore((p) => p + 1)
-      else if (current) setWrongAnswers((p) => [...p, current])
-      handleNext()
-    }, 2000)
-  }
-
-  const handleCheck = () => {
-    if (isAnimating || showResults || !current) return
-    setIsCorrectAnimation(true)
-    triggerNextWithAnimation(true)
-  }
-
-  const handleWrong = () => {
-    if (isAnimating || showResults || !current) return
-    setIsCorrectAnimation(false)
-    triggerNextWithAnimation(false)
-  }
-
-  // Results screen
-  const renderResults = () => {
-    const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-    const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
-    const totalAnswered = score + wrongAnswers.length
-
-    return (
-      <div className="text-center text-white w-full max-w-2xl px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-4">Results</h2>
-        <p className="text-base sm:text-lg mb-2">
-          Score: {score} / {questions.length}
-        </p>
-        <p className="text-base sm:text-lg mb-6">Time spent: {timeDisplay}</p>
-
-        {totalAnswered === 0 ? (
-          <p className="text-lg text-yellow-400">
-            You didn’t answer any questions ⏰
-          </p>
-        ) : wrongAnswers.length > 0 ? (
-          <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
-            <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
-            {wrongAnswers.map((item, i) => (
-              <div key={i} className="p-3 border-2 border-[#672c93] rounded-md text-sm sm:text-base text-[#492f6b] bg-[#fefff7] font-bold">
-                {isAcronym ? (
-                  <>
-                    <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
-                    <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
-                    <p><b>Key Phrase:</b> {item.keyPhrase}</p>
-                  </>
-                ) : (
-                  <>
-                    <p><b>Q:</b> {item.term}</p>
-                    <p><b>A:</b> {findCorrectAnswer(item)}</p>
-                  </>
-                )}
+   const renderResults = () => {
+        const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
+        const minutes = Math.floor(totalSeconds / 60)
+        const seconds = totalSeconds % 60
+        const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
+        const totalAnswered = score + wrongAnswers.length
+    
+        return (
+          <div className="text-center text-white w-full max-w-2xl px-4">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Results</h2>
+            <p className="text-base sm:text-lg mb-2">
+              Score: {score} / {questions.length}
+            </p>
+            <p className="text-base sm:text-lg mb-6">Time spent: {timeDisplay}</p>
+    
+            {totalAnswered === 0 ? (
+              <p className="text-lg text-yellow-400">
+                You didn’t answer any questions ⏰
+              </p>
+            ) : wrongAnswers.length > 0 ? (
+              <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
+                {wrongAnswers.map((item, i) => (
+                  <div key={i} className="p-3 border-2 border-[#672c93] rounded-md text-sm sm:text-base text-[#492f6b] bg-[#fefff7] font-bold">
+                    {isAcronym ? (
+                      <>
+                        <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
+                        <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
+                        <p><b>Key Phrase:</b> {item.keyPhrase}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p><b>Q:</b> {item.term}</p>
+                        <p><b>A:</b> {findCorrectAnswer(item)}</p>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <p className="text-lg">No mistakes! 🎉</p>
+            )}
           </div>
-        ) : (
-          <p className="text-lg">No mistakes! 🎉</p>
-        )}
-      </div>
-    )
-  }
+        )
+      }
+
+ 
 
   // Splash screen
   if (showSplash && !showResults) {
