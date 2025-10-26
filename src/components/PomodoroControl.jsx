@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react'
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { usePomodoro } from './PomodoroContext'
 import { FaPlay, FaPause, FaRedoAlt, FaClock, FaForward } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -10,18 +13,60 @@ const PomodoroControls = () => {
   const [lastMode, setLastMode] = useState(mode)
 
   // Trigger shake for 5 seconds when the mode (phase) changes
-  useEffect(() => {
-    if (mode !== lastMode) {
-      setIsShaking(true)
-      setLastMode(mode)
+ 
 
-      const timer = setTimeout(() => {
-        setIsShaking(false)
-      }, 5000)
+useEffect(() => {
+  if (mode !== lastMode) {
+    setIsShaking(true);
+    setLastMode(mode);
 
-      return () => clearTimeout(timer)
-    }
-  }, [mode, lastMode])
+    const nextModeLabel =
+      mode === "focus" ? "Short Break" :
+      mode === "break" ? "Long Break" :
+      "Focus Time";
+
+    // ✅ Use a unique toastId so it won't interfere with other toasts
+ toast.info(
+  ({ closeToast }) => (
+    <div className="flex flex-col items-center gap-2  text-white rounded-lg p-4 shadow-lg">
+      <p className="font-semibold text-base">⏰ Time’s up!</p>
+      <p className="text-sm text-gray-300">
+        {" "}
+        {mode === "focus"
+          ? "Focus Session "
+          : mode === "longBreak"
+          ? "Long Break "
+          : "Short Break "}
+          is Ready! Tap play when you're ready.
+      </p>
+      <div className="flex justify-center mt-2">
+        <button
+          onClick={closeToast}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md text-xs transition-all duration-200"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  ),
+  {
+    toastId: "pomodoro-mode-toast", // unique ID
+    position: "bottom-center",
+    autoClose: false,
+    closeOnClick: false,
+    draggable: false,
+    theme: "dark", // ensures consistent dark styling for the toast container
+  }
+);
+
+    // stop shaking after 5s
+    const timer = setTimeout(() => {
+      setIsShaking(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }
+}, [mode, lastMode]);
+
 
 
 

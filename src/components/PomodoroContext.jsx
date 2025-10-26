@@ -4,9 +4,9 @@ import notif from '../assets/notification.mp3'
 const PomodoroContext = createContext()
 
 export const PomodoroProvider = ({ children }) => {
-  const normalBreak = 5 * 60
-  const longBreak = 15 * 60
-  const focus = 25 * 60
+  const normalBreak =0.2 * 60
+  const longBreak = 1 * 60
+  const focus = 0.5 * 60
 
   const [isRunning, setIsRunning] = useState(false)
   const [timeLeft, setTimeLeft] = useState(focus)
