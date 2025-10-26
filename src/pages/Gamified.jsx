@@ -8,6 +8,9 @@ import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import { LuArrowLeft } from "react-icons/lu"
 import { useParams } from "react-router-dom";
 import { useGamified } from '../functions/useGamified'
+import Lottie from 'lottie-react'
+import confetti from '../assets/animation/CONFETTI.json'
+import trophy from '../assets/animation/Trophy.json'
 
 const Gamified = () => {
    const loaderData = useLoaderData();
@@ -34,7 +37,7 @@ const Gamified = () => {
     answers,
     currentCorrectAnswers,
     timeUp,
-    current,}=state
+    current,trophyDone}=state
 
     const{ 
     setIsPressed,
@@ -46,51 +49,101 @@ const Gamified = () => {
 
   const navigate = useNavigate()
 
-   const renderResults = () => {
-        const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
-        const minutes = Math.floor(totalSeconds / 60)
-        const seconds = totalSeconds % 60
-        const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
-        const totalAnswered = score + wrongAnswers.length
-    
-        return (
-          <div className="text-center text-white w-full max-w-2xl px-4">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Results</h2>
-            <p className="text-base sm:text-lg mb-2">
-              Score: {score} / {questions.length}
-            </p>
-            <p className="text-base sm:text-lg mb-6">Time spent: {timeDisplay}</p>
-    
-            {totalAnswered === 0 ? (
-              <p className="text-lg text-yellow-400">
-                You didn’t answer any questions ⏰
-              </p>
-            ) : wrongAnswers.length > 0 ? (
-              <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh]">
-                <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
-                {wrongAnswers.map((item, i) => (
-                  <div key={i} className="p-3 border-2 border-[#672c93] rounded-md text-sm sm:text-base text-[#492f6b] bg-[#fefff7] font-bold">
-                    {isAcronym ? (
-                      <>
-                        <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
-                        <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
-                        <p><b>Key Phrase:</b> {item.keyPhrase}</p>
-                      </>
-                    ) : (
-                      <>
-                        <p><b>Q:</b> {item.term}</p>
-                        <p><b>A:</b> {findCorrectAnswer(item)}</p>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-lg">No mistakes! 🎉</p>
-            )}
-          </div>
-        )
-      }
+ 
+
+
+
+  // Results screen
+ const renderResults = () => {
+  const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
+  const totalAnswered = score + wrongAnswers.length
+  const isPerfect = wrongAnswers.length === 0 && totalAnswered > 0
+
+
+  
+
+  return (
+    <div className=" text-center text-white w-full max-w-2xl px-4 flex flex-col items-center justify-center">
+      {/* 🎉 Confetti animation — transparent background */}
+      {wrongAnswers.length === 0 && totalAnswered > 0 && (
+        <Lottie
+          animationData={confetti}
+          loop={false}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'transparent',
+            pointerEvents: 'none', // ensures it doesn't block clicks
+            zIndex: 100
+          }}
+        />
+      )}
+      
+
+      {isPerfect && !trophyDone && (
+       
+         <Lottie
+          animationData={trophy}
+          loop={false}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'transparent',
+            pointerEvents: 'none', // ensures it doesn't block clicks
+            zIndex: 100
+          }}
+          
+        />
+      )}
+
+      <h2 className="text-2xl sm:text-3xl font-bold mb-4 z-20">Results</h2>
+      <p className="text-base sm:text-lg mb-2 z-20">
+        Score: {score} / {questions.length}
+      </p>
+      <p className="text-base sm:text-lg mb-6 z-20">Time spent: {timeDisplay}</p>
+
+      {totalAnswered === 0 ? (
+        <p className="text-lg text-yellow-400 z-20">
+          You didn’t answer any questions ⏰
+        </p>
+      ) : wrongAnswers.length > 0 ? (
+        <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh] z-20">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
+          {wrongAnswers.map((item, i) => (
+            <div
+              key={i}
+              className="p-3 border-2 border-[#672c93] rounded-md text-sm sm:text-base text-[#492f6b] bg-[#fefff7] font-bold"
+            >
+              {isAcronym ? (
+                <>
+                  <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
+                  <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
+                  <p><b>Key Phrase:</b> {item.keyPhrase}</p>
+                </>
+              ) : (
+                <>
+                  <p><b>Q:</b> {item.term}</p>
+                  <p><b>A:</b> {findCorrectAnswer(item)}</p>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-lg z-20">No mistakes! 🎉</p>
+      )}
+    </div>
+  )
+}
 
  
 

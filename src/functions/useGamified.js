@@ -22,6 +22,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
       const [answers, setAnswers] = useState([])
       const [currentCorrectAnswers, setCurrentCorrectAnswers] = useState([])
       const [timeUp, setTimeUp] = useState(false)
+      const[trophyDone,setTrophyDone]=useState(false)
       
     
       const current = index < questions.length ? questions[index] : null
@@ -143,6 +144,19 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
         setIsCorrectAnimation(false)
         triggerNextWithAnimation(false)
       }
+       useEffect(() => {
+  const totalAnswered = score + wrongAnswers.length;
+  const isPerfect = wrongAnswers.length === 0 && totalAnswered > 0;
+
+  if (isPerfect) {
+    setTrophyDone(false); // reset when showing new trophy
+    const timer = setTimeout(() => {
+      setTrophyDone(true); // hide after 2 seconds
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }
+}, [score, wrongAnswers]);
     
       // Results screen
      
@@ -163,7 +177,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
     answers,
     currentCorrectAnswers,
     timeUp,
-    current,
+    current,trophyDone
   },
   actions: {
     setIndex,

@@ -310,6 +310,27 @@ const handlePrev = () => {
     })
   }
 }
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      switch (event.code) {
+        case "ArrowLeft":
+          handlePrev();
+          break;
+        case "ArrowRight":
+          handleNext();
+          break;
+        case "Space":
+          event.preventDefault();
+          handleFlip();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleFlip, handleNext, handlePrev]); 
 
 
   useEffect(() => {
