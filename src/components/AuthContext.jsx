@@ -6,7 +6,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(null); // Start as null until Firebase finishes
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,11 +26,18 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, currentUser }}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+ return (
+  <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, currentUser }}>
+    {loading ? (
+      <div className="min-h-screen flex items-center justify-center bg-[#12121A] text-white">
+        Checking authentication...
+      </div>
+    ) : (
+      children
+    )}
+  </AuthContext.Provider>
+);
+
 };
 
 export const useAuth = () => useContext(AuthContext);

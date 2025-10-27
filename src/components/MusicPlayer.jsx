@@ -82,20 +82,20 @@ const MusicPlayer = () => {
         {open && (
           <div
             ref={panelRef}
-            className="no-drag mt-2 bg-gray-900 text-white p-4 rounded-lg shadow-lg w-60 flex flex-col gap-3 animate-[fadeIn_0.15s_ease-in-out]"
+            className="no-drag cursor-default mt-2 bg-gray-900 text-white p-4 rounded-lg shadow-lg w-60 flex flex-col gap-3 animate-[fadeIn_0.15s_ease-in-out]"
           >
             <p className="text-sm text-center font-semibold truncate">
               {currentTrack?.title || 'No track selected'}
             </p>
 
             <div className="flex justify-between items-center text-xl">
-              <button className="no-drag hover:text-purple-400" onClick={prevTrack}>
+              <button className=" cursor-pointer no-drag hover:text-purple-400" onClick={prevTrack}>
                 <FaStepBackward />
               </button>
-              <button className="no-drag hover:text-purple-400" onClick={togglePlay}>
+              <button className=" cursor-pointer no-drag hover:text-purple-400" onClick={togglePlay}>
                 {isPlaying ? <FaPause /> : <FaPlay />}
               </button>
-              <button className="no-drag hover:text-purple-400" onClick={nextTrack}>
+              <button className=" cursor-pointer no-drag hover:text-purple-400" onClick={nextTrack}>
                 <FaStepForward />
               </button>
             </div>

@@ -85,7 +85,7 @@ const navigate=useNavigate();
         </button>
          <button
           onClick={() => setDisplayMarked(!displayMarked)}
-          className="absolute  top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="cursor-pointer absolute  top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
         
           {displayMarked?<TbPinnedFilled size={40}/>:<TbPinned size={40}/>}
@@ -93,7 +93,7 @@ const navigate=useNavigate();
         </button>
         <button
   onClick={() => handleSetStartDate(id, reviewerId)}
-  className="absolute right-0 top-20  flex items-center gap-2 text-white bg-transparent border-1 border-[#B5B5FF] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+  className="cursor-pointer absolute right-0 top-20  flex items-center gap-2 text-white bg-transparent border-1 border-[#B5B5FF] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
 >
   <FaRegCalendarAlt color='#B5B5FF'/>
   Set Start Date
@@ -195,13 +195,13 @@ const navigate=useNavigate();
           <div className="mt-6 flex gap-4">
             <button
               onClick={handlePrev}
-              className="cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
+              className="hover:scale-105 cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
               <IoArrowUndo color='black' size={25} />
             </button>
             <button
               onClick={handleNext}
-              className=" cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
+              className="hover:scale-105  cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
               <IoArrowRedoSharp color='black' size={25} />
             </button>

@@ -112,7 +112,7 @@ useEffect(() => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="absolute bottom-14 right-0 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl p-4 w-56 sm:w-60"
+              className="cursor-default absolute bottom-14 right-0 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl p-4 w-56 sm:w-60"
             >
               {/* Timer Info */}
               <div className="text-center mb-3">
@@ -131,14 +131,14 @@ useEffect(() => {
                 {isRunning ? (
                   <button
                     onClick={pauseTimer}
-                    className="p-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white w-10 h-10 flex items-center justify-center"
+                    className="cursor-pointer p-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white w-10 h-10 flex items-center justify-center"
                   >
                     <FaPause className="text-sm" />
                   </button>
                 ) : (
                   <button
                     onClick={startTimer}
-                    className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white w-10 h-10 flex items-center justify-center"
+                    className="cursor-pointer  p-2 rounded-full bg-green-500 hover:bg-green-600 text-white w-10 h-10 flex items-center justify-center"
                   >
                     <FaPlay className="text-sm" />
                   </button>
@@ -148,7 +148,7 @@ useEffect(() => {
 
                 <button
                   onClick={handleSkip}
-                  className="p-2 rounded-full bg-purple-500 hover:bg-purple-600 text-white w-10 h-10 flex items-center justify-center"
+                  className="cursor-pointer p-2 rounded-full bg-purple-500 hover:bg-purple-600 text-white w-10 h-10 flex items-center justify-center"
                 >
                   <FaForward className="text-sm" />
                 </button>

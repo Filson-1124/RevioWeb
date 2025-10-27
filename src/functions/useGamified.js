@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import correctSound from '../assets/quizSounds/correct.mp3'
+import wrongSound from '../assets/quizSounds/wrong.mp3'
 
 
 
@@ -23,6 +25,11 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
       const [currentCorrectAnswers, setCurrentCorrectAnswers] = useState([])
       const [timeUp, setTimeUp] = useState(false)
       const[trophyDone,setTrophyDone]=useState(false)
+      const[isPlus,setIsPlus]=useState(false)
+      const [isMuted,setIsMuted]=useState(false)
+       const correctTunog= new Audio(correctSound);
+    const wrongTunog=new Audio(wrongSound);
+      
       
     
       const current = index < questions.length ? questions[index] : null
@@ -132,18 +139,42 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
           handleNext()
         }, isAcronym ? 500:2000)
       }
-    
+
+   
+
+    const playCorrectSound = () => {
+    if (!isMuted) correctTunog.play()
+  }
+
+  const playWrongSound = () => {
+    if (!isMuted) wrongTunog.play()
+  }
+
+  const toggleMute = () => setIsMuted(prev => !prev)
       const handleCheck = () => {
         if (isAnimating || showResults || !current) return
         setIsCorrectAnimation(true)
+        playCorrectSound()
         triggerNextWithAnimation(true)
+        setIsPlus(true);
+        
+        setTimeout(()=>{
+          setIsPlus(false)
+        },2000)
       }
     
       const handleWrong = () => {
         if (isAnimating || showResults || !current) return
+        playWrongSound()
         setIsCorrectAnimation(false)
         triggerNextWithAnimation(false)
       }
+
+
+  
+
+  
+
        useEffect(() => {
   const totalAnswered = score + wrongAnswers.length;
   const isPerfect = wrongAnswers.length === 0 && totalAnswered > 0;
@@ -157,6 +188,9 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
     return () => clearTimeout(timer);
   }
 }, [score, wrongAnswers]);
+
+
+
     
       // Results screen
      
@@ -177,7 +211,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
     answers,
     currentCorrectAnswers,
     timeUp,
-    current,trophyDone
+    current,trophyDone,isPlus,isMuted
   },
   actions: {
     setIndex,
@@ -203,7 +237,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) =>{
     checkAnswer,
     triggerNextWithAnimation,
     shuffle,
-    findCorrectAnswer
+    findCorrectAnswer,toggleMute
   }
 };
 

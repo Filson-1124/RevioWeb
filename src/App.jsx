@@ -38,6 +38,17 @@ import STDloader from './ReviewerLoaders/STDloader'
 import AIloader from './ReviewerLoaders/AIloader'
 import Download from './pages/Download'
 
+// ✅ Import ProtectedRoute
+import ProtectedRoute from './components/ProtectedRoute'
+
+// ✅ Simple fallback for app errors (prevents the “💿 Hey developer 👋” crash)
+const ErrorFallback = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-[#12121A] text-white text-center p-6">
+    <h1 className="text-2xl font-semibold mb-2">Something went wrong 😢</h1>
+    <p>Please try refreshing the page or logging in again.</p>
+  </div>
+)
+
 const PomodoroWrapper = () => {
   const location = useLocation()
   const hidePomodoro = ['/', '/Register', '/ResetPassword'].includes(location.pathname)
@@ -49,20 +60,36 @@ const PomodoroWrapper = () => {
   )
 }
 
+
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<PomodoroWrapper />}>
-
+    <Route element={<PomodoroWrapper />} errorElement={<ErrorFallback />}>
+      {/* PUBLIC ROUTES */}
       <Route path="/" element={<Login />} />
       <Route path="/Register" element={<Register />} />
       <Route path="/ResetPassword" element={<ForgotPassword />} />
 
-
-      <Route path="/Main" element={<RootLayout />}>
-        <Route path="Library" element={<LibraryLayout />}>
+      {/* PROTECTED ROUTES */}
+      <Route
+        path="/Main"
+        element={
+          <ProtectedRoute>
+            <RootLayout />
+          </ProtectedRoute>
+        }
+        errorElement={<ErrorFallback />}
+      >
+        <Route
+          path="Library"
+          element={
+            <ProtectedRoute>
+              <LibraryLayout />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorFallback />}
+        >
           <Route index element={<Library />} loader={libraryLoader} />
           <Route path=":id" element={<Reviewers />} loader={reviewersLoader} />
-
           <Route path=":id/:reviewerId" element={<Review />} loader={MainLoader} />
           <Route path=":id/:reviewerId/ac" element={<Review />} loader={ACloader} />
           <Route path=":id/:reviewerId/td" element={<Review />} loader={TDloader} />
@@ -82,7 +109,14 @@ const router = createBrowserRouter(
         </Route>
 
         <Route path="Focus" element={<Focus />} />
-        <Route path="Create" element={<StudyToolsLayout />}>
+        <Route
+          path="Create"
+          element={
+            <ProtectedRoute>
+              <StudyToolsLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<StudyToolsMenu />} />
           <Route path="Submit" element={<CreateReviewer />} />
         </Route>
@@ -106,13 +140,10 @@ const App = () => {
       <AudioProvider>
         <PomodoroProvider>
           <RouterProvider router={router} />
-          
         </PomodoroProvider>
       </AudioProvider>
       <ToastContainer position="bottom-center" />
     </AuthProvider>
-    
-    
   )
 }
 

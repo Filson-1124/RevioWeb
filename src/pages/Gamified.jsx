@@ -11,6 +11,8 @@ import { useGamified } from '../functions/useGamified'
 import Lottie from 'lottie-react'
 import confetti from '../assets/animation/CONFETTI.json'
 import trophy from '../assets/animation/Trophy.json'
+import { FaVolumeMute } from "react-icons/fa";
+import { AiFillSound } from "react-icons/ai";
 
 const Gamified = () => {
    const loaderData = useLoaderData();
@@ -37,14 +39,14 @@ const Gamified = () => {
     answers,
     currentCorrectAnswers,
     timeUp,
-    current,trophyDone}=state
+    current,trophyDone,isPlus,isMuted}=state
 
     const{ 
     setIsPressed,
     handleStart,
     handleChange,
     checkAcro,
-    checkAnswer,findCorrectAnswer
+    checkAnswer,findCorrectAnswer,toggleMute
   }=actions
 
   const navigate = useNavigate()
@@ -167,7 +169,10 @@ const Gamified = () => {
               ) : (
                 "Choose the correct definition!"
               )}
+              <br />
+              WARNING: Leaving the page will reset your progress.
             </p>
+           
             <button
               onClick={handleStart}
               className=" cursor-pointer px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold transition w-[80%] sm:w-auto"
@@ -211,9 +216,19 @@ const Gamified = () => {
         <div className="flex items-center justify-center w-full h-full">{renderResults()}</div>
       ) : (
         <div className={`w-full max-w-4xl transition-opacity ${countdown !== null ? 'opacity-30' : 'opacity-100'}`}>
-          <div className="flex justify-between items-center mb-4 text-sm sm:text-base">
+          <div className="relative justify-between items-center mb-4 text-sm sm:text-base">
             <h1 className="font-bold">Gamified Mode</h1>
-            <span>Score: {score}</span>
+            <span className='absolute right-0'>Score: {score}</span>
+             <span
+  className={`text-[#0adf31] absolute right-0 transition-all duration-200
+    ${isPlus 
+      ? 'opacity-100 top-1 scale-125 -translate-y-2' 
+      : 'opacity-0 scale-75 translate-y-0'}
+  `}
+>
+  +1
+</span>
+            <button onClick={()=> toggleMute()} className='hover:text-red-500'> {isMuted? <FaVolumeMute /> : <AiFillSound />} </button>
           </div>
 
           <div className="mb-4 text-right text-xs sm:text-sm text-gray-300">
@@ -281,7 +296,7 @@ const Gamified = () => {
               {shuffledChoices.map((choice, i) => (
                 <div
                   key={i}
-                  className={`min-h-[5rem] sm:min-h-[7rem] border border-[#2e2e42] p-4 sm:p-5 bg-[#20202C] rounded-2xl flex items-center justify-center text-center cursor-pointer text-sm sm:text-base 
+                  className={`min-h-[5rem] sm:min-h-[7rem] border border-[#2e2e42] p-4 sm:p-5 bg-[#20202C] rounded-2xl flex items-center justify-center text-center cursor-pointer text-sm sm:text-base hover:bg-[#3c3c50] transition-all duration-100
                     ${isPressed ? (choice.type === 'correct' ? 'choiceCorrect' : 'choiceWrong') : ''}`}
                   onClick={() => { checkAnswer(choice.type); setIsPressed(true) }}
                 >
