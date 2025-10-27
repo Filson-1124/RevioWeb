@@ -24,7 +24,6 @@ const Review = () => {
 const {   reviewer,
     id,
     reviewerId,
-    
     flipped,
     message,
     isDeleting,
@@ -39,7 +38,7 @@ const {   reviewer,
     current,
     correctChoice,
     currentAcronym,
-    currentTitle } = state;
+    currentTitle,activeCards,currentIndex,currentGroupIndex } = state;
 const {
     setIsDeleting,
     setIsDeletingSum,
@@ -85,7 +84,7 @@ const navigate=useNavigate();
         </button>
          <button
           onClick={() => setDisplayMarked(!displayMarked)}
-          className="cursor-pointer absolute  top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="cursor-pointer absolute top-0.5  md:top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
         
           {displayMarked?<TbPinnedFilled size={40}/>:<TbPinned size={40}/>}
@@ -93,17 +92,27 @@ const navigate=useNavigate();
         </button>
         <button
   onClick={() => handleSetStartDate(id, reviewerId)}
-  className="cursor-pointer absolute right-0 top-20  flex items-center gap-2 text-white bg-transparent border-1 border-[#B5B5FF] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+  className="  cursor-pointer 
+  absolute 
+  top-3 right-12 
+ 
+  md:right-15
+  flex items-center gap-2 
+  text-white 
+  bg-transparent 
+  border border-[#B5B5FF] 
+  hover:bg-[#51516B] 
+  p-2 sm:p-2.5 md:p-3 
+  rounded-xl 
+  text-xs sm:text-sm md:text-base
+"
 >
   <FaRegCalendarAlt color='#B5B5FF'/>
   Set Start Date
 </button>
       </div>
 
-       <div className="w-full flex justify-between items-center relative mb-6">
-       
-  
-      </div>
+     
       
       
 
@@ -111,7 +120,7 @@ const navigate=useNavigate();
         <>
 
         {isAcronymCard? 
-        <div className="flex flex-col justify-center md:justify-between items-center gap-5 ">
+        <div className="flex flex-col justify-center md:justify-between items-center gap-5 pt-10  ">
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
@@ -120,7 +129,7 @@ const navigate=useNavigate();
           </p>
         </div>
         : 
-        <div className="flex flex-col  md:justify-between items-center gap-5 place-self-center ">
+        <div className="flex flex-col  md:justify-between items-center gap-5 place-self-center pt-10  ">
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
@@ -190,6 +199,11 @@ const navigate=useNavigate();
                 </div>
               </div>
             </div>
+          </div>
+          <div>
+           <p className='text-white'>
+            {currentGroupIndex?currentGroupIndex+1 :currentIndex+1}/{activeCards.length}
+            </p> 
           </div>
 
           <div className="mt-6 flex gap-4">

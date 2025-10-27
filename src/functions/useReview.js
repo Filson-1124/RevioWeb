@@ -381,7 +381,7 @@ return {
     current,
     correctChoice,
     currentAcronym,
-    currentTitle
+    currentTitle,activeCards,currentIndex
   },
   actions: {
     setCurrentIndex,
