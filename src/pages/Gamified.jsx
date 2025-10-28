@@ -30,6 +30,8 @@ const Gamified = () => {
     wrongAnswers,
     startTime,
     showResults,
+    answeredQuestions,
+    userAnswer,
     isPressed,
     showSplash,
     countdown,
@@ -39,14 +41,14 @@ const Gamified = () => {
     answers,
     currentCorrectAnswers,
     timeUp,
-    current,trophyDone,isPlus,isMuted}=state
+    current,trophyDone,isPlus,isMuted,isPerfect,tropRet}=state
 
     const{ 
     setIsPressed,
     handleStart,
     handleChange,
     checkAcro,
-    checkAnswer,findCorrectAnswer,toggleMute
+    checkAnswer,findCorrectAnswer,toggleMute,setIsPerfect
   }=actions
 
   const navigate = useNavigate()
@@ -56,22 +58,34 @@ const Gamified = () => {
 
 
   // Results screen
- const renderResults = () => {
+
+const renderResults = () => {
   const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
   const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
-  const totalAnswered = score + wrongAnswers.length
-  const isPerfect = wrongAnswers.length === 0 && totalAnswered > 0
+  const totalAnswered = answeredQuestions.length
+ 
 
+  const correctList = answeredQuestions.filter(q => q.isCorrect)
+  const wrongList = answeredQuestions.filter(q => !q.isCorrect)
 
-  
-
-  return (
-    <div className=" text-center text-white w-full max-w-2xl px-4 flex flex-col items-center justify-center">
-      {/* 🎉 Confetti animation — transparent background */}
-      {wrongAnswers.length === 0 && totalAnswered > 0 && (
-        <Lottie
+console.log("sa UI: "+isPerfect)
+return (
+  <div className="text-center text-white w-full max-w-4xl mx-auto flex flex-col items-center ">
+     {/* Title and summary */}
+      <div className="z-10 bg-[#101010] ">
+        <h2 className="text-3xl font-bold mt-2">Results</h2>
+        <p className="text-lg">Score: {score} / {questions.length}</p>
+        <p className="text-sm text-gray-400 mb-4">Time spent: {timeDisplay}</p>
+      </div>
+    {/* Scroll Container */}
+    <div className="w-full h-[45vh] md:h-[60vh] overflow-y-auto custom-scroll p-2 pb-[40%] md:pb-[10%] bg-[#101010] rounded-2xl shadow-lg border border-[#2a2a2a]">
+       { console.log("correct: "+correctList.length)}
+     {correctList.length > 0 &&
+     (
+     
+      <Lottie
           animationData={confetti}
           loop={false}
           style={{
@@ -81,18 +95,18 @@ const Gamified = () => {
             width: '100%',
             height: '100%',
             background: 'transparent',
-            pointerEvents: 'none', // ensures it doesn't block clicks
-            zIndex: 100
+            pointerEvents: 'none',
+            zIndex: 1000
           }}
         />
-      )}
-      
+     )}
 
-      {isPerfect && !trophyDone && (
-       
-         <Lottie
+      {/* Perfect animation */}
+      {isPerfect && !trophyDone &&(
+        <Lottie
           animationData={trophy}
           loop={false}
+        
           style={{
             position: 'absolute',
             top: 0,
@@ -100,52 +114,133 @@ const Gamified = () => {
             width: '100%',
             height: '100%',
             background: 'transparent',
-            pointerEvents: 'none', // ensures it doesn't block clicks
-            zIndex: 100
+            pointerEvents: 'none',
+            zIndex: 1000
           }}
-          
         />
       )}
 
-      <h2 className="text-2xl sm:text-3xl font-bold mb-4 z-20">Results</h2>
-      <p className="text-base sm:text-lg mb-2 z-20">
-        Score: {score} / {questions.length}
-      </p>
-      <p className="text-base sm:text-lg mb-6 z-20">Time spent: {timeDisplay}</p>
-
-      {totalAnswered === 0 ? (
-        <p className="text-lg text-yellow-400 z-20">
-          You didn’t answer any questions ⏰
-        </p>
-      ) : wrongAnswers.length > 0 ? (
-        <div className="text-left bg-[#1f1f1f] p-4 rounded-lg space-y-3 overflow-y-auto max-h-[60vh] z-20">
-          <h3 className="text-lg sm:text-xl font-semibold mb-2">Wrong Answers:</h3>
-          {wrongAnswers.map((item, i) => (
+      {/* CORRECTLY ANSWERED */}
+      <div className="w-full bg-[#161616] border border-green-700 rounded-lg p-4 text-left shadow-md mb-6">
+        <h3 className="text-xl font-semibold text-green-400 mb-3">Correctly Answered:</h3>
+        {correctList.length === 0 ? (
+          <p className="text-gray-400 text-sm italic">No correct answers yet.</p>
+        ) : (
+          correctList.map((item, i) => (
             <div
               key={i}
-              className="p-3 border-2 border-[#672c93] rounded-md text-sm sm:text-base text-[#492f6b] bg-[#fefff7] font-bold"
+              className="border border-green-800 bg-[#1e1e1e] p-4 rounded-lg mb-3 hover:scale-102 transition-all duration-100 cursor-default"
             >
               {isAcronym ? (
                 <>
-                  <p><b>Letters:</b> {item.contents.map(c => c.word.charAt(0)).join('')}</p>
-                  <p><b>Words:</b> {item.contents.map(c => c.word).join(', ')}</p>
-                  <p><b>Key Phrase:</b> {item.keyPhrase}</p>
+                  <p className="text-sm mb-2">
+                    <b>Letters:</b>{" "}
+                    {(item.question?.contents || [])
+                      .map(c => c.word?.charAt(0) || '')
+                      .join('')}
+                  </p>
+                  <p className="text-sm mb-1 font-semibold text-green-400">Correct Words:</p>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {item.correctAnswers.map((word, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-[#2b2b2b] hover:scale-105 rounded px-2 py-1 text-green-400 font-semibold break-words"
+                      >
+                        {word}
+                      </span>
+                    ))}
+                  </div>
+                  {item.question?.keyPhrase && (
+                    <p className="text-xs italic text-gray-500">
+                      Key Phrase: {item.question.keyPhrase}
+                    </p>
+                  )}
                 </>
               ) : (
                 <>
-                  <p><b>Q:</b> {item.term}</p>
-                  <p><b>A:</b> {findCorrectAnswer(item)}</p>
+                  <p><b>Q:</b> {item.question?.term}</p>
+                  <p className="text-green-400 hover:scale-102 transition-all duration-100 cursor-default">
+                    <b>Answer:</b> {item.correctAnswers[0]}
+                  </p>
                 </>
               )}
             </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-lg z-20">No mistakes! 🎉</p>
-      )}
+          ))
+        )}
+      </div>
+
+      {/* WRONG ANSWERS */}
+      <div className="w-full bg-[#161616] border border-purple-700 rounded-lg p-4 text-left shadow-md mb-4">
+        <h3 className="text-xl font-semibold text-red-400 mb-3">Wrong Answers:</h3>
+        {wrongList.length === 0 ? (
+          <p className="text-gray-400 text-sm italic">No wrong answers 🎉</p>
+        ) : (
+          wrongList.map((item, i) => (
+            <div
+              key={i}
+              className="border border-purple-800 bg-[#1e1e1e] p-4 rounded-lg mb-3 hover:scale-102 transition-all duration-100 cursor-default"
+            >
+              {isAcronym ? (
+                <>
+                  <p className="text-sm mb-2">
+                    <b>Letters:</b>{" "}
+                    {(item.question?.contents || [])
+                      .map(c => c.word?.charAt(0) || '')
+                      .join('')}
+                  </p>
+                  <p className="text-sm mb-1 font-semibold text-purple-400 ">Expected Words:</p>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {item.correctAnswers.map((word, idx) => {
+                      const userWord = item.userAnswers?.[idx] || ''
+                      const isRight =
+                        userWord.trim().toUpperCase() === word.trim().toUpperCase()
+                      return (
+                        <span
+                          key={idx}
+                          className={`rounded px-2 py-1 font-semibold break-words hover:scale-105  transition-all duration-100 cursor-default ${
+                            isRight ? 'text-green-400' : 'text-red-400'
+                          } bg-[#2b2b2b]`}
+                        >
+                          {word}
+                        </span>
+                      )
+                    })}
+                  </div>
+                  <p className="text-sm text-gray-400 mb-1">Your Answers:</p>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {item.userAnswers.map((ans, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 rounded bg-[#292929] text-white break-words"
+                      >
+                        {ans || '(blank)'}
+                      </span>
+                    ))}
+                  </div>
+                  {item.question?.keyPhrase && (
+                    <p className="text-xs italic text-gray-500">
+                      Key Phrase: {item.question.keyPhrase}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p><b>Q:</b> {item.question?.term}</p>
+                  <p className="text-red-400">
+                    <b>Correct:</b> {item.correctAnswers[0]}
+                  </p>
+                </>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
-  )
+  </div>
+)
+
 }
+
 
  
 
@@ -196,7 +291,7 @@ const Gamified = () => {
   // Main game screen
   return (
     <div className="h-full bg-[#121212] text-white w-full pb-20 p-5 flex flex-col items-center relative overflow-x-hidden">
-      <div className="w-full flex justify-between items-center relative mb-6">
+      <div className="w-full flex justify-between items-center relative ">
         <button
        onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
           className="cursor-pointer md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
@@ -228,7 +323,7 @@ const Gamified = () => {
 >
   +1
 </span>
-            <button onClick={()=> toggleMute()} className='hover:text-red-500'> {isMuted? <FaVolumeMute /> : <AiFillSound />} </button>
+            <button onClick={()=> toggleMute()} className='hover:text-red-500 text-lg'> {isMuted? <FaVolumeMute color='red' /> : <AiFillSound />} </button>
           </div>
 
           <div className="mb-4 text-right text-xs sm:text-sm text-gray-300">

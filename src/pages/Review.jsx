@@ -84,7 +84,7 @@ const navigate=useNavigate();
         </button>
          <button
           onClick={() => setDisplayMarked(!displayMarked)}
-          className="cursor-pointer absolute top-0.5  md:top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className=" cursor-pointer absolute top-0.5  md:top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
         
           {displayMarked?<TbPinnedFilled size={40}/>:<TbPinned size={40}/>}
@@ -124,18 +124,14 @@ const navigate=useNavigate();
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
-          <p className="text-sm text-gray-300 italic place-self-center">
-            Click to flip to reveal the key phrase
-          </p>
+        
         </div>
         : 
         <div className="flex flex-col  md:justify-between items-center gap-5 place-self-center pt-10  ">
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
-          <p className="text-sm text-gray-300 italic place-self-center">
-            Click to flip to reveal the definition
-          </p>
+         
         </div>}
 
           {/* Flashcard Section */}
@@ -148,15 +144,20 @@ const navigate=useNavigate();
               <div  
                 className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'}  transition-all duration-200ms `}
               >
-                <button className='absolute top-3 right-3 text-white text-xl cursor-pointer bg-[#6A558D] rounded-full p-4'  
+                <button className='absolute top-3 right-3 text-white text-xl cursor-pointer bg-[#6A558D] rounded-full p-4 hover:scale-105 transition-all duration-75 active:scale-90'  
                 onClick={(e)=>{e.stopPropagation();  handleMark(current.id);}}>
                   {displayMarked || isMarked ? <FaMapPin size={30} /> : <CiMapPin size={30} />}
 
                 </button>
                 {isAcronymCard ?
-                  <h1 className={`text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms]`}> 
+                <>  
+                  <h1 className={`text-white text-md md:text-2xl font-bold mt-6  text-center ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms]`}> 
                     {currentTitle}
-                  </h1>   
+                  </h1>  
+                  <p className="text-sm text-gray-300 italic place-self-center mb-3">
+            Click to flip to reveal the key phrase
+          </p>
+                  </> 
                 : ""} 
                 
 
@@ -171,11 +172,17 @@ const navigate=useNavigate();
                     </div>
                   </div>
                 ) : (
+                  <>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white place-self-center">
                     
                     {current?.term ?? 'No term available'}
                     
                   </p>
+
+                          <p className="absolute bottom-2 text-sm text-gray-300 mb-3 italic place-self-center justify-self-end opacity-[0.7] ">
+            Click to flip to reveal the definition
+          </p>
+          </>
                 )}
               </div>
 
@@ -192,9 +199,12 @@ const navigate=useNavigate();
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm sm:text-2xl md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
+                    <>  <p className="text-sm sm:text-2xl md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
                       {correctChoice?.text ?? 'No definition available'}
                     </p>
+               
+                     </>
+                   
                   )}
                 </div>
               </div>
