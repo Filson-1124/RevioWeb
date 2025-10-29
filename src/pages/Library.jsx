@@ -4,32 +4,14 @@ import { FaFolder } from "react-icons/fa";
 import { auth, db } from '../components/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
+import { FaFolderOpen } from "react-icons/fa";
 
 const Library = () => {
   const foldersData = useLoaderData();
 
   if (!Array.isArray(foldersData)) return null;
 
-  /*  
-    <div>
-      <div className='flex flex-col gap-7 p-20'>
-        <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>LIBRARY</h1>
-        <hr className='text-white' />
-      </div>
-      <div className='px-20 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-10'>
-        {foldersData.map(folder => (
-          <Link
-            key={folder.id}
-            className='flex justify-center gap-10 bg-[#20202C] p-5 rounded-2xl duration-150 ease-in hover:scale-110'
-            to={folder.id}
-          >
-            <FaFolder color='white' size={80} />
-            <h4 className='text-white self-center'>{folder.title}</h4>
-          </Link>
-        ))}
-      </div>
-    </div>
-  */
+
 
   return (
     <div className='pb-[30%]'>
@@ -52,11 +34,12 @@ const Library = () => {
             <Link
               key={folder.id}
               to={folder.id}
-              className='flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105'
+              className='group flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105'
             >
               {/* Keep the icon size fixed */}
-              <div className="flex-shrink-0">
-                <FaFolder color='white' size={80} />
+              <div className=" relative flex-shrink-0 w-20 h-20">
+                <FaFolder color='white' size={80}  className='absolute top-0 left-0 opacity-100 group-hover:opacity-0 transition-all duration-200' />
+                <FaFolderOpen color='white' size={80} className='absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-all duration-200' />
               </div>
 
               {/* Title automatically resizes if long */}

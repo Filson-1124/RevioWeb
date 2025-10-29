@@ -1,4 +1,5 @@
 // Imports
+//ipush
 import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { LuArrowLeft } from "react-icons/lu"
@@ -7,122 +8,130 @@ import { IoMdStarOutline } from "react-icons/io";
 import { FaRegLightbulb } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa"
 import { FaTrashAlt } from "react-icons/fa";
+import deletingScreen from '../assets/deletingScreen.png'
+import LoadingBar from '../components/LoadingBar';
+
+
+import { FaMapPin } from "react-icons/fa";
+import { CiMapPin } from "react-icons/ci";
+import { TbPinned } from "react-icons/tb";
+import { TbPinnedFilled } from "react-icons/tb";
+import { FaRegCalendarAlt } from "react-icons/fa";
+import { useReview } from '../functions/useReview';
 
 const Review = () => {
-  const reviewer = useLoaderData()
+  const { state, actions } = useReview();
+const {   reviewer,
+    id,
+    reviewerId,
+    flipped,
+    message,
+    isDeleting,
+    deleting,
+    fadeOut,
+    isDone,
+    isDeletingSum,
+    isFlashcard,
+    isAcronymCard,
+    isMarked,
+    displayMarked,
+    current,
+    correctChoice,
+    currentAcronym,
+    currentTitle,activeCards,currentIndex,currentGroupIndex } = state;
+const {
+    setIsDeleting,
+    setIsDeletingSum,
+    setDisplayMarked,
+    handleFlip,
+    handleNext,
+    handlePrev,
+    handleMark,
+    handleDelete,
+    handleSetStartDate,} = actions;
 
-  // Sort the questions (terms) numerically based on their IDs
-  const sortedQuestions = reviewer.questions
-    ? [...reviewer.questions].sort((a, b) => {
-        const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
-        const numB = parseInt(b.id?.toString().match(/\d+/)?.[0] || 0, 10)
-        return numA - numB
-      })
-    : []
+const navigate=useNavigate();
 
-  // Sort acronym content numerically based on their IDs
-
-  //reviewerDelete
-  //ALDEN DITO KA MAG LAGAY HA
-      const handleDelete=(id)=>{
-
-
-      }
-
-  const sortedContent = reviewer.content
-    ? [...reviewer.content].sort((a, b) => {
-        const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
-        const numB = parseInt(b.id?.toString().match(/\d+/)?.[0] || 0, 10)
-        return numA - numB
-      })
-    : []
-
-  const [currentGroupIndex, setCurrentGroupIndex] = useState(0)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [flipped, setFlipped] = useState(false)
-  const [message, setMessage] = useState('')
-  const [isDeleting, setIsDeleting]=useState(false)
-  const [isDeletingSum, setIsDeletingSum]=useState(false)
-  const isFlashcard = reviewer.id.startsWith('td') || reviewer.id.startsWith('ac')
-  const isAcronymCard = reviewer.id.startsWith('ac')
-
-  const { id, reviewerId } = useParams()
-  const navigate = useNavigate()
-
-  const handleFlip = () => setFlipped(!flipped)
-
-  const handleNext = () => {
-    setFlipped(false)
-    if (isAcronymCard) {
-      if (currentGroupIndex < sortedContent.length - 1) setCurrentGroupIndex(currentGroupIndex + 1)
-      else setMessage("You've reached the last card")
-    } else {
-      if (currentIndex < sortedQuestions.length - 1) setCurrentIndex(currentIndex + 1)
-      else setMessage("You've reached the last card")
-    }
+ 
+   if (deleting) {
+    return (
+      <div
+        className={`min-h-screen flex flex-col justify-center items-center text-center pb-[40%] md:pb-0 p-4 transition-opacity duration-700 ${
+          fadeOut ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        <img src={deletingScreen} alt="creationLoadingScreen" className="w-40 sm:w-40 md:w-80 mb-6" />
+        <p className="text-white font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
+          {isDone ? "Reviewer Deleted" :"Deleting Reviewer, please wait"}
+        
+        </p>
+     
+        <LoadingBar isDone={isDone} />
+      </div>
+    )
   }
-
-  const handlePrev = () => {
-    setFlipped(false)
-    if (isAcronymCard) {
-      if (currentGroupIndex > 0) setCurrentGroupIndex(currentGroupIndex - 1)
-      else setMessage('This is the first card')
-    } else {
-      if (currentIndex > 0) setCurrentIndex(currentIndex - 1)
-      else setMessage('This is the first card')
-    }
-  }
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(''), 2000)
-      return () => clearTimeout(timer)
-    }
-  }, [message])
-
-  const current = isAcronymCard ? sortedContent?.[currentGroupIndex] : sortedQuestions?.[currentIndex]
-  const correctChoice = !isAcronymCard && current?.definition?.find(c => c.type === "correct")
-  const currentAcronym = isAcronymCard ? current : null
-  const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
   return (
+    
     <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[45%] md:pb-10 px-4 gap-7 md:px-10'>
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
-          onClick={() => navigate(-1)}
-          className="absolute left-0 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          onClick={() => navigate(`/Main/Library/${id}`)}
+          className="cursor-pointer absolute left-0 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className='md:size-5' />
           Back
         </button>
+         <button
+          onClick={() => setDisplayMarked(!displayMarked)}
+          className=" cursor-pointer absolute top-0.5  md:top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
+        >
+        
+          {displayMarked?<TbPinnedFilled size={40}/>:<TbPinned size={40}/>}
+
+        </button>
+        <button
+  onClick={() => handleSetStartDate(id, reviewerId)}
+  className="  cursor-pointer 
+  absolute 
+  top-3 right-12 
+ 
+  md:right-15
+  flex items-center gap-2 
+  text-white 
+  bg-transparent 
+  border border-[#B5B5FF] 
+  hover:bg-[#51516B] 
+  p-2 sm:p-2.5 md:p-3 
+  rounded-xl 
+  text-xs sm:text-sm md:text-base
+"
+>
+  <FaRegCalendarAlt color='#B5B5FF'/>
+  Set Start Date
+</button>
       </div>
+
+     
       
-      {!isAcronymCard && (
-        <>
       
-        </>
-      )}
 
       {isFlashcard && (
         <>
 
         {isAcronymCard? 
-        <div className="flex flex-col justify-center md:justify-between items-center gap-5 ">
+        <div className="flex flex-col justify-center md:justify-between items-center gap-5 pt-10  ">
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
-          <p className="text-sm text-gray-300 italic place-self-center">
-            Click to flip to reveal the key phrase
-          </p>
+        
         </div>
         : 
-        <div className="flex flex-col  md:justify-between items-center gap-5 place-self-center ">
+        <div className="flex flex-col  md:justify-between items-center gap-5 place-self-center pt-10  ">
           <h1 className="text-white text-2xl md:text-3xl font-bold">
             {reviewer.title}
           </h1>
-          <p className="text-sm text-gray-300 italic place-self-center">
-            Click to flip to reveal the definition
-          </p>
+         
         </div>}
 
           {/* Flashcard Section */}
@@ -135,11 +144,22 @@ const Review = () => {
               <div  
                 className={`absolute w-full h-full [backface-visibility:hidden] rounded-2xl shadow-lg flex flex-col items-center justify-center p-4  text-center cursor-pointer ${isAcronymCard ? 'bg-[#2E2E40]' : 'bg-[#8267B1]'}  transition-all duration-200ms `}
               >
+                <button className='absolute top-3 right-3 text-white text-xl cursor-pointer bg-[#6A558D] rounded-full p-4 hover:scale-105 transition-all duration-75 active:scale-90'  
+                onClick={(e)=>{e.stopPropagation();  handleMark(current.id);}}>
+                  {displayMarked || isMarked ? <FaMapPin size={30} /> : <CiMapPin size={30} />}
+
+                </button>
                 {isAcronymCard ?
-                  <h1 className={`text-white text-md md:text-2xl font-bold mt-6 mb-6 text-center ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms]`}> 
+                <>  
+                  <h1 className={`text-white text-md md:text-2xl font-bold mt-6  text-center ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms]`}> 
                     {currentTitle}
-                  </h1>
-                : ""}
+                  </h1>  
+                  <p className="text-sm text-gray-300 italic place-self-center mb-3">
+            Click to flip to reveal the key phrase
+          </p>
+                  </> 
+                : ""} 
+                
 
                 {isAcronymCard ? (
                   <div className={` scroll-container bg-[#5C5C76] p-3 md:px-6 rounded-lg shadow-inner w-full h-full overflow-y-auto flex ${flipped?"opacity-0 md:opacity-100":""} transition-all duration-[200ms] `}>
@@ -152,9 +172,17 @@ const Review = () => {
                     </div>
                   </div>
                 ) : (
+                  <>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white place-self-center">
+                    
                     {current?.term ?? 'No term available'}
+                    
                   </p>
+
+                          <p className="absolute bottom-2 text-sm text-gray-300 mb-3 italic place-self-center justify-self-end opacity-[0.7] ">
+            Click to flip to reveal the definition
+          </p>
+          </>
                 )}
               </div>
 
@@ -171,60 +199,68 @@ const Review = () => {
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm sm:text-2xl md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
+                    <>  <p className="text-sm sm:text-2xl md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
                       {correctChoice?.text ?? 'No definition available'}
                     </p>
+               
+                     </>
+                   
                   )}
                 </div>
               </div>
             </div>
           </div>
+          <div>
+           <p className='text-white'>
+            {currentGroupIndex?currentGroupIndex+1 :currentIndex+1}/{activeCards.length}
+            </p> 
+          </div>
 
           <div className="mt-6 flex gap-4">
             <button
               onClick={handlePrev}
-              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
+              className="hover:scale-105 cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
               <IoArrowUndo color='black' size={25} />
             </button>
             <button
               onClick={handleNext}
-              className="flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
+              className="hover:scale-105  cursor-pointer flex px-4 py-2 bg-[#B5B5FF] text-white transition w-28 md:w-40 rounded-2xl justify-center items-center active:scale-90"
             >
               <IoArrowRedoSharp color='black' size={25} />
             </button>
           </div>
 
           {message && <p className="mt-4 text-yellow-300 font-semibold text-sm md:text-base">{message}</p>}
-
-          <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
+        {!displayMarked && <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
-              className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className="cursor-pointer flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white  justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
-              <FaEdit color="#B5B5FF" size={18} /> Edit
+              <FaEdit size={18} /> Edit
             </button>
 
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
-              className="flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className="cursor-pointer flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
             >
-              <IoGameController color="white" size={18} />
-              <span className="font-bold bg-gradient-to-r from-[#F0EDB6] to-[#E93209] bg-clip-text text-transparent">
+              <IoGameController size={18} />
+              <span className="font-bold ">
                 Game Mode
               </span>
             </button>
             
              <button
-              onClick={() => setIsDeleting(true) }
-              className=" text-red-800 flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              onClick={() => setIsDeleting(true)}
+              className=" cursor-pointer flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-red-800 rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
-              <FaTrashAlt color='red' size={18}/>
+              <FaTrashAlt size={18}/>
             
                 Delete Flashcard set
            
             </button>
-          </div>
+          </div>}
+          
         </>
       )}
 
@@ -271,7 +307,7 @@ const Review = () => {
                 onClick={() => handleDelete(reviewerId)}
                 className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
               >
-                Yes, Delete
+                 Delete
               </button>
             </div>
           </div>
@@ -284,9 +320,9 @@ const Review = () => {
         <div className="text-white w-full max-w-3xl mt-10">
         <button
   onClick={() => setIsDeletingSum(true)}
-  className="ml-auto mb-5 text-red-800 flex gap-2 items-center justify-center p-3 border border-[#E93209] rounded-xl active:scale-95"
+  className="cursor-pointer ml-auto mb-5 text-red-800 hover:text-white hover:bg-red-800 flex gap-2 items-center justify-center p-3 border border-[#E93209] rounded-xl active:scale-95"
 >
-  <FaTrashAlt color="red" size={18} />
+  <FaTrashAlt  size={18} />
 </button>
           <h1 className='text-white font-black text-3xl mb-4'>{reviewer.title}</h1>
          

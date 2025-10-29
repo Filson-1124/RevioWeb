@@ -8,308 +8,49 @@ import { doc, getDoc, collection, getDocs, setDoc, deleteDoc, updateDoc } from "
 import editLoadingScreen from "../assets/editingLoadingScreen3.png"
 import LoadingBar from './LoadingBar'
 import { useParams } from "react-router-dom";
+import checkMark from '../assets/animation/checkmark.json'
+import failedMark from '../assets/animation/Icon Failed.json'
+import Lottie from "lottie-react";
+import { useEdit } from '../functions/useEdit';
 
-const API_URL = import.meta.env.VITE_API_URL;
+
 
 const EditFlashCard = () => {
-  const reviewer = useLoaderData()
-  const navigate = useNavigate()
-  const { id: folderId, reviewerId } = useParams();
+  const {state, actions}=useEdit();
+  const { title,
+    questions,
+    content,
+    isCreating,
+    isDone,
+    fadeOut,
+    isDeleting,
+    isEmptySaved,
+    modalMess,
+    modalTitle,
+    isSaved,
+    isFailed,
+    loadingCountdown,
+    folderId,
+    reviewerId,
+    isAcronym,
+    isTermDef}=state;
+  const {setTitle,
 
-  const [isCreating, setIsCreating] = useState(false)
-  const [isDone, setIsDone] = useState(false)
-  const [fadeOut, setFadeOut] = useState(false)
-
-  // editable title state
-  const [title, setTitle] = useState(reviewer?.title || "")
-
-  // initialize state from loader
-  const [questions, setQuestions] = useState(() => reviewer?.questions || [])
-  const [content, setContent] = useState(() => reviewer?.content || [])
-
-  // track deleted acronym letters & items
-  const [deletedLetters, setDeletedLetters] = useState([]);
-  const [deletedItems, setDeletedItems] = useState([]);
-
-  const [deleteTarget, setDeleteTarget] = useState(null)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => {
-    if (reviewer?.title) setTitle(reviewer.title)
-  }, [reviewer])
-
-  const isAcronym = reviewer.type === "acronym"
-  const isTermDef = reviewer.type === "terms"
-
-  //extract numeric part from ids 
-  const extractNumericId = (id) => {
-    if (!id && id !== 0) return 0
-    const match = String(id).match(/\d+/g)
-    return match ? Number(match.join("")) : 0
-  }
-
-  const getNextQuestionId = (items) => {
-    if (!items || items.length === 0) return "q1"
-    const maxIdNum = Math.max(...items.map(item => extractNumericId(item.id)))
-    return `q${maxIdNum + 1}`
-  }
-
-  const getNextContentInnerId = (contents) => {
-    if (!contents || contents.length === 0) return "1"
-    const maxIdNum = Math.max(...contents.map(item => Number(item.id) || 0))
-    return String(maxIdNum + 1)
-  }
-
-  const handleChange = (id, field, value) => {
-    setQuestions(prev => prev.map(q => q.id === id ? { ...q, [field]: value } : q))
-  }
-
-  const handleAcronymChange = (contentId, index, field, value) => {
-    setContent(prev =>
-      prev.map(c => {
-        if (c.id !== contentId) return c
-        if (index === null) return { ...c, [field]: value }
-        return {
-          ...c,
-          contents: c.contents.map((item, i) =>
-            i === index ? { ...item, [field]: value } : item
-          )
-        }
-      })
-    )
-  }
-
-  const addLetter = (contentId) => {
-    setContent(prev =>
-      prev.map(c => {
-        if (c.id !== contentId) return c
-        const nextId = getNextContentInnerId(c.contents)
-        return { ...c, contents: [...c.contents, { id: nextId, letter: "", word: "" }] }
-      })
-    )
-  }
-
-  const handleDeleteLetter = (contentId, letterId) => {
-    setDeletedLetters(prev => [...prev, { contentId, letterId }])
-    setContent(prev =>
-      prev.map(c =>
-        c.id === contentId
-          ? { ...c, contents: c.contents.filter(item => item.id !== letterId) }
-          : c
-      )
-    )
-  }
-
-  const handleDeleteItem = (id, type) => {
-    setDeleteTarget({ id, type })
-    setIsDeleting(true)
-  }
-
-  const confirmDelete = () => {
-    if (!deleteTarget) return
-
-    const { id, type } = deleteTarget
-    setDeletedItems(prev => [...prev, { id, type }])
-
-    if (type === "terms") {
-      setQuestions(prev => prev.filter(q => q.id !== id))
-    } else {
-      setContent(prev => prev.filter(c => c.id !== id))
-    }
-
-    setIsDeleting(false)
-    setDeleteTarget(null)
-  }
-
-  const handleSave = async () => {
-    try {
-      const user = auth.currentUser
-      if (!user) {
-        alert("Not logged in")
-        return
-      }
-
-      //validation
-      if (isAcronym) {
-        for (const c of content) {
-          if (!c.title || !c.title.trim()) {
-            alert("Each acronym flashcard must have a TITLE before saving.")
-            return
-          }
-          for (const item of c.contents) {
-            if (!item.letter.trim() || !item.word.trim()) {
-              alert("Each acronym entry must have both a LETTER and a WORD before saving.")
-              return
-            }
-          }
-        }
-      }
-
-      if (isTermDef) {
-        for (const q of questions) {
-          if (!q.question.trim() || !q.answer.trim()) {
-            alert("Each flashcard must have both a TERM and a DEFINITION before saving.")
-            return
-          }
-        }
-      }
-
-      setIsCreating(true)
-      setIsDone(false)
-
-      const reviewerRef = doc(
-        db,
-        "users",
-        user.uid,
-        "folders",
-        reviewer.folderId,
-        "reviewers",
-        reviewer.id
-      )
-
-      // Update editable title
-      await updateDoc(reviewerRef, { title })
-
-      // Delete removed items
-      for (const d of deletedItems) {
-        const collectionName = d.type === "terms" ? "questions" : "content"
-        const itemRef = doc(reviewerRef, collectionName, d.id)
-        await deleteDoc(itemRef)
-      }
-
-      for (const d of deletedLetters) {
-        const contentRef = doc(reviewerRef, "content", d.contentId)
-        const letterRef = doc(contentRef, "contents", d.letterId)
-        await deleteDoc(letterRef)
-      }
-
-      // Save term/definition questions with distractors
-      if (isTermDef) {
-        const token = await user.getIdToken()
-
-        const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id))
-        const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)))
-
-        const existingById = {}
-        const needingDistractors = []
-
-        for (let i = 0; i < questions.length; i++) {
-          const q = questions[i]
-          const snap = snaps[i]
-          const data = snap.exists() ? snap.data() : null
-          existingById[q.id] = data
-
-          const existingDefs = data?.definition || []
-          const hasWrong = Array.isArray(existingDefs) && existingDefs.some(d => d.type === "wrong")
-
-          if (!hasWrong) {
-            needingDistractors.push({
-              id: q.id,
-              term: q.question,
-              correctDefinition: q.answer,
-            })
-          }
-        }
-
-        let distractorMap = {}
-        if (needingDistractors.length > 0) {
-          try {
-            const resp = await fetch(`${API_URL}/api/distractors`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-              },
-              body: JSON.stringify({ items: needingDistractors, count: 3 }),
-            })
-
-            if (resp.ok) {
-              const body = await resp.json()
-              distractorMap = body?.distractors || {}
-            } else {
-              console.error("Distractor API error:", resp.status, await resp.text())
-            }
-          } catch (err) {
-            console.error("Failed to call distractor API:", err)
-          }
-        }
-
-        for (const q of questions) {
-          const existing = existingById[q.id]
-          let defs = Array.isArray(existing?.definition)
-            ? existing.definition.slice()
-            : []
-
-          const correctDef = q.answer.trim()
-          const hasCorrect = defs.some(d => d.type === "correct")
-          if (hasCorrect) {
-            defs = defs.map(d => d.type === "correct" ? { ...d, text: correctDef } : d)
-          } else {
-            defs.push({ text: correctDef, type: "correct" })
-          }
-
-          const aiWrongs = Array.isArray(distractorMap[q.id]) ? distractorMap[q.id] : []
-          for (const wrong of aiWrongs) {
-            if (!wrong || !wrong.trim()) continue
-            const trimmed = wrong.trim()
-            const exists = defs.some(d => d.text.trim() === trimmed)
-            if (!exists && trimmed !== correctDef) {
-              defs.push({ text: trimmed, type: "wrong" })
-            }
-          }
-
-          const qRef = doc(reviewerRef, "questions", q.id)
-          await setDoc(qRef, { term: q.question, definition: defs }, { merge: true })
-        }
-      }
-
-      if (isAcronym) {
-        for (const c of content) {
-          const contentRef = doc(reviewerRef, "content", c.id)
-          await setDoc(contentRef, {
-            title: c.title,
-            keyPhrase: c.keyPhrase,
-          }, { merge: true })
-          for (const item of c.contents) {
-            const itemRef = doc(contentRef, "contents", String(item.id))
-            await setDoc(itemRef, {
-              letter: item.letter,
-              word: item.word,
-            }, { merge: true })
-          }
-        }
-      }
-
-      setIsDone(true)
-      setTimeout(() => {
-        setFadeOut(true)
-        setTimeout(() => {
-          setIsCreating(false)
-          setFadeOut(false)
-        }, 1000)
-      }, 2000)
-
-      alert("Changes saved successfully!")
-    } catch (error) {
-      console.error("Error saving:", error)
-      alert("Failed to save changes. Check console for details.")
-    }
-  }
-
-  const handleAddTD = () => {
-    setQuestions(prev => {
-      const nextId = getNextQuestionId(prev)
-      return [...prev, { id: nextId, question: "", answer: "" }]
-    })
-  }
-
-  const handleAddAC = () => {
-    setContent(prev => {
-      const maxNum = prev.length ? Math.max(...prev.map(p => extractNumericId(p.id))) : 0
-      const newId = `q${maxNum + 1}`
-      return [...prev, { id: newId, title: "", keyPhrase: "", contents: [{ id: "1", letter: "", word: "" }] }]
-    })
-  }
+    setDeleteTarget,
+    setIsDeleting,
+    setIsEmptySaved,
+    setModalMess,
+    setModalTitle,
+    setIsFailed,
+    handleChange,
+    handleAcronymChange,
+    addLetter,
+    handleDeleteLetter,
+    handleDeleteItem,
+    confirmDelete,
+    handleSave,
+    handleAddTD,
+    handleAddAC}=actions;
 
   if (isCreating) {
     return (
@@ -323,14 +64,12 @@ const EditFlashCard = () => {
     )
   }
 
-  
-
   return (
     <div>
       <div className="w-full p-5 md:p-10 flex flex-col md:flex-row justify-between gap-10 items-start md:items-center relative">
         <button
            onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
-          className="static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+          className="cursor-pointer static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
         >
           <LuArrowLeft size={20} />
           Back
@@ -350,7 +89,7 @@ const EditFlashCard = () => {
 
         <button
           onClick={handleSave}
-          className="w-full place-content-center md:w-auto font-poppinsbold text-white bg-[#6ada6dff] text-lg flex gap-1 p-5 rounded-2xl place-self-start md:place-self-end"
+          className="cursor-pointer w-full place-content-center md:w-auto font-poppinsbold text-white bg-[#6ada6dff] text-lg flex gap-1 p-5 rounded-2xl place-self-start md:place-self-end"
         >
           <FaSave size={25} />
           Save
@@ -392,7 +131,7 @@ const EditFlashCard = () => {
                   </div>
 
                   <button
-                    className="hidden md:flex w-full rounded-xl md:rounded-none p-5 md:w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500 active:bg-red-600 transition-all"
+                    className="cursor-pointer hidden md:flex w-full rounded-xl md:rounded-none p-5 md:w-[50px] justify-center items-center bg-[#373749] hover:bg-red-500 active:bg-red-600 transition-all"
                     onClick={() => handleDeleteItem(q.id, 'terms')}
                   >
                     <LuTrash />
@@ -402,7 +141,7 @@ const EditFlashCard = () => {
             </div>
             <button
               onClick={handleAddTD}
-              className="w-full max-w-xl bg-[#B5B5FF] hover:bg-green-700 text-white py-3 rounded-xl"
+              className=" cursor-pointer w-full max-w-xl bg-[#B5B5FF] hover:bg-green-700 text-white py-3 rounded-xl"
             >
               Add Flashcard
             </button>
@@ -446,7 +185,7 @@ const EditFlashCard = () => {
                         />
                         <button
                           onClick={() => handleDeleteLetter(item.id, c.id)}
-                          className="flex w-[40px] h-[40px] justify-center items-center bg-[#373749] hover:bg-red-500 rounded-md"
+                          className="cursor-pointer flex w-[40px] h-[40px] justify-center items-center bg-[#373749] hover:bg-red-500 rounded-md"
                         >
                           <LuTrash />
                         </button>
@@ -457,7 +196,7 @@ const EditFlashCard = () => {
                   <div className="flex justify-center">
                     <button
                       onClick={() => addLetter(item.id)}
-                      className="w-[40px] h-[40px] flex justify-center items-center bg-[#373749] hover:bg-green-500 rounded-full shadow-md transition-colors"
+                      className="cursor-pointer w-[40px] h-[40px] flex justify-center items-center bg-[#373749] hover:bg-green-500 rounded-full shadow-md transition-colors"
                     >
                       <LuPlus size={24} />
                     </button>
@@ -465,7 +204,7 @@ const EditFlashCard = () => {
 
                   <button
                     onClick={() => handleDeleteItem(item.id, "acronym")}
-                    className="flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
+                    className="cursor-pointer flex self-end w-[50px] justify-center items-center bg-red-500 hover:bg-red-700 p-3 rounded-full shadow-lg"
                   >
                     <LuTrash />
                   </button>
@@ -474,7 +213,7 @@ const EditFlashCard = () => {
             </div>
             <button
               onClick={handleAddAC}
-              className="w-full max-w-xl bg-[#B5B5FF] hover:text-[#B5B5FF] hover:bg-[#200448] text-[#200448] py-3 rounded-xl font-black"
+              className="cursor-pointer w-full max-w-xl bg-[#B5B5FF] hover:text-[#B5B5FF] hover:bg-[#200448] text-[#200448] py-3 rounded-xl font-black"
             >
               {isAcronym?"Add Acronym Group":"Add Flashcard"}
             </button>
@@ -496,13 +235,13 @@ const EditFlashCard = () => {
             setIsDeleting(false)
             setDeleteTarget(null)
           }}
-          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+          className="cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
         >
           Cancel
         </button>
         <button
           onClick={confirmDelete}
-          className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+          className="cursor-pointer px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
         >
           Delete
         </button>
@@ -512,6 +251,80 @@ const EditFlashCard = () => {
 )}
 
       </div>
+
+      {isEmptySaved && 
+      (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+       <Lottie animationData={failedMark} loop={false} />
+      <h2 className="text-white text-lg font-bold mb-3">
+        {modalTitle}
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        {modalMess}
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsEmptySaved(false)
+            setModalTitle("")
+            setModalMess("")
+           }}
+          className=" cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Okay
+        </button>
+        
+      </div>
+    </div>
+  </div>
+
+      )}
+
+      {isSaved&&(
+         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+        <Lottie animationData={checkMark} loop={false} />
+      <h2 className="text-white text-lg font-bold mb-3">
+        Reviewer Saved!
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        Your Changes Have Been Saved.
+      </p>
+      <div className="flex justify-center gap-4">
+      <p className="text-gray-400 text-sm mb-6">
+        Redirecting to your reviewer in {loadingCountdown} ...
+      </p>
+        
+      </div>
+    </div>
+  </div>
+      )}
+       {isFailed&&(
+         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+        <Lottie animationData={failedMark} loop={false} />
+      <h2 className="text-white text-lg font-bold mb-3">
+        Reviewer Not Saved!
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        Something went wrong.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsFailed(false)
+           
+           }}
+          className=" cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Okay
+        </button>
+        
+      </div>
+    </div>
+  </div>
+      )}
     </div>
   )
 }

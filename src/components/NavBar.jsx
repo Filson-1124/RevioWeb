@@ -6,8 +6,10 @@ import { IoMdSettings } from "react-icons/io"
 import { NavLink } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import { FaMobileAlt } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom'
 
 const NavBar = () => {
+ const navigate=useNavigate()
   return (
     <div
       className="
@@ -17,7 +19,7 @@ const NavBar = () => {
         overflow-hidden
       "
     >
-      <img src={logo} alt="Logo" className="hidden md:block size-20 mb-10" />
+      <img src={logo} alt="Logo" className="hidden md:block size-20 mb-10 cursor-pointer" onClick={()=> navigate('/Main/Library')} />
       <ul className="flex flex-row gap-4 px-4 p-5 sm:gap-5 items-center md:flex-col md:gap-10">
         <NavLink to='/Main/Library'>
           <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-105">
@@ -40,7 +42,7 @@ const NavBar = () => {
           </li>
         </NavLink>
         <NavLink to='/Main/Download'>
-          <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110 md:hidden">
+          <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110 ">
             <FaMobileAlt color="white" size={30} />
           </li>
         </NavLink>

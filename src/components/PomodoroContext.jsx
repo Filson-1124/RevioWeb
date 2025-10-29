@@ -4,7 +4,7 @@ import notif from '../assets/notification.mp3'
 const PomodoroContext = createContext()
 
 export const PomodoroProvider = ({ children }) => {
-  const normalBreak = 5 * 60
+  const normalBreak =5 * 60
   const longBreak = 15 * 60
   const focus = 25 * 60
 

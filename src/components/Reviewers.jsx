@@ -1,101 +1,134 @@
-import React from 'react'
-import { Link, useLoaderData } from 'react-router-dom'
-import { TbCardsFilled } from "react-icons/tb";
-import { LuStickyNote, LuArrowLeft } from "react-icons/lu";
-import { FaWandMagicSparkles } from "react-icons/fa6";
-import { TbPlayCardAFilled } from "react-icons/tb";
+
+import { Link,useNavigate } from 'react-router-dom';
+
+import { LuArrowLeft } from "react-icons/lu";
+import { CiCirclePlus } from "react-icons/ci";
+
 import { auth, db } from '../components/firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
-import { useNavigate } from 'react-router-dom';
+import { useReviewer } from '../functions/useReviewer';
+
+
 
 const Reviewers = () => {
-
-  const folder = useLoaderData();
-  const reviewers = folder.reviewers;
   const navigate = useNavigate();
-
-  //this is where we load and dissect the api po
-  //kung makikita nyo po we turn it into manageable pieces para po makapag dive in tayo sa laman ng API
-
-  let headingText = "REVIEWERS";
-  let revIcon = <TbCardsFilled color='white' size={80} />;
-
-  if (folder.id === "TermsAndDefinitions") {
-    headingText = "TERMS AND DEFINITION";
-    revIcon = <TbCardsFilled color='white' size={80} />;
-  } else if (folder.id === "SummarizedReviewers") {
-    headingText = "SUMMARIZED REVIEWERS";
-    revIcon = <LuStickyNote color='white' size={80} />;
-  } else if (folder.id === "AcronymMnemonics") {
-    headingText = "ACRONYM MNEMONICS";
-    revIcon = <TbPlayCardAFilled size={90} color='white' />;
-  } else if (folder.id === "SummarizedAIReviewers") {
-    headingText = "SUMMARIZED AI REVIEWERS";
-    revIcon = <FaWandMagicSparkles size={75} color='white' />;
-  }
-
-  //Sort reviewers by numerically desc
-  //
-  const sortedReviewers = [...reviewers].sort((a, b) =>
-    b.id.localeCompare(a.id, undefined, { numeric: true })
-  );
+  const { state, actions } = useReviewer();
+  const { headingText, IconComponent, iconSize, isFlashCard, extended, sortedReviewers } = state;
 
   return (
     <div className="min-h-screen pb-[20%] flex flex-col overflow-hidden">
-
-      <div className='flex flex-col gap-7 p-5'>
+      <div className="flex flex-col gap-7 p-5">
         <div className="w-full p-10 flex justify-between items-center relative">
           <button
-            onClick={() => navigate(-1)} // 👈 go back one page
+            onClick={() => navigate(`/Main/Library`)}
             className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
           >
             <LuArrowLeft size={20} />
             Back
           </button>
         </div>
-        <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>{headingText}</h1>
-        <hr className='text-white' />
 
-      </div>
+        <h1 className="text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold">
+          {headingText}
+        </h1>
 
-      <div className="mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {sortedReviewers.map((reviewer) => {
-          // Dynamically adjust text size based on title length
-          const isLongTitle = reviewer.title.length > 30;
-          const textSize = isLongTitle
-            ? 'text-xs sm:text-sm md:text-base' // smaller for long titles
-            : 'text-sm sm:text-base md:text-lg'; // normal for short titles
-
-          return (
-            <Link
-              key={reviewer.id}
-              to={reviewer.id.toString()}
-              className="w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
-            >
-              {/* Keep icon size constant */}
-              <div className="flex-shrink-0">
-                {revIcon}
-              </div>
-
-              {/* Title adjusts size automatically if long */}
-              <h4
-                className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
-                title={reviewer.title}
+        {isFlashCard && (
+          <div className="text-[#a5a2a2]">
+            <p>Each reviewer has a progress indicator: </p>
+            <div className="ml-3">
+              <p>🟢 Fresh week just started </p>
+              <p className={extended ? "block" : "hidden"}>🟡 Mid-week: review recommended soon </p>
+              <p className={extended ? "block" : "hidden"}>🔴 Near or past milestone: review now</p>
+              <p className={extended ? "block" : "hidden"}>✔️ All milestones completed</p>
+              <p className={extended ? "block" : "hidden"}>
+                ⚫ No start date yet (tap “Set Start Date” in the reviewer to begin)
+              </p>
+              <a
+                onClick={() => actions.setExtended(!extended)}
+                className="cursor-pointer text-[#ae57ff] hover:text-[#4b2370]"
               >
-                {reviewer.title}
-              </h4>
-            </Link>
-          );
-        })}
+                {extended ? "see less..." : "see more..."}
+              </a>
+            </div>
+          </div>
+        )}
+        <hr className="text-white" />
       </div>
 
+      <div
+        className={
+          sortedReviewers && sortedReviewers.length > 0
+            ? "mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5"
+            : "flex flex-col items-center"
+        }
+      >
+        {sortedReviewers && sortedReviewers.length > 0 ? (
+          sortedReviewers.map((reviewer) => {
+            const isLongTitle = reviewer.title.length > 30;
+            const textSize = isLongTitle ? "text-xs sm:text-sm md:text-base" : "text-sm sm:text-base md:text-lg";
+
+            let color = "gray";
+            let allDone = false;
+
+            if (reviewer.startDate) {
+              const startDate = reviewer.startDate?.toDate
+                ? reviewer.startDate.toDate()
+                : new Date(reviewer.startDate);
+              const milestones = actions.calculateMilestones(startDate);
+              color = actions.getMilestoneColor(milestones);
+              allDone = actions.isAllMilestonesDone(milestones);
+            }
+
+            return (
+              <Link
+                key={reviewer.id}
+                to={reviewer.id.toString()}
+                className="relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
+              >
+                {isFlashCard &&
+                  (allDone ? (
+                    <span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>
+                  ) : (
+                    <span
+                      className="absolute top-2 right-2 w-4 h-4 rounded-full"
+                      style={{ backgroundColor: color || "gray" }}
+                    ></span>
+                  ))}
+                <div className="flex-shrink-0">
+                  <IconComponent size={iconSize} color="white" />
+                </div>
+                <h4
+                  className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
+                  title={reviewer.title}
+                >
+                  {reviewer.title}
+                </h4>
+              </Link>
+            );
+          })
+        ) : (
+          <div className="empty flex flex-col gap-2 w-full justify-center">
+            <p className="text-center text-gray-400 mt-10">No reviewers yet</p>
+            <button
+              className="bg-[#B5B5FF] w-[200px] p-3 rounded-2xl place-self-center text-sm text-[#140538] font-bold cursor-pointer hover:bg-[#A3A3FF] justify-center place-items-center flex gap-3"
+              onClick={() => navigate(`/Main/Create`)}
+            >
+              <CiCirclePlus size={30} />
+              Create a Reviewer
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 export default Reviewers;
 
+
+
+// --- Loader ---
 export const reviewersLoader = async ({ params }) => {
   const getUser = () => {
     return new Promise((resolve, reject) => {
@@ -129,7 +162,6 @@ export const reviewersLoader = async ({ params }) => {
 
     const reviewers = reviewersSnap.docs.map((revDoc) => {
       const revData = revDoc.data();
-
       const reviewerContent = (revData.reviewers && revData.reviewers[0]) || {};
       const title = revData.title || reviewerContent.title || "Untitled Reviewer";
 
