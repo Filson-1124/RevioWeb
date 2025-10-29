@@ -7,12 +7,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, collection, getDocs, setDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import editLoadingScreen from "../assets/editingLoadingScreen3.png"
 import LoadingBar from './LoadingBar'
+import { useParams } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const EditFlashCard = () => {
   const reviewer = useLoaderData()
   const navigate = useNavigate()
+  const { id: folderId, reviewerId } = useParams();
 
   const [isCreating, setIsCreating] = useState(false)
   const [isDone, setIsDone] = useState(false)
@@ -28,6 +30,9 @@ const EditFlashCard = () => {
   // track deleted acronym letters & items
   const [deletedLetters, setDeletedLetters] = useState([]);
   const [deletedItems, setDeletedItems] = useState([]);
+
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (reviewer?.title) setTitle(reviewer.title)
@@ -96,10 +101,24 @@ const EditFlashCard = () => {
   }
 
   const handleDeleteItem = (id, type) => {
-    if (!window.confirm(`Delete this ${type === "terms" ? "term" : "acronym"}?`)) return
+    setDeleteTarget({ id, type })
+    setIsDeleting(true)
+  }
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return
+
+    const { id, type } = deleteTarget
     setDeletedItems(prev => [...prev, { id, type }])
-    if (type === "terms") setQuestions(prev => prev.filter(q => q.id !== id))
-    else setContent(prev => prev.filter(c => c.id !== id))
+
+    if (type === "terms") {
+      setQuestions(prev => prev.filter(q => q.id !== id))
+    } else {
+      setContent(prev => prev.filter(c => c.id !== id))
+    }
+
+    setIsDeleting(false)
+    setDeleteTarget(null)
   }
 
   const handleSave = async () => {
@@ -108,6 +127,31 @@ const EditFlashCard = () => {
       if (!user) {
         alert("Not logged in")
         return
+      }
+
+      //validation
+      if (isAcronym) {
+        for (const c of content) {
+          if (!c.title || !c.title.trim()) {
+            alert("Each acronym flashcard must have a TITLE before saving.")
+            return
+          }
+          for (const item of c.contents) {
+            if (!item.letter.trim() || !item.word.trim()) {
+              alert("Each acronym entry must have both a LETTER and a WORD before saving.")
+              return
+            }
+          }
+        }
+      }
+
+      if (isTermDef) {
+        for (const q of questions) {
+          if (!q.question.trim() || !q.answer.trim()) {
+            alert("Each flashcard must have both a TERM and a DEFINITION before saving.")
+            return
+          }
+        }
       }
 
       setIsCreating(true)
@@ -143,7 +187,6 @@ const EditFlashCard = () => {
       if (isTermDef) {
         const token = await user.getIdToken()
 
-        // Fetch existing docs to check for distractors
         const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id))
         const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)))
 
@@ -164,11 +207,10 @@ const EditFlashCard = () => {
               id: q.id,
               term: q.question,
               correctDefinition: q.answer,
-            });
+            })
           }
         }
 
-        // Call backend API for distractors if needed
         let distractorMap = {}
         if (needingDistractors.length > 0) {
           try {
@@ -192,10 +234,11 @@ const EditFlashCard = () => {
           }
         }
 
-        // Save all cards (merge with distractors)
         for (const q of questions) {
           const existing = existingById[q.id]
-          let defs = Array.isArray(existing?.definition) ? existing.definition.slice() : []
+          let defs = Array.isArray(existing?.definition)
+            ? existing.definition.slice()
+            : []
 
           const correctDef = q.answer.trim()
           const hasCorrect = defs.some(d => d.type === "correct")
@@ -220,32 +263,35 @@ const EditFlashCard = () => {
         }
       }
 
-      // Save acronym content
       if (isAcronym) {
         for (const c of content) {
           const contentRef = doc(reviewerRef, "content", c.id)
-          await setDoc(contentRef, { title: c.title, keyPhrase: c.keyPhrase }, { merge: true })
+          await setDoc(contentRef, {
+            title: c.title,
+            keyPhrase: c.keyPhrase,
+          }, { merge: true })
           for (const item of c.contents) {
             const itemRef = doc(contentRef, "contents", String(item.id))
-            await setDoc(itemRef, { letter: item.letter, word: item.word }, { merge: true })
+            await setDoc(itemRef, {
+              letter: item.letter,
+              word: item.word,
+            }, { merge: true })
           }
         }
       }
 
-      // Navigate back to review page
-      if (isAcronym) navigate(`/Main/review/acronym/${reviewer.folderId}/${reviewer.id}`)
-      else if (isTermDef) navigate(`/Main/review/terms/${reviewer.folderId}/${reviewer.id}`)
-
       setIsDone(true)
       setTimeout(() => {
-        setIsCreating(false)
-        setIsDone(false)
-      }, 800)
+        setFadeOut(true)
+        setTimeout(() => {
+          setIsCreating(false)
+          setFadeOut(false)
+        }, 1000)
+      }, 2000)
 
+      alert("Changes saved successfully!")
     } catch (error) {
       console.error("Error saving:", error)
-      setIsCreating(false)
-      setIsDone(false)
       alert("Failed to save changes. Check console for details.")
     }
   }
@@ -267,7 +313,7 @@ const EditFlashCard = () => {
 
   if (isCreating) {
     return (
-      <div className={`min-h-screen flex flex-col justify-center items-center text-center p-4 transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={` fixed inset-0 z-[9999] min-h-screen flex flex-col justify-center items-center text-center p-4 transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
         <img src={editLoadingScreen} alt="creationLoadingScreen" className="w-70 sm:w-72 md:w-110 mb-6" />
         <p className="text-[#9898D9] font-poppinsbold text-sm sm:text-base md:text-lg mb-4">
           {isDone ? "Editing Complete!" : "Revio is editing your reviewer, please wait..."}
@@ -277,16 +323,19 @@ const EditFlashCard = () => {
     )
   }
 
+  
+
   return (
     <div>
       <div className="w-full p-5 md:p-10 flex flex-col md:flex-row justify-between gap-10 items-start md:items-center relative">
         <button
-          onClick={() => navigate(-1)}
+           onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
           className="static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
         >
           <LuArrowLeft size={20} />
           Back
         </button>
+        
 
         {/* Editable title */}
         <div className="w-full flex gap-[1.5rem] justify-center items-center">
@@ -313,7 +362,7 @@ const EditFlashCard = () => {
         {isTermDef && (
           <>
             {questions.length === 0 && <p className="text-gray-400">No questions yet.</p>}
-            <div className="w-full max-w-4xl overflow-auto max-h-[50vh] space-y-6">
+            <div className="w-full max-w-4xl overflow-auto max-h-[50vh] md:max-h-[65vh] space-y-6">
               {questions.map((q) => ( 
                 <div key={q.id} className="relative flex flex-col md:flex-row items-stretch bg-[#3F3F54] w-full p-4 md:pl-10 md:p-0 gap-3 text-white rounded-xl">
                   <button
@@ -431,6 +480,37 @@ const EditFlashCard = () => {
             </button>
           </>
         )}
+
+          {isDeleting && (
+  <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+      <h2 className="text-white text-lg font-bold mb-3">
+        Delete Flashcard
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        Are you sure you want to delete this flashcard? This action cannot be undone.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsDeleting(false)
+            setDeleteTarget(null)
+          }}
+          className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={confirmDelete}
+          className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   )

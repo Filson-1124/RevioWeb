@@ -1,3 +1,4 @@
+// Imports
 import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { LuArrowLeft } from "react-icons/lu"
@@ -6,8 +7,6 @@ import { IoMdStarOutline } from "react-icons/io";
 import { FaRegLightbulb } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa"
 import { FaTrashAlt } from "react-icons/fa";
-import { doc, deleteDoc } from "firebase/firestore";
-import { db, auth } from "../components/firebase";
 
 const Review = () => {
   const reviewer = useLoaderData()
@@ -21,27 +20,15 @@ const Review = () => {
       })
     : []
 
-  //Delete reviewer function
-  const handleDelete = async (reviewerId) => {
-    try {
-      const uid = auth.currentUser?.uid;
-      if (!uid) throw new Error("User not authenticated");
-
-      //Reference
-      const reviewerRef = doc(db, `users/${uid}/folders/${id}/reviewers/${reviewerId}`);
-      await deleteDoc(reviewerRef);
-
-      alert("Deleted Successfully!");
-
-      // Navigate back to Library
-      navigate(`/Main/Library/${id}`);
-    } catch (error) {
-      console.error("Error deleting reviewer:", error);
-      alert("Failed to delete reviewer. Please try again.");
-    }
-  };
-
   // Sort acronym content numerically based on their IDs
+
+  //reviewerDelete
+  //ALDEN DITO KA MAG LAGAY HA
+      const handleDelete=(id)=>{
+
+
+      }
+
   const sortedContent = reviewer.content
     ? [...reviewer.content].sort((a, b) => {
         const numA = parseInt(a.id?.toString().match(/\d+/)?.[0] || 0, 10)
