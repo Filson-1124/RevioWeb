@@ -32,7 +32,7 @@ const Download = () => {
         </div>
      
       </div>
-       <h1 className='text-white text-2xl font-bold mb-4'>Or</h1>
+       <h1 className='hidden md:block text-white text-2xl font-bold mb-4'>Or</h1>
        <div className="bg-[#20202C] rounded-xl shadow-lg p-6 max-w-sm text-center hidden md:block ">
         
         {/* Icon Placeholder */}

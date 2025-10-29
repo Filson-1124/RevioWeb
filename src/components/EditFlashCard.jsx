@@ -16,6 +16,7 @@ import { useEdit } from '../functions/useEdit';
 
 
 const EditFlashCard = () => {
+  const navigate =useNavigate()
   const {state, actions}=useEdit();
   const { title,
     questions,
