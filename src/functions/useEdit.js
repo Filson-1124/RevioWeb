@@ -126,202 +126,208 @@ export const useEdit = () =>{
     setDeleteTarget(null)
   }
 
-  const handleSave = async () => {
-    try {
-      const user = auth.currentUser
-      if (!user) {
-        alert("Not logged in")
-        return
+ const handleSave = async () => {
+  try {
+    const user = auth.currentUser
+    if (!user) {
+      alert("Not logged in")
+      return
+    }
+
+    // Validation
+    if (!title || !title.trim()) {
+      setIsEmptySaved(true)
+      setModalTitle("Missing Title")
+      setModalMess("Please enter a title for your reviewer before saving.")
+      return
+    }
+
+    if (isAcronym) {
+      for (const c of content) {
+        if (!c.title || !c.title.trim()) {
+          setIsEmptySaved(true)
+          setModalTitle("Title Missing.")
+          setModalMess("Each acronym flashcard must have a TITLE before saving.")
+          return
+        }
+        for (const item of c.contents) {
+          if (!item.letter.trim() || !item.word.trim()) {
+            setIsEmptySaved(true)
+            setModalTitle("Empty Fields.")
+            setModalMess("Each acronym entry must have both a LETTER and a WORD before saving.")
+            return
+          }
+        }
+      }
+    }
+
+    if (isTermDef) {
+      for (const q of questions) {
+        if (!q.question.trim() || !q.answer.trim()) {
+          setIsEmptySaved(true)
+          setModalTitle("Empty Flash Card.")
+          setModalMess("Each flashcard must have both a TERM and a DEFINITION before saving.")
+          return
+        }
+      }
+    }
+
+    setIsCreating(true)
+    setIsDone(false)
+
+    const reviewerRef = doc(
+      db,
+      "users",
+      user.uid,
+      "folders",
+      reviewer.folderId,
+      "reviewers",
+      reviewer.id
+    )
+
+    // Update reviewer title
+    await updateDoc(reviewerRef, { title })
+
+    // ---- DELETE REMOVED ITEMS ----
+    // 1. Delete term/definition questions
+    for (const d of deletedItems) {
+      const collectionName = d.type === "terms" ? "questions" : "content"
+      const itemRef = doc(reviewerRef, collectionName, d.id)
+      await deleteDoc(itemRef)
+    }
+
+    // 2. Delete acronym letters manually
+    for (const d of deletedLetters) {
+      const contentRef = doc(reviewerRef, "content", d.contentId)
+      const letterRef = doc(contentRef, "contents", d.letterId)
+      await deleteDoc(letterRef)
+    }
+
+    // 3. FULL delete of acronym content & its nested letters if needed
+    for (const d of deletedItems.filter(x => x.type === "acronym")) {
+      const contentRef = doc(reviewerRef, "content", d.id)
+      const lettersSnap = await getDocs(collection(contentRef, "contents"))
+      const deletePromises = lettersSnap.docs.map(letterDoc =>
+        deleteDoc(letterDoc.ref)
+      )
+      await Promise.all(deletePromises)
+      await deleteDoc(contentRef)
+    }
+
+    // ---- SAVE TERM/DEFINITION ----
+    if (isTermDef) {
+      const token = await user.getIdToken()
+      const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id))
+      const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)))
+
+      const existingById = {}
+      const needingDistractors = []
+
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i]
+        const snap = snaps[i]
+        const data = snap.exists() ? snap.data() : null
+        existingById[q.id] = data
+
+        const existingDefs = data?.definition || []
+        const hasWrong = Array.isArray(existingDefs) && existingDefs.some(d => d.type === "wrong")
+
+        if (!hasWrong) {
+          needingDistractors.push({
+            id: q.id,
+            term: q.question,
+            correctDefinition: q.answer,
+          })
+        }
       }
 
-      //validation
-      if (!title || !title.trim()) {
-  setIsEmptySaved(true)
-  setModalTitle("Missing Title")
-  setModalMess("Please enter a title for your reviewer before saving.")
-  return
+      let distractorMap = {}
+      if (needingDistractors.length > 0) {
+        try {
+          const resp = await fetch(`${API_URL}/api/distractors`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ items: needingDistractors, count: 3 }),
+          })
+          if (resp.ok) {
+            const body = await resp.json()
+            distractorMap = body?.distractors || {}
+          }
+        } catch (err) {
+          console.error("Failed to call distractor API:", err)
+        }
+      }
+
+      for (const q of questions) {
+        const existing = existingById[q.id]
+        let defs = Array.isArray(existing?.definition)
+          ? existing.definition.slice()
+          : []
+
+        const correctDef = q.answer.trim()
+        const hasCorrect = defs.some(d => d.type === "correct")
+        if (hasCorrect) {
+          defs = defs.map(d => d.type === "correct" ? { ...d, text: correctDef } : d)
+        } else {
+          defs.push({ text: correctDef, type: "correct" })
+        }
+
+        const aiWrongs = Array.isArray(distractorMap[q.id]) ? distractorMap[q.id] : []
+        for (const wrong of aiWrongs) {
+          if (!wrong || !wrong.trim()) continue
+          const trimmed = wrong.trim()
+          const exists = defs.some(d => d.text.trim() === trimmed)
+          if (!exists && trimmed !== correctDef) {
+            defs.push({ text: trimmed, type: "wrong" })
+          }
+        }
+
+        const qRef = doc(reviewerRef, "questions", q.id)
+        await setDoc(qRef, { term: q.question, definition: defs }, { merge: true })
+      }
+    }
+
+    // ---- SAVE ACRONYM ----
+    if (isAcronym) {
+      for (const c of content) {
+        const contentRef = doc(reviewerRef, "content", c.id)
+        await setDoc(contentRef, {
+          title: c.title,
+          keyPhrase: c.keyPhrase,
+        }, { merge: true })
+
+        for (const item of c.contents) {
+          const itemRef = doc(contentRef, "contents", String(item.id))
+          await setDoc(itemRef, {
+            letter: item.letter,
+            word: item.word,
+          }, { merge: true })
+        }
+      }
+    }
+
+    // ---- DONE ----
+    setIsDone(true)
+    setTimeout(() => {
+      setFadeOut(true)
+      setTimeout(() => {
+        setIsCreating(false)
+        setFadeOut(false)
+      }, 1000)
+    }, 2000)
+
+    setIsSaved(true)
+    setLoadingCountdown(7)
+
+  } catch (error) {
+    console.error("Error saving:", error)
+    setIsFailed(true)
+  }
 }
 
-      if (isAcronym) {
-        for (const c of content) {
-          if (!c.title || !c.title.trim()) {
-             setIsEmptySaved(true)
-               setModalTitle("Title Missing.")
-              setModalMess("Each acronym flashcard must have a TITLE before saving.")
-           
-            return
-          }
-          for (const item of c.contents) {
-            if (!item.letter.trim() || !item.word.trim()) {
-               setIsEmptySaved(true)
-               setModalTitle("Empty Fields.")
-              setModalMess("Each acronym entry must have both a LETTER and a WORD before saving.")
-              return
-            }
-          }
-        }
-      }
-
-      if (isTermDef) {
-        for (const q of questions) {
-          if (!q.question.trim() || !q.answer.trim()) {
-            setIsEmptySaved(true)
-            setModalTitle("Empty Flash Card.")
-            setModalMess("Each flashcard must have both a TERM and a DEFINITION before saving.")
-            
-            return
-          }
-        }
-      }
-
-      setIsCreating(true)
-      setIsDone(false)
-
-      const reviewerRef = doc(
-        db,
-        "users",
-        user.uid,
-        "folders",
-        reviewer.folderId,
-        "reviewers",
-        reviewer.id
-      )
-
-      // Update editable title
-      await updateDoc(reviewerRef, { title })
-
-      // Delete removed items
-      for (const d of deletedItems) {
-        const collectionName = d.type === "terms" ? "questions" : "content"
-        const itemRef = doc(reviewerRef, collectionName, d.id)
-        await deleteDoc(itemRef)
-      }
-
-      for (const d of deletedLetters) {
-        const contentRef = doc(reviewerRef, "content", d.contentId)
-        const letterRef = doc(contentRef, "contents", d.letterId)
-        await deleteDoc(letterRef)
-      }
-
-      // Save term/definition questions with distractors
-      if (isTermDef) {
-        const token = await user.getIdToken()
-
-        const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id))
-        const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)))
-
-        const existingById = {}
-        const needingDistractors = []
-
-        for (let i = 0; i < questions.length; i++) {
-          const q = questions[i]
-          const snap = snaps[i]
-          const data = snap.exists() ? snap.data() : null
-          existingById[q.id] = data
-
-          const existingDefs = data?.definition || []
-          const hasWrong = Array.isArray(existingDefs) && existingDefs.some(d => d.type === "wrong")
-
-          if (!hasWrong) {
-            needingDistractors.push({
-              id: q.id,
-              term: q.question,
-              correctDefinition: q.answer,
-            })
-          }
-        }
-
-        let distractorMap = {}
-        if (needingDistractors.length > 0) {
-          try {
-            const resp = await fetch(`${API_URL}/api/distractors`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-              },
-              body: JSON.stringify({ items: needingDistractors, count: 3 }),
-            })
-
-            if (resp.ok) {
-              const body = await resp.json()
-              distractorMap = body?.distractors || {}
-            } else {
-              console.error("Distractor API error:", resp.status, await resp.text())
-            }
-          } catch (err) {
-            console.error("Failed to call distractor API:", err)
-          }
-        }
-
-        for (const q of questions) {
-          const existing = existingById[q.id]
-          let defs = Array.isArray(existing?.definition)
-            ? existing.definition.slice()
-            : []
-
-          const correctDef = q.answer.trim()
-          const hasCorrect = defs.some(d => d.type === "correct")
-          if (hasCorrect) {
-            defs = defs.map(d => d.type === "correct" ? { ...d, text: correctDef } : d)
-          } else {
-            defs.push({ text: correctDef, type: "correct" })
-          }
-
-          const aiWrongs = Array.isArray(distractorMap[q.id]) ? distractorMap[q.id] : []
-          for (const wrong of aiWrongs) {
-            if (!wrong || !wrong.trim()) continue
-            const trimmed = wrong.trim()
-            const exists = defs.some(d => d.text.trim() === trimmed)
-            if (!exists && trimmed !== correctDef) {
-              defs.push({ text: trimmed, type: "wrong" })
-            }
-          }
-
-          const qRef = doc(reviewerRef, "questions", q.id)
-          await setDoc(qRef, { term: q.question, definition: defs }, { merge: true })
-        }
-      }
-
-      if (isAcronym) {
-        for (const c of content) {
-          const contentRef = doc(reviewerRef, "content", c.id)
-          await setDoc(contentRef, {
-            title: c.title,
-            keyPhrase: c.keyPhrase,
-          }, { merge: true })
-          for (const item of c.contents) {
-            const itemRef = doc(contentRef, "contents", String(item.id))
-            await setDoc(itemRef, {
-              letter: item.letter,
-              word: item.word,
-            }, { merge: true })
-          }
-        }
-      }
-
-      setIsDone(true)
-      setTimeout(() => {
-        setFadeOut(true)
-        setTimeout(() => {
-          setIsCreating(false)
-          setFadeOut(false)
-        }, 1000)
-      }, 2000)
-      
-      setIsSaved(true)
-     setIsSaved(true);
-setLoadingCountdown(7);
-
-
-      
-      
-    } catch (error) {
-      console.error("Error saving:", error)
-      setIsFailed(true)
-   
-    }
-  }
   useEffect(() => {
   if (isSaved) {
     const timer = setInterval(() => {
