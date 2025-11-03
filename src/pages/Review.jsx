@@ -341,7 +341,7 @@ const navigate=useNavigate();
                     {section.steps?.length > 0 && (
                       <div className='text-[#d3d3d3] rounded-lg p-2'>
                         <b className='text-[#C7D2FE]'>Steps:</b><br />
-                        <ol className="list-decimal list-inside space-y-1 font-semibold">
+                        <ol className=" list-inside space-y-1 font-semibold">
                           {section.steps.map((step, i) => (
                             <li key={i}>{step}</li>
                           ))}
