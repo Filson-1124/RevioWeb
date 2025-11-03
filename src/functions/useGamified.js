@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import correctSound from '../assets/quizSounds/correct.mp3'
 import wrongSound from '../assets/quizSounds/wrong.mp3'
+//eto na lord
+
 
 export const useGamified = ({ questions = [], isAcronym = false }) => {
   const [index, setIndex] = useState(0)
