@@ -46,6 +46,9 @@ export const useReview=() =>{
   const [isMarked,setIsMarked]=useState(false)
   const [displayMarked,setDisplayMarked]=useState(false)
   const [markedCards,setMarkedCards]=useState([])
+  const [settingDate,setSettingDate]=useState(false)
+  const [dateSet,setDateSet]=useState(false)
+  const[calendarAnimationDisplay,setCalendarAnimationDisplay]=useState(false)
  
 
   const { id, reviewerId } = useParams()
@@ -356,9 +359,25 @@ const current = isAcronymCard
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
 
+
+useEffect(() => {
+  if (dateSet) {
+    // Begin with fade-in
+    setCalendarAnimationDisplay(true);
+
+    // Wait until the animation is complete before hiding everything
+    const hideTimeout = setTimeout(() => {
+      setDateSet(false);
+    }, 4700); // Slightly longer than animation + fade-out duration
+
+    return () => clearTimeout(hideTimeout);
+  }
+}, [dateSet]);
+
 return {
   state: {
     reviewer,
+    calendarAnimationDisplay,
     id,
     reviewerId,
     sortedQuestions,
@@ -381,10 +400,14 @@ return {
     current,
     correctChoice,
     currentAcronym,
-    currentTitle,activeCards,currentIndex
+    currentTitle,activeCards,currentIndex,
+    settingDate,dateSet
   },
   actions: {
     setCurrentIndex,
+    setCalendarAnimationDisplay,
+    setDateSet,
+    setSettingDate,
     setCurrentGroupIndex,
     setFlipped,
     setMessage,

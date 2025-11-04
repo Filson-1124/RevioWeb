@@ -22,7 +22,7 @@ const Reviewers = () => {
         <div className="w-full p-10 flex justify-between items-center relative">
           <button
             onClick={() => navigate(`/Main/Library`)}
-            className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+            className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl transition-all duration-100 active:scale-95"
           >
             <LuArrowLeft size={20} />
             Back
@@ -84,7 +84,7 @@ const Reviewers = () => {
               <Link
                 key={reviewer.id}
                 to={reviewer.id.toString()}
-                className="relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
+                className="transition-all duration-100 active:scale-95 relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl  ease-in hover:scale-105"
               >
                 {isFlashCard &&
                   (allDone ? (

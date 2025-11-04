@@ -1,6 +1,7 @@
 // Imports
 //ipush
 import React, { useState, useEffect } from 'react'
+import Lottie from "lottie-react";
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { LuArrowLeft } from "react-icons/lu"
 import { IoArrowRedoSharp, IoArrowUndo, IoGameController } from "react-icons/io5"
@@ -10,6 +11,7 @@ import { FaEdit } from "react-icons/fa"
 import { FaTrashAlt } from "react-icons/fa";
 import deletingScreen from '../assets/deletingScreen.png'
 import LoadingBar from '../components/LoadingBar';
+import calendarAnimation from '../assets/animation/Calendar Success Add.json'
 
 
 import { FaMapPin } from "react-icons/fa";
@@ -38,7 +40,7 @@ const {   reviewer,
     current,
     correctChoice,
     currentAcronym,
-    currentTitle,activeCards,currentIndex,currentGroupIndex } = state;
+    currentTitle,activeCards,currentIndex,currentGroupIndex,settingDate,dateSet,calendarAnimationDisplay } = state;
 const {
     setIsDeleting,
     setIsDeletingSum,
@@ -48,7 +50,7 @@ const {
     handlePrev,
     handleMark,
     handleDelete,
-    handleSetStartDate,} = actions;
+    handleSetStartDate,setSettingDate,setDateSet,setCalendarAnimationDisplay} = actions;
 
 const navigate=useNavigate();
 
@@ -72,40 +74,74 @@ const navigate=useNavigate();
   }
 
   return (
+
+    
     
     <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[45%] md:pb-10 px-4 gap-7 md:px-10'>
+       {settingDate && 
+            (
+              <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+          
+            <h2 className="text-white text-lg font-bold mb-3">
+           Do you want to set the starting date of the interval to today's date?
+            </h2>
+         
+            <div className="flex justify-center gap-4">
+              <button className='cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:scale-105 hover:bg-red-600  text-white font-semibold active:scale-95' onClick={()=>setSettingDate(false)}>
+                No
+              </button>
+              <button
+                onClick={() => {handleSetStartDate(id, reviewerId); setSettingDate(false); setDateSet(true);setCalendarAnimationDisplay(true) }}
+                className=" cursor-pointer px-4 py-2 rounded-xl bg-[#23e55d] hover:scale-105 text-white font-semibold active:scale-95"
+              >
+                Yes
+              </button>
+              
+              
+            </div>
+          </div>
+        </div>
+      
+            )}
+
+    {dateSet && ( 
+  <div  
+    className={`fixed inset-0 flex justify-center items-center bg-[#000000c9] z-[9999]
+     transition-all duration-500 ease-in-out transform
+${calendarAnimationDisplay ? 'opacity-100 scale-100 visible' : 'opacity-0 invisible'}
+`}
+  >
+    <Lottie
+      animationData={calendarAnimation}
+      loop={false}
+      style={{ width: 300, height: 300 }}
+      onComplete={() => setCalendarAnimationDisplay(false)} // Trigger fade-out when animation ends
+    />
+  </div>
+)}
+
+
       <div className="w-full flex justify-between items-center relative mb-6">
         <button
           onClick={() => navigate(`/Main/Library/${id}`)}
-          className="cursor-pointer absolute left-0 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="cursor-pointer absolute left-0 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base transition-all duration-100 active:scale-95"
         >
           <LuArrowLeft size={18} className='md:size-5' />
           Back
         </button>
          <button
           onClick={() => setDisplayMarked(!displayMarked)}
-          className=" cursor-pointer absolute top-0.5  md:top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className={`${isFlashcard?"block":"hidden "}cursor-pointer absolute top-0.5  md:top-2 right-0 flex items-center gap-2 text-white p-2 md:p-3 rounded-xl text-sm md:text-base`}
         >
         
           {displayMarked?<TbPinnedFilled size={40}/>:<TbPinned size={40}/>}
 
         </button>
         <button
-  onClick={() => handleSetStartDate(id, reviewerId)}
-  className="  cursor-pointer 
-  absolute 
-  top-3 right-12 
- 
-  md:right-15
-  flex items-center gap-2 
-  text-white 
-  bg-transparent 
-  border border-[#B5B5FF] 
-  hover:bg-[#51516B] 
-  p-2 sm:p-2.5 md:p-3 
-  rounded-xl 
-  text-xs sm:text-sm md:text-base
-"
+  onClick={() => setSettingDate(true)}
+  className={`${isFlashcard?"flex":"hidden"} transition-all duration-100 active:scale-95  cursor-pointer absolute  top-3 right-12  md:right-15 items-center gap-2 
+text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.5 md:p-3 rounded-xl text-xs sm:text-sm md:text-base`}
 >
   <FaRegCalendarAlt color='#B5B5FF'/>
   Set Start Date
@@ -235,14 +271,14 @@ const navigate=useNavigate();
         {!displayMarked && <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
-              className="cursor-pointer flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white  justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className="transition-all duration-100 cursor-pointer flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white  justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
               <FaEdit size={18} /> Edit
             </button>
 
             <button
               onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
-              className="cursor-pointer flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
+              className=" transition-all duration-100 cursor-pointer flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
             >
               <IoGameController size={18} />
               <span className="font-bold ">
@@ -252,7 +288,7 @@ const navigate=useNavigate();
             
              <button
               onClick={() => setIsDeleting(true)}
-              className=" cursor-pointer flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-red-800 rounded-xl font-semibold text-sm md:text-base active:scale-95"
+              className="transition-all duration-100 cursor-pointer flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-red-800 rounded-xl font-semibold text-sm md:text-base active:scale-95"
             >
               <FaTrashAlt size={18}/>
             
@@ -400,6 +436,8 @@ const navigate=useNavigate();
         </div>
       )}
     </div>
+
+    
   )
 }
 

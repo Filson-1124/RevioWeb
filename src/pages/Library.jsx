@@ -34,7 +34,7 @@ const Library = () => {
             <Link
               key={folder.id}
               to={folder.id}
-              className='group flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105'
+              className='transition-all active:scale-95 group flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-100 ease-in hover:scale-105'
             >
               {/* Keep the icon size fixed */}
               <div className=" relative flex-shrink-0 w-20 h-20">
