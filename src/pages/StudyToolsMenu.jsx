@@ -20,13 +20,27 @@ const StudyToolsMenu = () => {
       }
     }
   }
+    const titleVariants = {
+    hidden: { opacity: 0, y: -100 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 15,
+      },
+    },
+  }
 
   return (
     <div className='pb-[25%] md:pb-0'>
       <div className="flex flex-col gap-5 p-6 sm:p-10 md:p-20 text-center">
+        <motion.h1 variants={titleVariants} initial="hidden" animate="visible">
         <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-poppinsbold">
           STUDY TOOLS
         </h1>
+        </motion.h1>
         <hr className="border-gray-600 w-full md:w-3/4 mx-auto" />
       </div>
 

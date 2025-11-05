@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { LuArrowLeft } from "react-icons/lu";
 import { CiCirclePlus } from "react-icons/ci";
-import { motion } from "motion/react"; // ✅ Correct import for motion v11
+import { motion } from "motion/react"; 
 import { auth, db } from "../components/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -12,7 +12,6 @@ const Reviewers = () => {
   const { state, actions } = useReviewer();
   const { headingText, IconComponent, iconSize, isFlashCard, extended, sortedReviewers } = state;
 
-  // ✅ Animation Variants
   const containerVariants = {
     hidden: {},
     visible: {
@@ -43,6 +42,19 @@ const Reviewers = () => {
     },
   };
 
+    const itemVariants = {
+    hidden: { opacity: 0, x: 100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 15,
+      },
+    },
+  }
+
   return (
     <div className="min-h-screen pb-[20%] flex flex-col overflow-hidden">
       <div className="flex flex-col gap-7 p-5">
@@ -55,10 +67,13 @@ const Reviewers = () => {
             Back
           </button>
         </div>
-
+    <motion.h1 variants={itemVariants}
+    initial="hidden"
+    animate="visible" >
         <h1 className="text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold">
           {headingText}
         </h1>
+        </motion.h1>
 
         {isFlashCard && (
           <div className="text-[#a5a2a2]">

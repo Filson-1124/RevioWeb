@@ -35,14 +35,29 @@ const Library = () => {
       },
     },
   };
+   const titleVariants = {
+    hidden: { opacity: 0, x: 100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 15,
+      },
+    },
+  }
+
 
   return (
     <div className='pb-[30%]'>
       {/* Header Section */}
       <div className='flex flex-col gap-7 p-10'>
+        <motion.h1 variants={titleVariants} initial="hidden" animate="visible">
         <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>
           LIBRARY
         </h1>
+        </motion.h1>
         <hr className='text-white' />
       </div>
 

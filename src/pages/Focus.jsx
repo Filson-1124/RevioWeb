@@ -44,9 +44,13 @@ const Focus = () => {
 
   return (
     <div className="flex flex-col gap-7 pb-[55%] p-5 md:p-10">
+      <motion.h1 variants={itemVariants}
+      initial="hidden"
+      animate="visible">
       <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
         FOCUS
       </h1>
+      </motion.h1>
       <hr className="border-[#797777]" />
 
       <div className="flex gap-5">
