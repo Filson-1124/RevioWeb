@@ -1,6 +1,6 @@
 import React from 'react';
 import mobileIcon from '../assets/phoneIcon.png'
-import qr from '../assets/qr.png'
+import qr from '../assets/QRNEW.png'
 
 const Download = () => {
   return (
@@ -24,7 +24,7 @@ const Download = () => {
         {/*popopop booom booom*/}
         <div className="flex flex-col gap-3">
             <button
-          onClick={() => window.open('https://expo.dev/accounts/mari_dev1/projects/Revio-Mobile/builds/c07ea047-ce47-43fe-8d62-1a42f5691a5e', '_blank')}
+          onClick={() => window.open('https://expo.dev/accounts/mari_dev1/projects/Revio-Mobile/builds/fc760106-bf95-4e56-96cc-32c1a224b973', '_blank')}
           className=" cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
         > 
   Download Revio Mobile
