@@ -71,7 +71,7 @@ const Login = () => {
               </div>
             </div>
 
-            <button className="bg-[#B5B5FF] text-[#200448] font-poppins font-semibold p-2 rounded-full active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition-all w-full self-center">
+            <button className=" cursor-pointer bg-[#B5B5FF] text-[#200448] font-poppins font-semibold p-2 rounded-full active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition-all w-full self-center">
               Login
             </button>
           </div>
@@ -106,7 +106,7 @@ const Login = () => {
 
           <p className="text-[#FEFEFF] text-sm sm:text-base">Do you have an account?</p>
           <Link to="/Register" className="w-full">
-            <button className="border border-[#B1B1B1] text-[#B5B5FF] p-2 w-full rounded-full font-poppins text-sm sm:text-base font-semibold active:scale-95">
+            <button className="cursor-pointer transition-all duration-75 border border-[#B1B1B1] text-[#B5B5FF] p-2 w-full rounded-full font-poppins text-sm sm:text-base font-semibold active:scale-95">
               Sign Up
             </button>
           </Link>
