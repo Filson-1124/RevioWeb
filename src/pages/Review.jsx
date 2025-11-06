@@ -12,6 +12,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import deletingScreen from '../assets/deletingScreen.png'
 import LoadingBar from '../components/LoadingBar';
 import calendarAnimation from '../assets/animation/Calendar Success Add.json'
+import {motion} from 'motion/react'
 
 
 import { FaMapPin } from "react-icons/fa";
@@ -40,7 +41,7 @@ const {   reviewer,
     current,
     correctChoice,
     currentAcronym,
-    currentTitle,activeCards,currentIndex,currentGroupIndex,settingDate,dateSet,calendarAnimationDisplay } = state;
+    currentTitle,activeCards,currentIndex,currentGroupIndex,settingDate,dateSet,calendarAnimationDisplay,containerVariants,contentVariants } = state;
 const {
     setIsDeleting,
     setIsDeletingSum,
@@ -53,6 +54,8 @@ const {
     handleSetStartDate,setSettingDate,setDateSet,setCalendarAnimationDisplay} = actions;
 
 const navigate=useNavigate();
+
+
 
  
    if (deleting) {
@@ -268,34 +271,40 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
           </div>
 
           {message && <p className="mt-4 text-yellow-300 font-semibold text-sm md:text-base">{message}</p>}
-        {!displayMarked && <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
-            <button
-              onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
-              className="transition-all duration-100 cursor-pointer flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white  justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
-            >
-              <FaEdit size={18} /> Edit
-            </button>
+        {!displayMarked && 
+       <motion.div variants={containerVariants} initial="hidden" animate="visible">
+  <div className="flex flex-col md:flex-row gap-4 mt-8 w-full md:w-auto">
 
-            <button
-              onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
-              className=" transition-all duration-100 cursor-pointer flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
-            >
-              <IoGameController size={18} />
-              <span className="font-bold ">
-                Game Mode
-              </span>
-            </button>
-            
-             <button
-              onClick={() => setIsDeleting(true)}
-              className="transition-all duration-100 cursor-pointer flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-red-800 rounded-xl font-semibold text-sm md:text-base active:scale-95"
-            >
-              <FaTrashAlt size={18}/>
-            
-                Delete Flashcard set
-           
-            </button>
-          </div>}
+    <motion.button
+      variants={contentVariants}
+      onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/edit`)}
+      className="transition-all duration-100 cursor-pointer flex gap-2 items-center hover:bg-[#B5B5FF] hover:text-white justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-white text-[#B5B5FF] rounded-xl font-semibold text-sm md:text-base active:scale-95"
+    >
+      <FaEdit size={18} /> Edit
+    </motion.button>
+
+    <motion.button
+      variants={contentVariants}
+      onClick={() => navigate(`/Main/Library/${id}/${reviewerId}/gamified`)}
+      className="transition-all duration-100 cursor-pointer flex gap-2 items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#eb8614] rounded-xl font-semibold text-sm md:text-base active:scale-95 hover:bg-[#eb8614] hover:text-white text-[#eb8614]"
+    >
+      <IoGameController size={18} />
+      <span className="font-bold">Game Mode</span>
+    </motion.button>
+
+    <motion.button
+      variants={contentVariants}
+      onClick={() => setIsDeleting(true)}
+      className="transition-all duration-100 cursor-pointer flex gap-2 hover:bg-red-800 hover:text-white items-center justify-center w-full md:w-48 lg:w-56 px-6 py-3 border border-[#E93209] text-red-800 rounded-xl font-semibold text-sm md:text-base active:scale-95"
+    >
+      <FaTrashAlt size={18} />
+      Delete Flashcard Set
+    </motion.button>
+
+  </div>
+</motion.div>
+
+          }
           
         </>
       )}

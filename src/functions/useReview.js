@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { auth, db } from "../components/firebase"
 import { doc, deleteDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore"
+import {motion} from 'motion/react'
 
 
 
@@ -374,8 +375,33 @@ useEffect(() => {
   }
 }, [dateSet]);
 
+const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1, // delay between card animations
+      },
+    },
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, scale: 0.7 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 600,
+     
+      },
+    },
+ 
+  };
 return {
   state: {
+    containerVariants,
+    contentVariants,
     reviewer,
     calendarAnimationDisplay,
     id,

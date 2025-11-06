@@ -19,7 +19,32 @@ const Settings = () => {
   const [isDeleting, setIsDeleting] = useState(false) // custom modal control
   const navigate = useNavigate()
 
+
+
+
   const titleVariants = {
+    hidden: { opacity: 0, x: 100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 15,
+      },
+    },
+  }
+
+  const inputContainerVariants={
+     hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1, // delay between card animations
+      },
+    },
+  }
+
+    const inputVariants = {
     hidden: { opacity: 0, x: 100 },
     visible: {
       opacity: 1,
@@ -156,26 +181,29 @@ const Settings = () => {
       {/* User Info + Avatar Section */}
       <div className="border border-[#565656] rounded-lg p-6 sm:p-10 flex flex-col lg:flex-row gap-10 bg-[#1E1E2E]">
         {/* User Info */}
-        <div className="w-full lg:w-[40%] flex flex-col gap-4">
+        <motion.div variants={inputContainerVariants} initial="hidden" animate="visible" className="w-full lg:w-[40%] flex flex-col gap-4">
+        <div>
           <label className="text-white font-poppins text-sm sm:text-base">
             Username:
           </label>
+          <motion.div className="bg-[#252533] text-white p-2 rounded-md" variants={inputVariants} >
           <input
             value={username}
             readOnly
-            className="bg-[#252533] text-white p-2 rounded-md"
           />
-
+          </motion.div>
           <label className="text-white font-poppins text-sm sm:text-base">
             Email:
           </label>
+           <motion.div className="bg-[#252533] text-white p-2 rounded-md" variants={inputVariants} >
           <input
             value={user.email}
             readOnly
-            className="bg-[#252533] text-white p-2 rounded-md"
+          
           />
+          </motion.div>
         </div>
-
+          </motion.div>
         {/* Avatar Section */}
         <div className="w-full lg:w-[60%] flex flex-col gap-6 items-center">
           <div className="w-[6rem] h-[6rem] sm:w-[7rem] sm:h-[7rem] rounded-full overflow-hidden bg-white shadow-md">
