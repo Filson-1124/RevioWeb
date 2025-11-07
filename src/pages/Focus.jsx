@@ -17,15 +17,31 @@ const Focus = () => {
   } = useAudio()
 
   const [extended, setExtended] = useState(false)
+  const [highlightedTrackId, setHighlightedTrackId] = useState(null)
+
   const text =
     "40Hz binaural beats, which generate gamma brainwave activity, are primarily associated with enhanced cognitive function, including improved focus, memory, and processing speed."
 
   const toggleExpand = () => setExtended(!extended)
 
+  // Set up track list once
   useEffect(() => {
     setTrackList(focusMusic)
-    setCurrentIndex(0)
   }, [])
+
+  // Evaluate and highlight currently playing music
+  useEffect(() => {
+    if (currentTrack) {
+      const foundTrack = focusMusic.find(track => track.id === currentTrack.id)
+      if (foundTrack) {
+        setHighlightedTrackId(foundTrack.id)
+      } else {
+        setHighlightedTrackId(null)
+      }
+    } else {
+      setHighlightedTrackId(null)
+    }
+  }, [currentTrack])
 
   // Handle track click
   const handleTrackClick = (track, index) => {
@@ -102,6 +118,7 @@ const Focus = () => {
         animate="visible"
       >
         {focusMusic.map((track, index) => {
+          const isHighlighted = track.id === highlightedTrackId
           const isCurrent = currentTrack?.id === track.id
           const playingNow = isCurrent && isPlaying
 
@@ -111,7 +128,7 @@ const Focus = () => {
               variants={itemVariants}
               onClick={() => handleTrackClick(track, index)}
               className={`group flex items-center gap-3 border-y border-[#797777] p-3 text-white cursor-pointer md:gap-4 md:p-4 transition-all duration-150 ${
-                isCurrent ? 'bg-[#2a1847]' : 'hover:bg-[#33205e]'
+                isHighlighted ? 'bg-[#2a1847]' : 'hover:bg-[#33205e]'
               }`}
             >
               {playingNow ? (
