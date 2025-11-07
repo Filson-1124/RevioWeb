@@ -7,11 +7,16 @@ import { FaPauseCircle } from "react-icons/fa"
 import focusImage from '../assets/focusAssets/focusimage.jpg'
 
 const Focus = () => {
-  const { setCurrentTrack, audioRef, setTrackList, setCurrentIndex } = useAudio()
-  const [extended, setExtended] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTrackId, setCurrentTrackId] = useState(null)
+  const {
+    setCurrentTrack,
+    currentTrack,
+    isPlaying,
+    audioRef,
+    setTrackList,
+    setCurrentIndex,
+  } = useAudio()
 
+  const [extended, setExtended] = useState(false)
   const text =
     "40Hz binaural beats, which generate gamma brainwave activity, are primarily associated with enhanced cognitive function, including improved focus, memory, and processing speed."
 
@@ -22,24 +27,24 @@ const Focus = () => {
     setCurrentIndex(0)
   }, [])
 
-  const handleTrackClick = (track) => {
-    // If the same track is clicked again, toggle play/pause
-    if (currentTrackId === track.id) {
+  // Handle track click
+  const handleTrackClick = (track, index) => {
+    if (currentTrack?.id === track.id) {
+      // Toggle play/pause on same track
       if (audioRef.current.paused) {
         audioRef.current.play()
-        setIsPlaying(true)
       } else {
         audioRef.current.pause()
-        setIsPlaying(false)
       }
     } else {
-      // If a new track is clicked, play it
+      // Switch to new track
       setCurrentTrack(track)
-      setCurrentTrackId(track.id)
-      setIsPlaying(true)
+      setCurrentIndex(index)
       setTimeout(() => {
         audioRef.current.load()
-        audioRef.current.play().catch((err) => console.warn('Autoplay failed:', err))
+        audioRef.current
+          .play()
+          .catch((err) => console.warn('Autoplay failed:', err))
       }, 0)
     }
   }
@@ -90,41 +95,48 @@ const Focus = () => {
         </div>
       </div>
 
-      {/* Animated Ordered List */}
       <motion.ol
         className="flex flex-col gap-2 list-decimal"
         variants={listVariants}
         initial="hidden"
         animate="visible"
       >
-        {focusMusic.map((track) => (
-          <motion.li
-            key={track.id}
-            variants={itemVariants}
-            onClick={() => handleTrackClick(track)}
-            className="group flex items-center gap-3 border-y border-[#797777] p-3 text-white cursor-pointer md:gap-4 md:p-4 transition-all duration-100 hover:bg-[#33205e]"
-          >
-            {currentTrackId === track.id && isPlaying ? (
-              <FaPauseCircle
-                size={40}
-                color="yellow"
-                className="pointer-events-none transition-transform duration-100 group-active:scale-90"
-              />
-            ) : (
-              <FaRegCirclePlay
-                size={40}
-                color="yellow"
-                className="pointer-events-none transition-transform duration-100 group-active:scale-90"
-              />
-            )}
-            <div className="group-active:scale-90">
-              <h3 className="text-sm md:text-lg font-semibold ">
-                {track.title}
-              </h3>
-              <p className="text-[#837f7f]">{track.artist}</p>
-            </div>
-          </motion.li>
-        ))}
+        {focusMusic.map((track, index) => {
+          const isCurrent = currentTrack?.id === track.id
+          const playingNow = isCurrent && isPlaying
+
+          return (
+            <motion.li
+              key={track.id}
+              variants={itemVariants}
+              onClick={() => handleTrackClick(track, index)}
+              className={`group flex items-center gap-3 border-y border-[#797777] p-3 text-white cursor-pointer md:gap-4 md:p-4 transition-all duration-150 ${
+                isCurrent ? 'bg-[#2a1847]' : 'hover:bg-[#33205e]'
+              }`}
+            >
+              {playingNow ? (
+                <FaPauseCircle
+                  size={40}
+                  color="yellow"
+                  className="pointer-events-none transition-transform duration-100 group-active:scale-90"
+                />
+              ) : (
+                <FaRegCirclePlay
+                  size={40}
+                  color="yellow"
+                  className="pointer-events-none transition-transform duration-100 group-active:scale-90"
+                />
+              )}
+
+              <div className="group-active:scale-90">
+                <h3 className="text-sm md:text-lg font-semibold">
+                  {track.title}
+                </h3>
+                <p className="text-[#837f7f]">{track.artist}</p>
+              </div>
+            </motion.li>
+          )
+        })}
       </motion.ol>
     </div>
   )
