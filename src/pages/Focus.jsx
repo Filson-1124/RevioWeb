@@ -3,11 +3,15 @@ import { motion } from 'framer-motion'
 import { useAudio } from '../components/AudioContext'
 import focusMusic from '../assets/focusMusic'
 import { FaRegCirclePlay } from "react-icons/fa6"
+import { FaPauseCircle } from "react-icons/fa"
 import focusImage from '../assets/focusAssets/focusimage.jpg'
 
 const Focus = () => {
   const { setCurrentTrack, audioRef, setTrackList, setCurrentIndex } = useAudio()
   const [extended, setExtended] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTrackId, setCurrentTrackId] = useState(null)
+
   const text =
     "40Hz binaural beats, which generate gamma brainwave activity, are primarily associated with enhanced cognitive function, including improved focus, memory, and processing speed."
 
@@ -18,14 +22,33 @@ const Focus = () => {
     setCurrentIndex(0)
   }, [])
 
-  // Animation variants for the ordered list
+  const handleTrackClick = (track) => {
+    // If the same track is clicked again, toggle play/pause
+    if (currentTrackId === track.id) {
+      if (audioRef.current.paused) {
+        audioRef.current.play()
+        setIsPlaying(true)
+      } else {
+        audioRef.current.pause()
+        setIsPlaying(false)
+      }
+    } else {
+      // If a new track is clicked, play it
+      setCurrentTrack(track)
+      setCurrentTrackId(track.id)
+      setIsPlaying(true)
+      setTimeout(() => {
+        audioRef.current.load()
+        audioRef.current.play().catch((err) => console.warn('Autoplay failed:', err))
+      }, 0)
+    }
+  }
+
   const listVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.15, // delay between each track
-      },
+      transition: { staggerChildren: 0.15 },
     },
   }
 
@@ -34,22 +57,16 @@ const Focus = () => {
     visible: {
       opacity: 1,
       x: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 15,
-      },
+      transition: { type: 'spring', stiffness: 300, damping: 15 },
     },
   }
 
   return (
     <div className="flex flex-col gap-7 pb-[55%] p-5 md:p-10">
-      <motion.h1 variants={itemVariants}
-      initial="hidden"
-      animate="visible">
-      <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
-        FOCUS
-      </h1>
+      <motion.h1 variants={itemVariants} initial="hidden" animate="visible">
+        <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
+          FOCUS
+        </h1>
       </motion.h1>
       <hr className="border-[#797777]" />
 
@@ -84,22 +101,22 @@ const Focus = () => {
           <motion.li
             key={track.id}
             variants={itemVariants}
-            onClick={() => {
-              setCurrentTrack(track)
-              setTimeout(() => {
-                audioRef.current.load()
-                audioRef.current
-                  .play()
-                  .catch((err) => console.warn('Autoplay failed:', err))
-              }, 0)
-            }}
+            onClick={() => handleTrackClick(track)}
             className="group flex items-center gap-3 border-y border-[#797777] p-3 text-white cursor-pointer md:gap-4 md:p-4 transition-all duration-100 hover:bg-[#33205e]"
           >
-            <FaRegCirclePlay
-              size={40}
-              color="yellow"
-              className="pointer-events-none transition-transform duration-100 group-active:scale-90"
-            />
+            {currentTrackId === track.id && isPlaying ? (
+              <FaPauseCircle
+                size={40}
+                color="yellow"
+                className="pointer-events-none transition-transform duration-100 group-active:scale-90"
+              />
+            ) : (
+              <FaRegCirclePlay
+                size={40}
+                color="yellow"
+                className="pointer-events-none transition-transform duration-100 group-active:scale-90"
+              />
+            )}
             <div className="group-active:scale-90">
               <h3 className="text-sm md:text-lg font-semibold ">
                 {track.title}
@@ -114,4 +131,3 @@ const Focus = () => {
 }
 
 export default Focus
-
