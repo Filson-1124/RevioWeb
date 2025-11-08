@@ -5,7 +5,6 @@ import gameOverLogo from '../assets/referee.png'
 import { auth, db } from '../components/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
-import { LuArrowLeft } from "react-icons/lu"
 import { useParams } from "react-router-dom";
 import { useGamified } from '../functions/useGamified'
 import Lottie from 'lottie-react'
@@ -13,6 +12,8 @@ import confetti from '../assets/animation/CONFETTI.json'
 import trophy from '../assets/animation/Trophy.json'
 import { FaVolumeMute } from "react-icons/fa";
 import { AiFillSound } from "react-icons/ai";
+import { FaSignOutAlt } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion"
 
 const Gamified = () => {
    const loaderData = useLoaderData();
@@ -41,14 +42,14 @@ const Gamified = () => {
     answers,
     currentCorrectAnswers,
     timeUp,
-    current,trophyDone,isPlus,isMuted,isPerfect,tropRet}=state
+    current,trophyDone,isPlus,isMuted,isPerfect,tropRet,isQuitting}=state
 
     const{ 
     setIsPressed,
     handleStart,
     handleChange,
     checkAcro,
-    checkAnswer,findCorrectAnswer,toggleMute,setIsPerfect
+    checkAnswer,findCorrectAnswer,toggleMute,setIsPerfect,setIsQuitting
   }=actions
 
   const navigate = useNavigate()
@@ -72,6 +73,8 @@ const renderResults = () => {
 
 console.log("sa UI: "+isPerfect)
 return (
+
+  
   <div className="text-center text-white w-full max-w-4xl mx-auto flex flex-col items-center ">
      {/* Title and summary */}
       <div className="z-10 bg-[#101010] ">
@@ -242,7 +245,7 @@ return (
 }
 
 
- 
+
 
   // Splash screen
   if (showSplash && !showResults) {
@@ -290,14 +293,58 @@ return (
 
   // Main game screen
   return (
+    
     <div className="h-full bg-[#121212] text-white w-full pb-20 p-5 flex flex-col items-center relative overflow-x-hidden">
+      {isQuitting && (
+  <div className="fixed inset-0 bg-[#0c0b0b35] bg-opacity-70 flex justify-center items-center z-50">
+    <AnimatePresence>
+      <motion.div
+        key="quit-modal"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 15,
+        }}
+        className="bg-[#2E2E40] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border border-[#B5B5FF] shadow-2xl"
+      >
+        <h2 className="text-white text-lg font-bold mb-3">
+          Leaving Game?
+        </h2>
+        <p className="text-gray-400 text-sm mb-6">
+          Are you sure you want to go back? Your progress won't be saved.
+        </p>
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => setIsQuitting(false)}
+            className="cursor-pointer px-4 py-2 rounded-xl bg-[#51516B] hover:bg-gray-700 text-white font-semibold active:scale-95"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              setIsQuitting(false);
+              navigate(`/Main/Library/${folderId}/${reviewerId}`);
+            }}
+            className="cursor-pointer px-4 py-2 rounded-xl bg-[#B5B5FF] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+          >
+            Leave
+          </button>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  </div>
+)}
       <div className="w-full flex justify-between items-center relative ">
         <button
-       onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
+       onClick={() => setIsQuitting(true) }
           className="transition-all duration-100 active:scale-95 cursor-pointer md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
-          <LuArrowLeft size={18} className="md:size-5" />
-          Back
+         
+          <FaSignOutAlt size={18} className="md:size-5"  style={{ transform: 'scaleX(-1)' }}  />
+     
         </button>
       </div>
 
