@@ -1,11 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Draggable from 'react-draggable';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from './AudioContext';
 import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaMusic } from 'react-icons/fa';
-import focusImage from '../assets/focusAssets/focusRevio.png'
+import focusImage from '../assets/focusAssets/focusRevio.png';
 
 const MusicPlayer = () => {
   const [open, setOpen] = useState(false);
+  const [direction, setDirection] = useState(0); // 1 = next, -1 = previous
   const lastTouchRef = useRef(0);
   const nodeRef = useRef(null);
   const panelRef = useRef(null);
@@ -29,7 +31,7 @@ const MusicPlayer = () => {
 
   useEffect(() => {
     if (audioRef?.current) {
-      audioRef.current.loop = true; // make it loop infinitely
+      audioRef.current.loop = true;
     }
   }, [audioRef]);
 
@@ -64,62 +66,88 @@ const MusicPlayer = () => {
     setOpen((p) => !p);
   };
 
+  // handle track change animation direction
+  const handleNext = () => {
+    setDirection(1);
+    nextTrack();
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    prevTrack();
+  };
+
   return (
-  
-      <div
-        ref={nodeRef}
-        className="fixed z-[9999] right-4 bottom-[5.5rem] md:right-6 md:bottom-6 w-max cursor-pointer pointer-events-auto"
+    <div
+      ref={nodeRef}
+      className="fixed z-[9999] right-4 bottom-[5.5rem] md:right-6 md:bottom-6 w-max cursor-pointer pointer-events-auto"
+    >
+      {/* Floating Button */}
+      <button
+        className="cursor-pointer bg-purple-700 text-white p-3 rounded-full shadow-lg hover:bg-purple-800 transition-all active:scale-95 focus:outline-none"
+        onClick={toggleHandlerFromClick}
+        onTouchEnd={toggleHandlerFromTouch}
       >
-        
-        {/* Floating Button */}
-        <button
-          className=" cursor-pointer  bg-purple-700 text-white p-3 rounded-full shadow-lg hover:bg-purple-800 transition-all active:scale-95 focus:outline-none"
-          onClick={toggleHandlerFromClick}
-          onTouchEnd={toggleHandlerFromTouch}
+        <FaMusic />
+      </button>
+
+      {/* Expandable Panel */}
+      {open && (
+        <div
+          ref={panelRef}
+          className="no-drag cursor-default mt-2 bg-gray-900 text-white p-4 rounded-xl shadow-lg w-60 flex flex-col gap-3 animate-[fadeIn_0.15s_ease-in-out]"
         >
-          <FaMusic />
-        </button>
+          <img src={focusImage} alt="" className="w-40 h-40 rounded-lg place-self-center" />
 
-        {/* Expandable Panel */}
-        {open && (
-          <div
-            ref={panelRef}
-            className="no-drag cursor-default mt-2 bg-gray-900 text-white p-4 rounded-xl shadow-lg w-60 flex flex-col gap-3 animate-[fadeIn_0.15s_ease-in-out]"
-          >
-            <img src={focusImage} alt="" className="w-40 h-40 rounded-lg place-self-center" />
-            <p className="text-sm text-center font-semibold truncate">
-              {currentTrack?.title || 'No track selected'}
-            </p>
-
-            <div className="flex justify-between items-center text-xl">
-              <button className=" cursor-pointer no-drag hover:text-purple-400" onClick={prevTrack}>
-                <FaStepBackward />
-              </button>
-              <button className=" cursor-pointer no-drag hover:text-purple-400" onClick={togglePlay}>
-                {isPlaying ? <FaPause /> : <FaPlay />}
-              </button>
-              <button className=" cursor-pointer no-drag hover:text-purple-400" onClick={nextTrack}>
-                <FaStepForward />
-              </button>
-            </div>
-
-            {/* Progress-style Volume Bar */}
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={handleVolumeChange}
-              className="no-drag w-full h-2 rounded-lg appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #8b5cf6 ${volume * 100}%, #3f3f46 ${volume * 100}%)`,
-              }}
-            />
+          {/* Animated Song Title */}
+          <div className="text-sm text-center font-semibold h-6 overflow-hidden relative">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.p
+                key={currentTrack?.title}
+                custom={direction}
+                initial={{ opacity: 0, x: direction > 0 ? 50 : -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: direction > 0 ? -50 : 50 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 25,
+                }}
+                className="truncate absolute w-full"
+              >
+                {currentTrack?.title || 'No track selected'}
+              </motion.p>
+            </AnimatePresence>
           </div>
-        )}
-      </div>
-   
+
+          <div className="flex justify-between items-center text-xl">
+            <button className="cursor-pointer no-drag hover:text-purple-400" onClick={handlePrev}>
+              <FaStepBackward />
+            </button>
+            <button className="cursor-pointer no-drag hover:text-purple-400" onClick={togglePlay}>
+              {isPlaying ? <FaPause /> : <FaPlay />}
+            </button>
+            <button className="cursor-pointer no-drag hover:text-purple-400" onClick={handleNext}>
+              <FaStepForward />
+            </button>
+          </div>
+
+          {/* Volume Bar */}
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={handleVolumeChange}
+            className="no-drag w-full h-2 rounded-lg appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #8b5cf6 ${volume * 100}%, #3f3f46 ${volume * 100}%)`,
+            }}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 
