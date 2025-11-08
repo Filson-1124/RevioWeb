@@ -319,7 +319,7 @@ return (
         <div className="flex justify-center gap-4">
           <button
             onClick={() => setIsQuitting(false)}
-            className="cursor-pointer px-4 py-2 rounded-xl bg-[#51516B] hover:bg-gray-700 text-white font-semibold active:scale-95"
+            className="transition-all duration-75 cursor-pointer px-4 py-2 rounded-xl bg-[#51516B] hover:bg-gray-700 text-white font-semibold active:scale-95"
           >
             Cancel
           </button>
@@ -328,7 +328,7 @@ return (
               setIsQuitting(false);
               navigate(`/Main/Library/${folderId}/${reviewerId}`);
             }}
-            className="cursor-pointer px-4 py-2 rounded-xl bg-[#B5B5FF] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+            className="transition-all duration-75 cursor-pointer px-4 py-2 rounded-xl bg-[#B5B5FF] hover:bg-[#C22507] text-white font-semibold active:scale-95"
           >
             Leave
           </button>
