@@ -53,11 +53,11 @@ const Library = () => {
     <div className='pb-[30%]'>
       {/* Header Section */}
       <div className='flex flex-col gap-7 p-10'>
-        <motion.h1 variants={titleVariants} initial="hidden" animate="visible">
-        <h1 className='text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold'>
-          LIBRARY
-        </h1>
-        </motion.h1>
+         <motion.h1 variants={titleVariants} initial="hidden" animate="visible" className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
+           
+                LIBRARY
+         
+              </motion.h1>
         <hr className='text-white' />
       </div>
 

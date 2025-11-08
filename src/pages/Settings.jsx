@@ -172,10 +172,10 @@ const Settings = () => {
 
   return (
     <div className="flex flex-col mb-10 gap-8 p-6 pb-[45%] sm:pb-[40%] sm:p-10 md:p-16 md:pb-0 lg:p-20">
-      <motion.h1 variants={titleVariants} initial="hidden" animate="visible" >
-      <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
+      <motion.h1 variants={titleVariants} initial="hidden" animate="visible" className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
+   
         SETTINGS
-      </h1>
+ 
       </motion.h1>
 
       {/* User Info + Avatar Section */}

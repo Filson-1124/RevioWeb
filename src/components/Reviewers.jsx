@@ -69,10 +69,10 @@ const Reviewers = () => {
         </div>
     <motion.h1 variants={itemVariants}
     initial="hidden"
-    animate="visible" >
-        <h1 className="text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold">
+    animate="visible"className="text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold" >
+     
           {headingText}
-        </h1>
+     
         </motion.h1>
 
         {isFlashCard && (

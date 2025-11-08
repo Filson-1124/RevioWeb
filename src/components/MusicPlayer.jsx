@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { useAudio } from './AudioContext';
 import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaMusic } from 'react-icons/fa';
+import focusImage from '../assets/focusAssets/focusRevio.png'
 
 const MusicPlayer = () => {
   const [open, setOpen] = useState(false);
@@ -69,6 +70,7 @@ const MusicPlayer = () => {
         ref={nodeRef}
         className="fixed z-[9999] right-4 bottom-[5.5rem] md:right-6 md:bottom-6 w-max cursor-pointer pointer-events-auto"
       >
+        
         {/* Floating Button */}
         <button
           className=" cursor-pointer  bg-purple-700 text-white p-3 rounded-full shadow-lg hover:bg-purple-800 transition-all active:scale-95 focus:outline-none"
@@ -82,8 +84,9 @@ const MusicPlayer = () => {
         {open && (
           <div
             ref={panelRef}
-            className="no-drag cursor-default mt-2 bg-gray-900 text-white p-4 rounded-lg shadow-lg w-60 flex flex-col gap-3 animate-[fadeIn_0.15s_ease-in-out]"
+            className="no-drag cursor-default mt-2 bg-gray-900 text-white p-4 rounded-xl shadow-lg w-60 flex flex-col gap-3 animate-[fadeIn_0.15s_ease-in-out]"
           >
+            <img src={focusImage} alt="" className="w-40 h-40 rounded-lg place-self-center" />
             <p className="text-sm text-center font-semibold truncate">
               {currentTrack?.title || 'No track selected'}
             </p>

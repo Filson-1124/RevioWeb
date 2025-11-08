@@ -4,7 +4,7 @@ import { useAudio } from '../components/AudioContext'
 import focusMusic from '../assets/focusMusic'
 import { FaRegCirclePlay } from "react-icons/fa6"
 import { FaPauseCircle } from "react-icons/fa"
-import focusImage from '../assets/focusAssets/focusimage.jpg'
+import focusImage from '../assets/focusAssets/focusRevio.png'
 
 const Focus = () => {
   const {
@@ -84,10 +84,10 @@ const Focus = () => {
 
   return (
     <div className="flex flex-col gap-7 pb-[55%] p-5 md:p-10">
-      <motion.h1 variants={itemVariants} initial="hidden" animate="visible">
-        <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
+      <motion.h1 variants={itemVariants} initial="hidden" animate="visible" className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
+
           FOCUS
-        </h1>
+    
       </motion.h1>
       <hr className="border-[#797777]" />
 
