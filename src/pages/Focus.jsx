@@ -4,7 +4,7 @@ import { useAudio } from '../components/AudioContext'
 import focusMusic from '../assets/focusMusic'
 import { FaRegCirclePlay } from "react-icons/fa6"
 import { FaPauseCircle } from "react-icons/fa"
-import focusImage from '../assets/focusAssets/focusRevio.png'
+import focusImage from '../assets/focusAssets/REVIO-MUSIC.png'
 
 const Focus = () => {
   const {
