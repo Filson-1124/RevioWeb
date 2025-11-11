@@ -13,7 +13,7 @@ const NavBar = () => {
   return (
    <div
   className="
-    fixed bottom-0 left-0 w-full h-[10%] bg-[#0B0B0F]
+    fixed bottom-0 left-0 w-full h-[11%] bg-[#0B0B0F] p-1
     flex justify-center items-center z-50
     md:static md:flex-col md:w-[6rem] md:h-screen md:justify-start md:py-10
     overflow-hidden
@@ -26,7 +26,7 @@ const NavBar = () => {
     onClick={() => navigate('/Main/Library')}
   />
 
-  <ul className="flex flex-row gap-4 px-4 p-5 sm:gap-5 items-center md:flex-col md:gap-10">
+  <ul className="flex flex-row gap-4 px-4 p-5 sm:gap-5 items-center md:flex-col md:gap-10 lg:gap-6">
 
     {/* Library – subtle slide-up */}
     <NavLink to="/Main/Library" className="group">

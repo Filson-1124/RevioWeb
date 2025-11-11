@@ -66,7 +66,7 @@ const EditFlashCard = () => {
   }
 
   return (
-    <div>
+    <div className='pb-40'>
       <div className="w-full p-5 md:p-10 flex flex-col md:flex-row justify-between gap-10 items-start md:items-center relative">
         <button
            onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}

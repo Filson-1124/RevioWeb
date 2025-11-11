@@ -80,7 +80,7 @@ const navigate=useNavigate();
 
     
     
-    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[45%] md:pb-10 px-4 gap-7 md:px-10'>
+    <div className='flex flex-col items-center justify-start min-h-full bg-[#121212] pt-6 pb-[45%] md:pb-10 px-4 gap-7 md:px-10 lg:pb-40'>
        {settingDate && 
             (
               <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">

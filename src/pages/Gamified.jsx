@@ -250,7 +250,7 @@ return (
   // Splash screen
   if (showSplash && !showResults) {
     return (
-      <div className="h-[100%] bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center">
+      <div className="h-[100%] bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center lg:pb-30">
         {timeUp ? (
           <>
             <img src={gameOverLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-pulse" />
@@ -294,7 +294,7 @@ return (
   // Main game screen
   return (
     
-    <div className="h-full bg-[#121212] text-white w-full pb-20 p-5 flex flex-col items-center relative overflow-x-hidden">
+    <div className="h-full bg-[#121212] text-white w-full pb-40 pt-20 p-5 flex flex-col items-center relative overflow-x-hidden">
       {isQuitting && (
   <div className="fixed inset-0 bg-[#0c0b0b35] bg-opacity-70 flex justify-center items-center z-50">
     <AnimatePresence>
@@ -337,16 +337,16 @@ return (
     </AnimatePresence>
   </div>
 )}
-      <div className="w-full flex justify-between items-center relative ">
+ 
         <button
        onClick={() => setIsQuitting(true) }
-          className="transition-all duration-100 active:scale-95 cursor-pointer md:absolute left-2 top-2 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="transition-all duration-100 active:scale-95 cursor-pointer md:absolute left-2 top-5 md:left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
          
           <FaSignOutAlt size={18} className="md:size-5"  style={{ transform: 'scaleX(-1)' }}  />
      
         </button>
-      </div>
+ 
 
       {countdown !== null && (
        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center text-6xl sm:text-8xl font-bold text-white">

@@ -36,9 +36,9 @@ const Register = () => {
 
   return (
     <>
-      <div className="flex justify-center items-center h-screen w-screen bg-[#12121A] p-4 sm:p-6 md:p-10">
-        <div className="bg-[#1C1C26] w-full max-w-md sm:max-w-lg lg:max-w-xl p-6 sm:p-8 md:p-10 border border-[#5C5B5B] rounded-2xl shadow-lg">
-          <h1 className="text-[#FFFBEF] text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold mb-6 text-center md:text-left">
+      <div className="p-10 flex place-content-center bg-[#12121A] ">
+        <div className="bg-[#1C1C26] w-full max-w-md sm:max-w-lg lg:max-w-xl p-6 sm:p-8 md:p-10 border border-[#5C5B5B] rounded-2xl shadow-lg lg:overflow-auto h-[80vh]">
+          <h1 className="text-[#FFFBEF] text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold mb-6 text-center md:text-left place-self-center">
             Create Account
           </h1>
 
