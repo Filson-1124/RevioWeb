@@ -382,7 +382,7 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
 
                     {section.steps?.length > 0 && (
                       <div className='text-[#d3d3d3] rounded-lg p-2'>
-                        <b className='text-[#C7D2FE]'>Steps:</b><br />
+                        <b className='text-[#C7D2FE]'>Insights:</b><br />
                         <ol className=" list-inside space-y-1 font-semibold">
                           {section.steps.map((step, i) => (
                             <li key={i}>{step}</li>
