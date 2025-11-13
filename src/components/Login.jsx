@@ -31,8 +31,8 @@ const Login = () => {
 
   // LOGIN FORm
   return (
-    <div className="overflow-y-hidden flex justify-center items-center min-h-screen bg-[#12121A] p-4 sm:p-6 md:p-10">
-      <div className="bg-[#1C1C26] border border-[#5C5B5B] rounded-2xl w-full max-w-[500px] p-6 sm:p-8 md:p-10">
+    <div className=" bg-[#12121A] p-10 px-5 flex place-content-center lg:p-5">
+      <div className="bg-[#1C1C26] border border-[#5C5B5B] rounded-2xl w-full max-w-[500px] p-6 sm:p-8 md:p-10 max-h-[80vh] lg:overflow-auto">
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
           <img src={logo} alt="App Logo" className="w-20 sm:w-28 md:w-40 mb-2" />
           <h1 className="text-white text-center font-bold font-poppins text-lg sm:text-xl md:text-2xl mb-3">Revio</h1>
@@ -71,7 +71,7 @@ const Login = () => {
               </div>
             </div>
 
-            <button className="bg-[#B5B5FF] text-[#200448] font-poppins font-semibold p-2 rounded-full active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition-all w-full self-center">
+            <button className=" cursor-pointer bg-[#B5B5FF] text-[#200448] font-poppins font-semibold p-2 rounded-full active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition-all w-full self-center">
               Login
             </button>
           </div>
@@ -106,7 +106,7 @@ const Login = () => {
 
           <p className="text-[#FEFEFF] text-sm sm:text-base">Do you have an account?</p>
           <Link to="/Register" className="w-full">
-            <button className="border border-[#B1B1B1] text-[#B5B5FF] p-2 w-full rounded-full font-poppins text-sm sm:text-base font-semibold active:scale-95">
+            <button className="cursor-pointer transition-all duration-75 border border-[#B1B1B1] text-[#B5B5FF] p-2 w-full rounded-full font-poppins text-sm sm:text-base font-semibold active:scale-95">
               Sign Up
             </button>
           </Link>

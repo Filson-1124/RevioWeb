@@ -29,6 +29,8 @@ const {  title,
     handleFileChange,
     handleRemoveFile}=actions
 
+    const navigate=useNavigate();
+
 if (isCreating) {
   return (
     <div
@@ -63,7 +65,7 @@ if (isCreating) {
       <div className="w-full flex justify-between items-center absolute top-6 left-0 px-5">
         <button
           onClick={() => navigate(`/Main/Create`)}
-          className=" cursor-pointer flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
+          className="transition-all duration-100 active:scale-95 cursor-pointer flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base"
         >
           <LuArrowLeft size={18} className="md:size-5" />
           Back

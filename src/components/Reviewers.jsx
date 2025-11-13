@@ -1,20 +1,59 @@
-
-import { Link,useNavigate } from 'react-router-dom';
-
+import { Link, useNavigate } from "react-router-dom";
 import { LuArrowLeft } from "react-icons/lu";
 import { CiCirclePlus } from "react-icons/ci";
-
-import { auth, db } from '../components/firebase';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { motion } from "motion/react"; 
+import { auth, db } from "../components/firebase";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { useReviewer } from '../functions/useReviewer';
-
-
+import { useReviewer } from "../functions/useReviewer";
 
 const Reviewers = () => {
   const navigate = useNavigate();
   const { state, actions } = useReviewer();
   const { headingText, IconComponent, iconSize, isFlashCard, extended, sortedReviewers } = state;
+
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1, // delay between card animations
+      },
+    },
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 15 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 220,
+        damping: 20,
+        mass: 0.8,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      y: 10,
+      transition: { duration: 0.2 },
+    },
+  };
+
+    const itemVariants = {
+    hidden: { opacity: 0, x: 100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 15,
+      },
+    },
+  }
 
   return (
     <div className="min-h-screen pb-[20%] flex flex-col overflow-hidden">
@@ -22,16 +61,19 @@ const Reviewers = () => {
         <div className="w-full p-10 flex justify-between items-center relative">
           <button
             onClick={() => navigate(`/Main/Library`)}
-            className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+            className="absolute left-0 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl transition-all duration-100 active:scale-95"
           >
             <LuArrowLeft size={20} />
             Back
           </button>
         </div>
-
-        <h1 className="text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold">
+    <motion.h1 variants={itemVariants}
+    initial="hidden"
+    animate="visible"className="text-white text-xl font-bold md:text-4xl lg:text-5xl font-poppinsbold" >
+     
           {headingText}
-        </h1>
+     
+        </motion.h1>
 
         {isFlashCard && (
           <div className="text-[#a5a2a2]">
@@ -56,7 +98,11 @@ const Reviewers = () => {
         <hr className="text-white" />
       </div>
 
-      <div
+      {/* ✅ Animated Reviewers Grid */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         className={
           sortedReviewers && sortedReviewers.length > 0
             ? "mb-15 px-4 sm:px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5"
@@ -66,7 +112,9 @@ const Reviewers = () => {
         {sortedReviewers && sortedReviewers.length > 0 ? (
           sortedReviewers.map((reviewer) => {
             const isLongTitle = reviewer.title.length > 30;
-            const textSize = isLongTitle ? "text-xs sm:text-sm md:text-base" : "text-sm sm:text-base md:text-lg";
+            const textSize = isLongTitle
+              ? "text-xs sm:text-sm md:text-base"
+              : "text-sm sm:text-base md:text-lg";
 
             let color = "gray";
             let allDone = false;
@@ -81,30 +129,38 @@ const Reviewers = () => {
             }
 
             return (
-              <Link
+              <motion.div
                 key={reviewer.id}
-                to={reviewer.id.toString()}
-                className="relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-150 ease-in hover:scale-105"
+                className=" rounded-lg shadow-xl max-w-md w-full"
+                variants={contentVariants}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Example popup"
               >
-                {isFlashCard &&
-                  (allDone ? (
-                    <span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>
-                  ) : (
-                    <span
-                      className="absolute top-2 right-2 w-4 h-4 rounded-full"
-                      style={{ backgroundColor: color || "gray" }}
-                    ></span>
-                  ))}
-                <div className="flex-shrink-0">
-                  <IconComponent size={iconSize} color="white" />
-                </div>
-                <h4
-                  className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
-                  title={reviewer.title}
+                <Link
+                  to={reviewer.id.toString()}
+                  className="transition-all duration-100 active:scale-95 relative w-full flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl ease-in hover:scale-105"
                 >
-                  {reviewer.title}
-                </h4>
-              </Link>
+                  {isFlashCard &&
+                    (allDone ? (
+                      <span className="absolute top-2 right-2 text-green-500 text-lg font-bold">✔</span>
+                    ) : (
+                      <span
+                        className="absolute top-2 right-2 w-4 h-4 rounded-full"
+                        style={{ backgroundColor: color || "gray" }}
+                      ></span>
+                    ))}
+                  <div className="flex-shrink-0">
+                    <IconComponent size={iconSize} color="white" />
+                  </div>
+                  <h4
+                    className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
+                    title={reviewer.title}
+                  >
+                    {reviewer.title}
+                  </h4>
+                </Link>
+              </motion.div>
             );
           })
         ) : (
@@ -119,12 +175,13 @@ const Reviewers = () => {
             </button>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };
 
 export default Reviewers;
+
 
 
 

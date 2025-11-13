@@ -27,13 +27,13 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-[#12121A] font-poppins p-6 sm:p-10">
-      <div className="bg-[#1C1C26] w-full max-w-md sm:max-w-lg md:max-w-xl p-8 sm:p-10 border border-[#5C5B5B] rounded-2xl flex flex-col items-center text-center shadow-xl">
+    <div className=" flex place-content-center p-10  bg-[#12121A]" >
+      <div className="bg-[#1C1C26] w-full max-w-md  sm:max-w-lg md:max-w-xl p-8 sm:p-10 border border-[#5C5B5B] rounded-2xl flex flex-col items-center text-center shadow-xl overflow-auto">
         {/* Logo */}
         <img
           src={logo}
           alt="Revio Logo"
-          className="w-32 sm:w-44 md:w-56 mb-4"
+          className="w-32 sm:w-44 md:w-30 mb-4"
         />
 
         {/* Title */}

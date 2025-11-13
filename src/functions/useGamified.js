@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import correctSound from '../assets/quizSounds/correct.mp3'
 import wrongSound from '../assets/quizSounds/wrong.mp3'
+//eto na lord
+
 
 export const useGamified = ({ questions = [], isAcronym = false }) => {
   const [index, setIndex] = useState(0)
@@ -26,6 +28,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
   const [isMuted, setIsMuted] = useState(false)
   const [isPerfect,setIsPerfect]=useState(false)
   const[tropRet,setTropRet]=useState(false)
+  const[isQuitting,setIsQuitting]=useState(false)
   const correctTunog = new Audio(correctSound)
   const wrongTunog = new Audio(wrongSound)
 
@@ -200,7 +203,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
 }, [score, wrongAnswers, showResults, questions.length])
 
   return {
-    state: {
+    state: {isQuitting,
       index,
       score,
       timeLeft,
@@ -222,7 +225,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
       isPlus,
       isMuted,isPerfect
     },
-    actions: {
+    actions: {setIsQuitting,
       setIndex,
       setScore,
       setTimeLeft,

@@ -16,6 +16,7 @@ import { useEdit } from '../functions/useEdit';
 
 
 const EditFlashCard = () => {
+  const navigate =useNavigate()
   const {state, actions}=useEdit();
   const { title,
     questions,
@@ -65,11 +66,11 @@ const EditFlashCard = () => {
   }
 
   return (
-    <div>
+    <div className='pb-40'>
       <div className="w-full p-5 md:p-10 flex flex-col md:flex-row justify-between gap-10 items-start md:items-center relative">
         <button
            onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
-          className="cursor-pointer static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
+          className="transition-all duration-100 active:scale-95 cursor-pointer static md:absolute left-5 flex items-center gap-2 text-white bg-[#3F3F54] hover:bg-[#51516B] p-3 rounded-xl"
         >
           <LuArrowLeft size={20} />
           Back
@@ -89,7 +90,7 @@ const EditFlashCard = () => {
 
         <button
           onClick={handleSave}
-          className="cursor-pointer w-full place-content-center md:w-auto font-poppinsbold text-white bg-[#6ada6dff] text-lg flex gap-1 p-5 rounded-2xl place-self-start md:place-self-end"
+          className="transition-all duration-100 active:scale-95 cursor-pointer w-full place-content-center md:w-auto font-poppinsbold text-white bg-[#6ada6dff] text-lg flex gap-1 p-5 rounded-2xl place-self-start md:place-self-end"
         >
           <FaSave size={25} />
           Save
@@ -141,7 +142,7 @@ const EditFlashCard = () => {
             </div>
             <button
               onClick={handleAddTD}
-              className=" cursor-pointer w-full max-w-xl bg-[#B5B5FF] hover:bg-green-700 text-white py-3 rounded-xl"
+              className=" transition-all duration-100 active:scale-95 cursor-pointer w-full max-w-xl bg-[#B5B5FF] hover:bg-green-700 text-white py-3 rounded-xl"
             >
               Add Flashcard
             </button>

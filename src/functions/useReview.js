@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { auth, db } from "../components/firebase"
 import { doc, deleteDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore"
+import {motion} from 'motion/react'
 
 
 
@@ -46,6 +47,9 @@ export const useReview=() =>{
   const [isMarked,setIsMarked]=useState(false)
   const [displayMarked,setDisplayMarked]=useState(false)
   const [markedCards,setMarkedCards]=useState([])
+  const [settingDate,setSettingDate]=useState(false)
+  const [dateSet,setDateSet]=useState(false)
+  const[calendarAnimationDisplay,setCalendarAnimationDisplay]=useState(false)
  
 
   const { id, reviewerId } = useParams()
@@ -356,9 +360,50 @@ const current = isAcronymCard
   const currentTitle = isAcronymCard ? currentAcronym?.title : reviewer.title
 
 
+
+useEffect(() => {
+  if (dateSet) {
+    // Begin with fade-in
+    setCalendarAnimationDisplay(true);
+
+    // Wait until the animation is complete before hiding everything
+    const hideTimeout = setTimeout(() => {
+      setDateSet(false);
+    }, 4700); // Slightly longer than animation + fade-out duration
+
+    return () => clearTimeout(hideTimeout);
+  }
+}, [dateSet]);
+
+const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1, // delay between card animations
+      },
+    },
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, scale: 0.7 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 600,
+     
+      },
+    },
+ 
+  };
 return {
   state: {
+    containerVariants,
+    contentVariants,
     reviewer,
+    calendarAnimationDisplay,
     id,
     reviewerId,
     sortedQuestions,
@@ -381,10 +426,14 @@ return {
     current,
     correctChoice,
     currentAcronym,
-    currentTitle,activeCards,currentIndex
+    currentTitle,activeCards,currentIndex,
+    settingDate,dateSet
   },
   actions: {
     setCurrentIndex,
+    setCalendarAnimationDisplay,
+    setDateSet,
+    setSettingDate,
     setCurrentGroupIndex,
     setFlipped,
     setMessage,
