@@ -370,7 +370,7 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
          
           {reviewer.sections.map((section, idx) => (
             <div key={idx} className="mb-6 ">
-              <h2 className="text-xl font-black text-[#B5B5FF] mb-2">{section.title}</h2>
+              <h2 className={`text-xl font-black  mb-2 text-center border-y ${section.analogy?"border-b-[#ffc6c6ff] border-t-[#ffc6c6ff] text-[#ffc6c6ff]":"border-b-[#B5B5FF] border-t-[#B5B5FF] text-[#B5B5FF]"}  `}>{section.title}</h2>
               <ul className="list-disc list-inside space-y-1 text-[#E2E8F0] bg-transparent rounded-xl p-2">
                 {section.analogy ? (
                   <>
@@ -381,9 +381,9 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
                     </p>
 
                     {section.steps?.length > 0 && (
-                      <div className='text-[#d3d3d3] rounded-lg p-2'>
-                        <b className='text-[#C7D2FE]'>Insights:</b><br />
-                        <ol className=" list-inside space-y-1 font-semibold">
+                      <div className='text-[#d3d3d3] p-2 border-l-[#ffc6c6ff] border-l-3  mt-3 pl-5  border-x border-r-transparent'>
+                        <b className='text-[#ffc6c6ff]'>Insights:</b><br />
+                        <ol className=" list-inside space-y-1 font-semibold ">
                           {section.steps.map((step, i) => (
                             <li key={i}>{step}</li>
                           ))}
@@ -413,7 +413,7 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
                           <h1 className='text-[#f48ab3ff] font-black'>{item.term}</h1>
                           <h3 className='text-[#fcfbfbff] font-bold'>{item.explanation}</h3>
                           {item.example ? (
-                            <p className='text-[#FFA500] italic'>
+                            <p className='text-[#FFA500] italic border-y-2 border-t-[#96969758] border-b-transparent my-3'>
                               <b>Example: </b>{item.example}
                             </p>
                           ) : ""}
@@ -421,10 +421,11 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
                       ))}
                     </div>
 
-                    <p><b className='text-[#fff]'>Key Takeaways</b></p>
 
-                    <div className='pl-10'>
-                      <ul className='flex flex-col list-disc'>
+                    <div className=' border-x-3 border-l-[#FFF2AF] border-r-transparent pl-2'>
+                      
+                    <p><b className='text-[#fff]'>Key Takeaways</b></p>
+                      <ul className='flex flex-col list-disc pl-10'>
                         {section.keyTakeaways.map((item,index)=>(
                           <li key={index} className='text-[#fdf2b3ff] font-semibold'>
                             {item}
