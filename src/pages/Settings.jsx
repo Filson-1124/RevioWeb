@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../components/AuthContext'
-import { signOut, deleteUser } from 'firebase/auth'
+import {
+  signOut,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'firebase/auth'
 import { auth, db } from '../components/firebase'
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { avatarOptions } from '../assets/3D Avatars/avatars'
 import accountDeleteImage from '../assets/deleteAccount.png'
-import { motion } from "motion/react";
+import { motion } from 'motion/react'
 
 const Settings = () => {
   const { setIsLoggedIn, isLoggedIn } = useAuth()
@@ -16,55 +21,42 @@ const Settings = () => {
   const [profilePicId, setProfilePicId] = useState('')
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
   const [profilePic, setProfilePic] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false) // custom modal control
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  // ⭐ NEW: Second modal state
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+
   const navigate = useNavigate()
 
-
-
-
+  // Animations (unchanged)
   const titleVariants = {
     hidden: { opacity: 0, x: 100 },
     visible: {
       opacity: 1,
       x: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 15,
-      },
+      transition: { type: 'spring', stiffness: 300, damping: 15 },
     },
   }
 
-  const inputContainerVariants={
-     hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.1, // delay between card animations
-      },
-    },
+  const inputContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
   }
 
-    const inputVariants = {
+  const inputVariants = {
     hidden: { opacity: 0, x: 100 },
     visible: {
       opacity: 1,
       x: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 15,
-      },
+      transition: { type: 'spring', stiffness: 300, damping: 15 },
     },
   }
 
-   const containerVariants = {
+  const containerVariants = {
     hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.1, // delay between card animations
-      },
-    },
-  };
+    visible: { transition: { staggerChildren: 0.1 } },
+  }
 
   const contentVariants = {
     hidden: { opacity: 0, scale: 0.8, y: 15 },
@@ -72,20 +64,10 @@ const Settings = () => {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 220,
-        damping: 20,
-        mass: 0.8,
-      },
+      transition: { type: 'spring', stiffness: 220, damping: 20 },
     },
-    exit: {
-      opacity: 0,
-      scale: 0.95,
-      y: 10,
-      transition: { duration: 0.2 },
-    },
-  };
+    exit: { opacity: 0, scale: 0.95, y: 10, transition: { duration: 0.2 } },
+  }
 
   // Fetch user data
   useEffect(() => {
@@ -107,42 +89,60 @@ const Settings = () => {
     return () => unsubscribe()
   }, [])
 
-  // Delete Account (open modal)
+  // 1️⃣ USER CLICKS DELETE → SHOW ORIGINAL MODAL
   const handleDeleteAccount = () => {
     setIsDeleting(true)
   }
 
-  // Confirm account deletion
+  // 2️⃣ USER CONFIRMS FIRST MODAL → OPEN PASSWORD MODAL
+  const openPasswordModal = () => {
+    setIsDeleting(false)
+    setIsPasswordModalOpen(true)
+  }
+
+  // 3️⃣ DELETE ACCOUNT AFTER PASSWORD
   const confirmDeleteAccount = async () => {
     const currentUser = auth.currentUser
     if (!currentUser) return
 
+    if (!deletePassword) {
+      toast.error('Please enter your password.')
+      return
+    }
+
     try {
+      const credential = EmailAuthProvider.credential(
+        currentUser.email,
+        deletePassword
+      )
+
+      await reauthenticateWithCredential(currentUser, credential)
+
       await deleteDoc(doc(db, 'users', currentUser.uid))
       await deleteUser(currentUser)
+
       toast.success('Your account has been permanently deleted.')
       navigate('/login')
     } catch (error) {
-      console.error('Delete Account Error:', error)
-      if (error.code === 'auth/requires-recent-login') {
-        toast.error('Please log in again to delete your account.')
-        navigate('/login')
+      console.error(error)
+
+      if (error.code === 'auth/wrong-password') {
+        toast.error('Incorrect password.')
+      } else if (error.code === 'auth/too-many-requests') {
+        toast.error('Too many attempts, try again later.')
       } else {
         toast.error('Could not delete account.')
       }
     }
   }
 
-  // Avatar display
+  // Avatar preview
   useEffect(() => {
     if (!profilePicId) return
-    const selectedAvatar = avatarOptions.find(
-      (avatar) => avatar.id === profilePicId
-    )
+    const selectedAvatar = avatarOptions.find((a) => a.id === profilePicId)
     setProfilePic(selectedAvatar ? selectedAvatar.file : null)
   }, [profilePicId])
 
-  // Confirm avatar change
   const handleConfirmAvatarChange = async () => {
     if (!user || !selectedAvatarId) return
     try {
@@ -150,61 +150,69 @@ const Settings = () => {
       await updateDoc(userRef, { avatarId: selectedAvatarId })
       setProfilePicId(selectedAvatarId)
       toast.success('Profile picture updated!')
-    } catch (error) {
-      console.error(error)
-      toast.error('Failed to update profile picture.')
+    } catch (err) {
+      toast.error('Failed to update.')
     }
   }
 
-  // Logout
   const handleLogout = async () => {
     if (isLoggedIn) {
       await signOut(auth)
       localStorage.removeItem('isLoggedInWeb')
       setIsLoggedIn(false)
-      toast.success('User Logged Out Successfully, see you soon!')
+      toast.success('Logged out!')
       navigate('/')
     }
   }
 
   if (!user)
-    return <p className="text-white text-center py-20">Loading user data...</p>
+    return (
+      <p className="text-white text-center py-20">Loading user data...</p>
+    )
 
   return (
     <div className="flex flex-col mb-10 gap-8 p-6 pb-[45%] sm:pb-[40%] sm:p-10 md:p-16 md:pb-0 lg:p-20">
-      <motion.h1 variants={titleVariants} initial="hidden" animate="visible" className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
-   
+      <motion.h1
+        variants={titleVariants}
+        initial="hidden"
+        animate="visible"
+        className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold"
+      >
         SETTINGS
- 
       </motion.h1>
 
-      {/* User Info + Avatar Section */}
+      {/* USER INFO + AVATAR */}
       <div className="border border-[#565656] rounded-lg p-6 sm:p-10 flex flex-col lg:flex-row gap-10 bg-[#1E1E2E]">
-        {/* User Info */}
-        <motion.div variants={inputContainerVariants} initial="hidden" animate="visible" className="w-full lg:w-[40%] flex flex-col gap-4">
-        <div>
-          <label className="text-white font-poppins text-sm sm:text-base">
-            Username:
-          </label>
-          <motion.div className="bg-[#252533] text-white p-2 rounded-md" variants={inputVariants} >
-          <input
-            value={username}
-            readOnly
-          />
-          </motion.div>
-          <label className="text-white font-poppins text-sm sm:text-base">
-            Email:
-          </label>
-           <motion.div className="bg-[#252533] text-white p-2 rounded-md" variants={inputVariants} >
-          <input
-            value={user.email}
-            readOnly
-          
-          />
-          </motion.div>
-        </div>
-          </motion.div>
-        {/* Avatar Section */}
+        <motion.div
+          variants={inputContainerVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full lg:w-[40%] flex flex-col gap-4"
+        >
+          <div>
+            <label className="text-white font-poppins text-sm sm:text-base">
+              Username:
+            </label>
+            <motion.div
+              className="bg-[#252533] text-white p-2 rounded-md"
+              variants={inputVariants}
+            >
+              <input value={username} readOnly />
+            </motion.div>
+
+            <label className="text-white font-poppins text-sm sm:text-base">
+              Email:
+            </label>
+            <motion.div
+              className="bg-[#252533] text-white p-2 rounded-md"
+              variants={inputVariants}
+            >
+              <input value={user.email} readOnly />
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* AVATAR SECTION */}
         <div className="w-full lg:w-[60%] flex flex-col gap-6 items-center">
           <div className="w-[6rem] h-[6rem] sm:w-[7rem] sm:h-[7rem] rounded-full overflow-hidden bg-white shadow-md">
             {profilePic && (
@@ -219,32 +227,30 @@ const Settings = () => {
           <p className="text-white font-poppins text-center text-sm sm:text-base">
             Select a new profile picture:
           </p>
-        <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <ul className="flex flex-wrap gap-4 justify-center">
-            {avatarOptions.map((avatar) => (
-              <motion.div   key={avatar.id}  variants={contentVariants}
-                role="dialog"
-                aria-modal="true"
-                aria-label="Example popup">
-              <li
-              
-                onClick={() => setSelectedAvatarId(avatar.id)}
-                className={`cursor-pointer w-[4rem] h-[4rem] sm:w-[5rem] sm:h-[5rem] rounded-full overflow-hidden border-4 ${
-                  selectedAvatarId === avatar.id
-                    ? 'border-[#B5B5FF]'
-                    : 'border-transparent'
-                } transition-all duration-200 hover:scale-105`}
-              >
-                <img
-                  src={avatar.file}
-                  alt={avatar.name}
-                  className="w-full h-full object-cover"
-                />
-              </li>
-              </motion.div>
-            ))}
-          </ul>
-</motion.div>
+
+          <motion.div variants={containerVariants} initial="hidden" animate="visible">
+            <ul className="flex flex-wrap gap-4 justify-center">
+              {avatarOptions.map((avatar) => (
+                <motion.div key={avatar.id} variants={contentVariants}>
+                  <li
+                    onClick={() => setSelectedAvatarId(avatar.id)}
+                    className={`cursor-pointer w-[4rem] h-[4rem] sm:w-[5rem] sm:h-[5rem] rounded-full overflow-hidden border-4 ${
+                      selectedAvatarId === avatar.id
+                        ? 'border-[#B5B5FF]'
+                        : 'border-transparent'
+                    } hover:scale-105 transition`}
+                  >
+                    <img
+                      src={avatar.file}
+                      alt={avatar.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </li>
+                </motion.div>
+              ))}
+            </ul>
+          </motion.div>
+
           <button
             onClick={handleConfirmAvatarChange}
             className="bg-[#B5B5FF] text-[#200448] font-poppins rounded-md py-2 px-4 mt-2 disabled:opacity-50 hover:opacity-90 transition"
@@ -255,35 +261,36 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* Buttons */}
+      {/* BUTTONS */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
         <button
           onClick={handleLogout}
-          className="cursor-pointer bg-[#B5B5FF] text-[#200448] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:text-[#B5B5FF] hover:bg-[#200448] transition"
+          className="cursor-pointer bg-[#B5B5FF] text-[#200448] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:bg-[#200448] hover:text-[#B5B5FF] transition"
         >
           Logout
         </button>
+
         <button
           onClick={handleDeleteAccount}
-          className="cursor-pointer bg-[#CD3232] text-[#FFFFFF] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:bg-[#8B1E1E] transition"
+          className="cursor-pointer bg-[#CD3232] text-white font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:bg-[#8B1E1E] transition"
         >
           Delete Account
         </button>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* ---------------------------------------------------------------- */}
+      {/* 1️⃣ ORIGINAL MODAL — UNTOUCHED */}
+      {/* ---------------------------------------------------------------- */}
       {isDeleting && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
           <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border border-[#B5B5FF]">
-        
-              <img src={accountDeleteImage} alt="Warning" className=" h-50 md:h-80 mx-auto mb-4" />
 
-              
-         
+            <img src={accountDeleteImage} alt="Warning" className="h-50 md:h-80 mx-auto mb-4" />
 
             <h2 className="text-white text-lg font-bold mb-3">
               Delete Account
             </h2>
+
             <p className="text-gray-400 text-sm mb-6">
               Are you sure you want to permanently delete your account?
               <br />
@@ -297,13 +304,57 @@ const Settings = () => {
               >
                 Cancel
               </button>
+
+              {/* NEW: Opens password modal instead of actual delete */}
               <button
-                onClick={confirmDeleteAccount}
+                onClick={openPasswordModal}
                 className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
               >
                 Delete
               </button>
             </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ---------------------------------------------------------------- */}
+      {/* 2️⃣ NEW MODAL — PASSWORD CONFIRMATION */}
+      {/* ---------------------------------------------------------------- */}
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
+          <div className="bg-[#1E1E2E] p-6 w-[90%] sm:w-[400px] rounded-2xl text-center border border-[#B5B5FF]">
+
+            <h2 className="text-white text-lg font-bold mb-4">
+             Re-enter Password
+            </h2>
+
+           
+
+            <input
+              type="password"
+              placeholder="Enter password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              className="w-full p-2 rounded-md mb-4 bg-[#252533] text-white border border-gray-600 outline-none"
+            />
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmDeleteAccount}
+                className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
+              >
+                Confirm Delete
+              </button>
+            </div>
+
           </div>
         </div>
       )}
