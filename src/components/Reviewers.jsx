@@ -84,7 +84,7 @@ const Reviewers = () => {
               <p className={extended ? "block" : "hidden"}>🔴 Near or past milestone: review now</p>
               <p className={extended ? "block" : "hidden"}>✔️ All milestones completed</p>
               <p className={extended ? "block" : "hidden"}>
-                ⚫ No start date yet (tap “Set Start Date” in the reviewer to begin)
+               To begin a new review cycle, tap "Set Start Date" in the reviewer.
               </p>
               <a
                 onClick={() => actions.setExtended(!extended)}
