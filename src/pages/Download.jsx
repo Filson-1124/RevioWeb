@@ -24,7 +24,7 @@ const Download = () => {
         {/*popopop booom booom*/}
         <div className="flex flex-col gap-3">
             <button
-          onClick={() => window.open('https://expo.dev/artifacts/eas/cq5iUwVdEhiPC5XaQy7vas.apk', '_blank')}
+          onClick={() => window.open('https://expo.dev/artifacts/eas/i1arLoPUUo5XLzjdEteddN.apk', '_blank')}
           className=" cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
         > 
   Download Revio Mobile
