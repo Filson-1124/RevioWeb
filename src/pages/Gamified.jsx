@@ -58,7 +58,6 @@ const Gamified = () => {
 
 
 
-  // Results screen
 
 const renderResults = () => {
   const totalSeconds = Math.ceil((Date.now() - startTime) / 1000)
@@ -247,7 +246,7 @@ return (
 
 
 
-  // Splash screen
+ 
   if (showSplash && !showResults) {
     return (
       <div className="h-[100%] bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center lg:pb-30">
@@ -291,7 +290,7 @@ return (
     )
   }
 
-  // Main game screen
+ 
   return (
     
     <div className="h-full bg-[#121212] text-white w-full pb-40 pt-20 p-5 flex flex-col items-center relative overflow-x-hidden">

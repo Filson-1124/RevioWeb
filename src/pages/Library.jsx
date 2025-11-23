@@ -11,13 +11,12 @@ const Library = () => {
 
   if (!Array.isArray(foldersData)) return null;
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15, // Delay between each card
+        staggerChildren: 0.15, 
       },
     },
   };
@@ -51,7 +50,7 @@ const Library = () => {
 
   return (
     <div className='pb-[30%]'>
-      {/* Header Section */}
+    
       <div className='flex flex-col gap-7 p-10'>
          <motion.h1 variants={titleVariants} initial="hidden" animate="visible" className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
            
@@ -61,7 +60,7 @@ const Library = () => {
         <hr className='text-white' />
       </div>
 
-      {/* Folder Grid with Animation */}
+    
       <motion.div
         className='px-6 sm:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 text-start'
         variants={containerVariants}
@@ -114,9 +113,8 @@ const Library = () => {
 export default Library;
 
 
-// Loader for Firebase Data
 export const libraryLoader = async () => {
-  // Wrap Firebase's auth check in a promise
+ 
   const getUser = () => {
     return new Promise((resolve, reject) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {

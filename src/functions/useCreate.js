@@ -21,6 +21,8 @@ const API_URL = import.meta.env.VITE_API_URL
   const [isCreating, setIsCreating] = useState(false)
   const [isDone, setIsDone] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
+  const [isError,setIsError]=useState(false)
+  const [errorMess,setErrorMess]=useState("")
 
   const { currentUser } = useAuth()
   const navigate = useNavigate()
@@ -113,15 +115,20 @@ const API_URL = import.meta.env.VITE_API_URL
       console.error("Error creating reviewer:", err)
       const errText = err?.message || ""
       if (errText.includes("ERR_UPLOAD_FILE_CHANGED") || errText.includes("ERR_FAILED") || errText.includes("Failed to fetch")) {
-        alert("The selected file is from cloud storage. Please download it to your device first and try again.")
+       setIsError(true)
+        setErrorMess("The selected file is from cloud storage. Please download it to your device first and try again.")
       } else if (errText.includes("text content is too long")) {
-        alert("The text content is too long. Please shorten it and try again.")
+        setIsError(true)
+        setErrorMess("The text content is too long. Please shorten it and try again.")
       } else if (errText.includes("Failed to generate content with AI")) {
-        alert("An error occurred while generating content with AI. Please try again.")
+       setIsError(true)
+        setErrorMess("An error occurred while generating content with AI. Please try again.")
       } else if (errText.includes("meaningless") || errText.includes("No content")) {
-        alert(errText)
+        setErrorMess(errText)
+        setIsError(true)
       } else {
-        alert("Failed to create reviewer. Please try again.")
+        setIsError(true)
+        setErrorMess("Failed to create reviewer. Please try again.")
       }
       setIsDone(true)
       setTimeout(() => {
@@ -169,6 +176,8 @@ const API_URL = import.meta.env.VITE_API_URL
     }
   }, [type])
 
+ 
+
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -204,6 +213,8 @@ return {
     fadeOut,
     folderId,
     type,
+    isError,
+    errorMess
   },
   actions: {
     setTitle,
@@ -219,6 +230,7 @@ return {
     handleCreateReviewer,
     handleFileChange,
     handleRemoveFile,
+    setIsError
   }
 }
 

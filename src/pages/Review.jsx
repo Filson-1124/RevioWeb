@@ -119,7 +119,7 @@ ${calendarAnimationDisplay ? 'opacity-100 scale-100 visible' : 'opacity-0 invisi
       animationData={calendarAnimation}
       loop={false}
       style={{ width: 300, height: 300 }}
-      onComplete={() => setCalendarAnimationDisplay(false)} // Trigger fade-out when animation ends
+      onComplete={() => setCalendarAnimationDisplay(false)} 
     />
   </div>
 )}
@@ -212,7 +212,7 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
             </div>
           ) : (
             <>
-              {/* FIXED WRAPPING HERE */}
+            
               <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white place-self-center break-words text-center max-w-[90%]">
                 {current?.term ?? 'No term available'}
               </p>

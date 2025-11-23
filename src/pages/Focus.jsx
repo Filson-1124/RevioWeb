@@ -24,12 +24,12 @@ const Focus = () => {
 
   const toggleExpand = () => setExtended(!extended)
 
-  // Set up track list once
+
   useEffect(() => {
     setTrackList(focusMusic)
   }, [])
 
-  // Evaluate and highlight currently playing music
+  
   useEffect(() => {
     if (currentTrack) {
       const foundTrack = focusMusic.find(track => track.id === currentTrack.id)
@@ -43,17 +43,17 @@ const Focus = () => {
     }
   }, [currentTrack])
 
-  // Handle track click
+
   const handleTrackClick = (track, index) => {
     if (currentTrack?.id === track.id) {
-      // Toggle play/pause on same track
+   
       if (audioRef.current.paused) {
         audioRef.current.play()
       } else {
         audioRef.current.pause()
       }
     } else {
-      // Switch to new track
+    
       setCurrentTrack(track)
       setCurrentIndex(index)
       setTimeout(() => {

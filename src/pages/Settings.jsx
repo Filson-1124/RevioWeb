@@ -23,13 +23,12 @@ const Settings = () => {
   const [profilePic, setProfilePic] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // ⭐ NEW: Second modal state
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [deletePassword, setDeletePassword] = useState('')
 
   const navigate = useNavigate()
 
-  // Animations (unchanged)
+ 
   const titleVariants = {
     hidden: { opacity: 0, x: 100 },
     visible: {
@@ -69,7 +68,7 @@ const Settings = () => {
     exit: { opacity: 0, scale: 0.95, y: 10, transition: { duration: 0.2 } },
   }
 
-  // Fetch user data
+ 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
@@ -89,18 +88,16 @@ const Settings = () => {
     return () => unsubscribe()
   }, [])
 
-  // 1️⃣ USER CLICKS DELETE → SHOW ORIGINAL MODAL
   const handleDeleteAccount = () => {
     setIsDeleting(true)
   }
 
-  // 2️⃣ USER CONFIRMS FIRST MODAL → OPEN PASSWORD MODAL
+ 
   const openPasswordModal = () => {
     setIsDeleting(false)
     setIsPasswordModalOpen(true)
   }
 
-  // 3️⃣ DELETE ACCOUNT AFTER PASSWORD
   const confirmDeleteAccount = async () => {
     const currentUser = auth.currentUser
     if (!currentUser) return
@@ -136,7 +133,7 @@ const Settings = () => {
     }
   }
 
-  // Avatar preview
+ 
   useEffect(() => {
     if (!profilePicId) return
     const selectedAvatar = avatarOptions.find((a) => a.id === profilePicId)
@@ -181,7 +178,6 @@ const Settings = () => {
         SETTINGS
       </motion.h1>
 
-      {/* USER INFO + AVATAR */}
       <div className="border border-[#565656] rounded-lg p-6 sm:p-10 flex flex-col lg:flex-row gap-10 bg-[#1E1E2E]">
         <motion.div
           variants={inputContainerVariants}
@@ -212,7 +208,6 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* AVATAR SECTION */}
         <div className="w-full lg:w-[60%] flex flex-col gap-6 items-center">
           <div className="w-[6rem] h-[6rem] sm:w-[7rem] sm:h-[7rem] rounded-full overflow-hidden bg-white shadow-md">
             {profilePic && (
@@ -261,7 +256,7 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* BUTTONS */}
+     
       <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
         <button
           onClick={handleLogout}
@@ -278,9 +273,7 @@ const Settings = () => {
         </button>
       </div>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 1️⃣ ORIGINAL MODAL — UNTOUCHED */}
-      {/* ---------------------------------------------------------------- */}
+    
       {isDeleting && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
           <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[90%] sm:w-[400px] border border-[#B5B5FF]">
@@ -305,7 +298,7 @@ const Settings = () => {
                 Cancel
               </button>
 
-              {/* NEW: Opens password modal instead of actual delete */}
+             
               <button
                 onClick={openPasswordModal}
                 className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
@@ -318,9 +311,7 @@ const Settings = () => {
         </div>
       )}
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 2️⃣ NEW MODAL — PASSWORD CONFIRMATION */}
-      {/* ---------------------------------------------------------------- */}
+     
       {isPasswordModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
           <div className="bg-[#1E1E2E] p-6 w-[90%] sm:w-[400px] rounded-2xl text-center border border-[#B5B5FF]">

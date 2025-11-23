@@ -7,6 +7,7 @@ import { useAuth } from '../components/AuthContext'
 import { LuArrowLeft } from "react-icons/lu"
 import LoadingBar from './LoadingBar'
 import { useCreate } from '../functions/useCreate'
+import errorPic from '../assets/RevioEmptyClear.png'
 
 
 
@@ -22,12 +23,14 @@ const {  title,
     isCreating,
     isDone,
     fadeOut,
+    isError,
+    errorMess
    }=state
 
   const { 
     handleCreateReviewer,
     handleFileChange,
-    handleRemoveFile}=actions
+    handleRemoveFile,setIsError}=actions
 
     const navigate=useNavigate();
 
@@ -57,6 +60,34 @@ if (isCreating) {
       </p>
     </div>
   );
+}
+
+if(isError){
+  return(
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+    <div className="bg-[#1E1E2E] rounded-2xl p-6 text-center w-[70%]  sm:w-[400px] border border-[#B5B5FF] shadow-2xl">
+      <img src={errorPic} alt="" />
+      <h2 className="text-white text-lg font-bold mb-3">
+        Oopss, there seems to be an error.
+      </h2>
+      <p className="text-gray-400 text-sm mb-6">
+        {errorMess}
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            setIsError(false)
+           }}
+          className=" cursor-pointer px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
+        >
+          Okay
+        </button>
+        
+      </div>
+    </div>
+  </div>
+
+      );
 }
 
 
