@@ -28,7 +28,7 @@ const NavBar = () => {
 
   <ul className="flex flex-row gap-4 px-4 p-5 sm:gap-5 items-center md:flex-col md:gap-10 lg:gap-6">
 
-    {/* Library – subtle slide-up */}
+   
     <NavLink to="/Main/Library" className="group">
       <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-105">
         <IoFolderOpen
@@ -39,7 +39,6 @@ const NavBar = () => {
       </li>
     </NavLink>
 
-    {/* Focus – gentle pulse */}
     <NavLink to="/Main/Focus" className="group">
       <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110">
         <FaMusic
@@ -50,7 +49,7 @@ const NavBar = () => {
       </li>
     </NavLink>
 
-    {/* Create – bounce */}
+
     <NavLink to="/Main/Create" className="group">
       <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110">
         <FaCirclePlus
@@ -61,7 +60,7 @@ const NavBar = () => {
       </li>
     </NavLink>
 
-    {/* Settings – spin (already perfect) */}
+ 
     <NavLink to="/Main/Settings" className="group">
       <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110">
         <IoMdSettings
@@ -72,7 +71,7 @@ const NavBar = () => {
       </li>
     </NavLink>
 
-    {/* Download – tilt */}
+    
     <NavLink to="/Main/Download" className="group">
       <li className="p-3 duration-300 ease-in-out hover:bg-gradient-to-r from-[#B5B5FF] to-[#6F56AA] rounded-2xl hover:scale-110">
         <FaMobileAlt

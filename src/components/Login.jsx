@@ -16,7 +16,7 @@ const Login = () => {
   const {email,password,isVerified,resendTimer,isResendDisabled,showPass,isLoggingIn,isDone}=state;
   const {setEmail,setPassword,setShowpass,handleResend, handleSubmit}=actions
   
-  // LOADING SCREEN
+
   if (isLoggingIn) {
     return (
       <div className="min-h-screen flex justify-center items-center flex-col bg-[#12121A] p-4">
@@ -29,7 +29,7 @@ const Login = () => {
     )
   }
 
-  // LOGIN FORm
+ 
   return (
     <div className=" bg-[#12121A] p-10 px-5 flex place-content-center lg:p-5">
       <div className="bg-[#1C1C26] border border-[#5C5B5B] rounded-2xl w-full max-w-[500px] p-6 sm:p-8 md:p-10 max-h-[80vh] lg:overflow-auto">

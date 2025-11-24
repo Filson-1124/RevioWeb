@@ -17,9 +17,9 @@ export const PomodoroProvider = ({ children }) => {
   const intervalRef = useRef(null)
   const audioRef = useRef(null)
 
-  // Load notification sound
+  
   useEffect(() => {
-    audioRef.current = new Audio(notif) // place the file in /public folder
+    audioRef.current = new Audio(notif) 
     audioRef.current.volume = 0.8
   }, [])
 
@@ -62,7 +62,7 @@ export const PomodoroProvider = ({ children }) => {
 
   const skipPhase = () => {
     pauseTimer()
-    playNotification() // optional: play sound when skipping
+    playNotification() 
     switchPhase()
   }
 

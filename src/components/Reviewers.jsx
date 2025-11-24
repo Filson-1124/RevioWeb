@@ -16,7 +16,7 @@ const Reviewers = () => {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: 0.1, // delay between card animations
+        staggerChildren: 0.1,
       },
     },
   };
@@ -98,7 +98,7 @@ const Reviewers = () => {
         <hr className="text-white" />
       </div>
 
-      {/* ✅ Animated Reviewers Grid */}
+     
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -185,7 +185,7 @@ export default Reviewers;
 
 
 
-// --- Loader ---
+
 export const reviewersLoader = async ({ params }) => {
   const getUser = () => {
     return new Promise((resolve, reject) => {

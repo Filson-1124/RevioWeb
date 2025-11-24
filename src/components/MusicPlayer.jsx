@@ -7,7 +7,7 @@ import focusImage from '../assets/focusAssets/focusRevio.png';
 
 const MusicPlayer = () => {
   const [open, setOpen] = useState(false);
-  const [direction, setDirection] = useState(0); // 1 = next, -1 = previous
+  const [direction, setDirection] = useState(0);
   const lastTouchRef = useRef(0);
   const nodeRef = useRef(null);
   const panelRef = useRef(null);
