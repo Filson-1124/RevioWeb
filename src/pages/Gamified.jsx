@@ -14,6 +14,9 @@ import { FaVolumeMute } from "react-icons/fa";
 import { AiFillSound } from "react-icons/ai";
 import { FaSignOutAlt } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion"
+import { LuSettings2 } from "react-icons/lu";
+import { FaXmark } from "react-icons/fa6";
+
 
 const Gamified = () => {
    const loaderData = useLoaderData();
@@ -23,7 +26,33 @@ const Gamified = () => {
   const { state, actions } = useGamified({ questions: questions || content || [], isAcronym });
   
 
- 
+  const modalVariant = {
+  hidden: { 
+    opacity: 0,
+    scale: 0.1,
+    y: 100 
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 120,
+      damping: 12,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.1,
+    y: 100,
+    transition: {
+      duration: 0.25
+    }
+  }
+};
+
+  
    
    const {
     score,
@@ -42,14 +71,14 @@ const Gamified = () => {
     answers,
     currentCorrectAnswers,
     timeUp,active,
-    current,trophyDone,isPlus,isMuted,isPerfect,isQuitting}=state
+    current,trophyDone,isPlus,isMuted,isPerfect,isQuitting,isSettingsOpen}=state
 
     const{ 
     setIsPressed,
     handleStart,
     handleChange,
     checkAcro,setActive,
-    checkAnswer,toggleMute,setIsQuitting
+    checkAnswer,toggleMute,setIsQuitting,setIsSettingsOpen
   }=actions
 
   const navigate = useNavigate()
@@ -249,30 +278,15 @@ return (
  
   if (showSplash && !showResults) {
     return (
-      <div className="h-[100%] bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center lg:pb-30">
-        {timeUp ? (
-          <>
-            <img src={gameOverLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-pulse" />
-            <h1 className="text-3xl font-bold text-yellow-400 mb-2">Time’s Up!</h1>
-            <p className="text-[#9898D9] text-lg">Game Over ⏰</p>
-          </>
-        ) : (
-          <>
-            <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
-            <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
-              <b className="font-poppinsbold">How to Play</b><br />
-              {isAcronym ? (
-                <> Fill in the blanks using the first letters shown. Type the complete word and press 'Submit Answer.' <br /> You must <b>double check</b> your answers before submitting!</>
-              ) : (  
-                active=== "term"?"Choose the correct Term":"Choose the correct Definition"  
-              )}
+      <div className=" h-[100%] bg-[#121212] flex flex-col items-center justify-center text-white px-6 text-center lg:pb-30">
 
-           
-                
-              <br />
-              WARNING: Leaving the page will reset your progress.
-            </p>
-               {!isAcronym&&(<div className="relative w-60 bg-[#ffffff2b] rounded-full flex p-1 place-self-center mb-3">
+      <AnimatePresence>
+        {isSettingsOpen && (
+        <motion.div variants={modalVariant} initial="hidden"
+    animate="visible" exit="exit" className='absolute bg-[#0b0b0f] border border-[#47305e7a] p-8 z-10 rounded-2xl flex flex-col gap-10'>
+            <p>Choose what do you want the answers to be</p>
+
+            <div className="relative w-60 bg-[#47305e7a] rounded-full flex p-1 place-self-center mb-3">
                       
                       {/* Sliding highlight */}
                        <div className={`absolute inset-y-1 left-1 w-1/2 bg-[#6A558D] rounded-full transition-transform duration-300 ${
@@ -297,7 +311,44 @@ return (
                       >
                         Definition
                       </button>
-                    </div>)}
+                    </div>
+ <button
+              onClick={() => setIsSettingsOpen(false)}
+              className="  place-self-center transition-all duration-100 active:scale-95 cursor-pointer mt-3 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
+            >
+             <FaXmark/>
+            </button>
+        </motion.div>
+
+        )}
+     </AnimatePresence>
+
+
+        {timeUp ? (
+          <>
+            <img src={gameOverLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-pulse" />
+            <h1 className="text-3xl font-bold text-yellow-400 mb-2">Time’s Up!</h1>
+            <p className="text-[#9898D9] text-lg">Game Over ⏰</p>
+          </>
+        ) : (
+          <>
+
+      
+            <img src={gamifiedLogo} alt="Logo" className="w-65 sm:w-80 mb-6 animate-float-breathe" />
+            <p className="max-w-md sm:max-w-lg text-[#9898D9] font-poppins text-sm sm:text-base mb-6">
+              <b className="font-poppinsbold">How to Play</b><br />
+              {isAcronym ? (
+                <> Fill in the blanks using the first letters shown. Type the complete word and press 'Submit Answer.' <br /> You must <b>double check</b> your answers before submitting!</>
+              ) : (  
+                active=== "term"?"Choose the correct Term":"Choose the correct Definition"  
+              )}
+
+           
+                
+              <br />
+              WARNING: Leaving the page will reset your progress.
+            </p>
+             
            
             <button
               onClick={handleStart}
@@ -305,13 +356,20 @@ return (
             >
               Start Game
             </button>
-           
-            <button
+           <div className='flex'>
+                <button
               onClick={() => navigate(`/Main/Library/${folderId}/${reviewerId}`)}
               className=" transition-all duration-100 active:scale-95 cursor-pointer mt-3 left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
             >
               Back
             </button>
+              {!isAcronym&&(
+                <button onClick={()=> setIsSettingsOpen(true)} className=" transition-all duration-100 active:scale-95 cursor-pointer mt-3 left-2 top-2 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black">
+                <LuSettings2 size={30} />
+                </button>)}
+            
+           </div>
+        
           </>
         )}
       </div>

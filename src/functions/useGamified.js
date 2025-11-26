@@ -32,6 +32,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
   const [active, setActive] = useState("term");
   const correctTunog = new Audio(correctSound)
   const wrongTunog = new Audio(wrongSound)
+  const [isSettingsOpen,setIsSettingsOpen]=useState(false)
 
   const current = index < questions.length ? questions[index] : null
 
@@ -226,7 +227,7 @@ useEffect(() => {
 }, [score, wrongAnswers, showResults, questions.length])
 
   return {
-    state: {isQuitting,
+    state: {isQuitting,isSettingsOpen,
       index,
       score,
       timeLeft,
@@ -248,7 +249,7 @@ useEffect(() => {
       isPlus,
       isMuted,isPerfect,active
     },
-    actions: {setIsQuitting,
+    actions: {setIsQuitting,setIsSettingsOpen,
       setActive,
       setIndex,
       setScore,
