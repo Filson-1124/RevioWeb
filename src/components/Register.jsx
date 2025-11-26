@@ -88,9 +88,9 @@ const Register = () => {
               </div>
 
               <ul className="text-[10px] sm:text-xs font-light font-poppins list-disc pl-5 mt-1">
-                <li className={isUpCase ? 'text-white' : 'text-[#7E7C7C]'}>At least 1 uppercase</li>
-                <li className={isNumber ? 'text-white' : 'text-[#7E7C7C]'}>At least 1 number</li>
-                <li className={isLength ? 'text-white' : 'text-[#7E7C7C]'}>At least 8 characters</li>
+                <li className={isUpCase ? 'text-green-500' : 'text-[#7E7C7C]'}>At least 1 uppercase</li>
+                <li className={isNumber ? 'text-green-500' : 'text-[#7E7C7C]'}>At least 1 number</li>
+                <li className={isLength ? 'text-green-500' : 'text-[#7E7C7C]'}>At least 8 characters</li>
               </ul>
             </div>
 
