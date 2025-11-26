@@ -29,6 +29,7 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
   const [isPerfect,setIsPerfect]=useState(false)
   const[tropRet,setTropRet]=useState(false)
   const[isQuitting,setIsQuitting]=useState(false)
+  const [active, setActive] = useState("term");
   const correctTunog = new Audio(correctSound)
   const wrongTunog = new Audio(wrongSound)
 
@@ -42,14 +43,32 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
     }
     return arr
   }
+useEffect(() => {
+  // Reset pressed state
+  setIsPressed(false);
 
-  useEffect(() => {
-    if (current && current.definition) setShuffledChoices(shuffle(current.definition))
-    setIsPressed(false)
-  }, [current?.definition])
+  if (!current) return;
 
-  const findCorrectAnswer = (current) =>
-    current.definition.find((c) => c.type === 'correct')?.text
+  if (active === "term") {
+
+    if (current.terms) setShuffledChoices(shuffle(current.terms));
+  } else {
+   
+    const defs = Array.isArray(current.definition)
+      ? current.definition
+      : [current.definition]; 
+    setShuffledChoices(shuffle(defs));
+    console.log("Definitions shuffled:", defs);
+  }
+}, [current, active]); 
+
+
+  const findCorrectAnswer = (current) =>{
+    if(active=="term"){
+    return current.terms.find((c) => c.type === 'correct')?.term
+    }else{
+    return current.definition.find((c) => c.type === 'correct')?.text}
+  }
 
   const checkAnswer = (isCorrectAnswer) => {
     if (isCorrectAnswer === 'correct') handleCheck()
@@ -133,7 +152,8 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
     setIsAnimating(true)
 
     // Record the result before moving on
-    setAnsweredQuestions((prev) => [
+    setAnsweredQuestions((prev) => 
+      [
       ...prev,
       {
         question: current,
@@ -141,7 +161,10 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
         userAnswers: isAcronym ? answers : [],
         correctAnswers: isAcronym ? currentCorrectAnswers : [findCorrectAnswer(current)],
       },
-    ])
+    ]
+  )
+
+    console.log("eto po mga ansred" + answeredQuestions)
 
     setTimeout(() => {
       setIsAnimating(false)
@@ -223,9 +246,10 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
       current,
       trophyDone,
       isPlus,
-      isMuted,isPerfect
+      isMuted,isPerfect,active
     },
     actions: {setIsQuitting,
+      setActive,
       setIndex,
       setScore,
       setTimeLeft,

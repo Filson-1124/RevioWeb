@@ -239,7 +239,7 @@ text-white bg-transparent border border-[#B5B5FF] hover:bg-[#51516B] p-2 sm:p-2.
             ) : (
               <>  
                 <p className="text-sm sm:text-2xl md:text-3xl lg:text-2xl font-semibold text-[#6A558D] text-center">
-                  {correctChoice?.text ?? 'No definition available'}
+                  {current?.defReal}
                 </p>
               </>
             )}

@@ -105,7 +105,7 @@ useEffect(() => {
           <FaClock className="text-base" />
         </motion.button>
 
-        {/* Expandable Controls */}
+       
         <AnimatePresence>
           {open && (
             <motion.div
@@ -114,7 +114,7 @@ useEffect(() => {
               exit={{ opacity: 0, y: 10 }}
               className="cursor-default absolute bottom-14 right-0 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl p-4 w-56 sm:w-60"
             >
-              {/* Timer Info */}
+            
               <div className="text-center mb-3">
                 <p className="font-bold text-base sm:text-lg">
                   {mode === 'focus'
@@ -126,7 +126,7 @@ useEffect(() => {
                 <p className="text-xl sm:text-2xl font-mono">{formattedTime}</p>
               </div>
 
-              {/* Controls */}
+            
               <div className="flex flex-wrap justify-center gap-3 mt-2">
                 {isRunning ? (
                   <button

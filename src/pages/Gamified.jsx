@@ -41,15 +41,15 @@ const Gamified = () => {
     shuffledChoices,
     answers,
     currentCorrectAnswers,
-    timeUp,
-    current,trophyDone,isPlus,isMuted,isPerfect,tropRet,isQuitting}=state
+    timeUp,active,
+    current,trophyDone,isPlus,isMuted,isPerfect,isQuitting}=state
 
     const{ 
     setIsPressed,
     handleStart,
     handleChange,
-    checkAcro,
-    checkAnswer,findCorrectAnswer,toggleMute,setIsPerfect,setIsQuitting
+    checkAcro,setActive,
+    checkAnswer,toggleMute,setIsQuitting
   }=actions
 
   const navigate = useNavigate()
@@ -160,7 +160,7 @@ return (
                 </>
               ) : (
                 <>
-                  <p><b>Q:</b> {item.question?.term}</p>
+                  <p><b>Q:</b> {item.question?.term || item.question?.definitionText || '(unknown question)'}</p>
                   <p className="text-green-400 hover:scale-102 transition-all duration-100 cursor-default">
                     <b>Answer:</b> {item.correctAnswers[0]}
                   </p>
@@ -227,7 +227,7 @@ return (
                 </>
               ) : (
                 <>
-                  <p><b>Q:</b> {item.question?.term}</p>
+                  <p><b>Q:</b> {active==="term"?item.question?.defReal:item.question?.term}</p>
                   <p className="text-red-400">
                     <b>Correct:</b> {item.correctAnswers[0]}
                   </p>
@@ -263,16 +263,45 @@ return (
               <b className="font-poppinsbold">How to Play</b><br />
               {isAcronym ? (
                 <> Fill in the blanks using the first letters shown. Type the complete word and press 'Submit Answer.' <br /> You must <b>double check</b> your answers before submitting!</>
-              ) : (
-                "Choose the correct definition!"
+              ) : (  
+                active=== "term"?"Choose the correct Term":"Choose the correct Definition"  
               )}
+
+           
+                
               <br />
               WARNING: Leaving the page will reset your progress.
             </p>
+               {!isAcronym&&(<div className="relative w-60 bg-[#ffffff2b] rounded-full flex p-1 place-self-center mb-3">
+                      
+                      {/* Sliding highlight */}
+                       <div className={`absolute inset-y-1 left-1 w-1/2 bg-[#6A558D] rounded-full transition-transform duration-300 ${
+      active === "term" ? "translate-x-0" : "translate-x-[94%]"
+    }`}
+  />
+                      {/* Buttons */}
+                      <button
+                        onClick={() => setActive("term")}
+                        className={`relative z-10 w-1/2 text-center py-2 transition ${
+                          active === "term" ? "text-white" : "text-[#5300da]"
+                        }`}
+                      >
+                        Term
+                      </button>
+
+                      <button
+                        onClick={() => setActive("definition")}
+                        className={`relative z-10 w-1/2 text-center py-2 transition ${
+                          active === "definition" ? "text-white" : "text-[#5300da]"
+                        }`}
+                      >
+                        Definition
+                      </button>
+                    </div>)}
            
             <button
               onClick={handleStart}
-              className=" transition-all duration-100 active:scale-95 cursor-pointer px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold transition w-[80%] sm:w-auto"
+              className=" transition-all duration-100 active:scale-95 cursor-pointer px-6 py-3 bg-[#6A558D] hover:bg-[#8267B1] text-white text-lg sm:text-xl rounded-full font-bold  w-[80%] sm:w-auto"
             >
               Start Game
             </button>
@@ -410,7 +439,8 @@ return (
                     </div>
                   ) : (
                     <p className="text-2xl sm:text-3xl font-semibold text-center text-white">
-                      {current.term}
+                      
+                      {active === "term"? current.defReal :current.term}
                     </p>
                   )}
                 </div>
@@ -441,7 +471,7 @@ return (
                     ${isPressed ? (choice.type === 'correct' ? 'choiceCorrect' : 'choiceWrong') : ''}`}
                   onClick={() => { checkAnswer(choice.type); setIsPressed(true) }}
                 >
-                  {choice.text}
+                  {active==="term"? choice.term : choice.text}
                 </div>
               ))}
             </div>
