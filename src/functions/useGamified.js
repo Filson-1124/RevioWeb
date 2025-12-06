@@ -66,7 +66,8 @@ useEffect(() => {
 
   const findCorrectAnswer = (current) =>{
     if(active=="term"){
-    return current.terms.find((c) => c.type === 'correct')?.term
+    console.log("Abot po dito my misery"+current.terms.find((c) => c.type === 'correct')?.term)
+    return current.terms.find((c) => c.type === 'correct')?.text
     }else{
     return current.definition.find((c) => c.type === 'correct')?.text}
   }
