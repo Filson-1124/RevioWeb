@@ -46,7 +46,7 @@ export async function loadTermsAndDefinitions({ params }) {
     id: d.id,
     definition: d.data().definition,
     term: d.data().term,
-    terms:d.data().terms,
+    terms:d.data().text,
     defReal:d.data().defReal
   }));
 

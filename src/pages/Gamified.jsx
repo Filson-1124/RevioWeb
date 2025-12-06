@@ -189,7 +189,7 @@ return (
                 </>
               ) : (
                 <>
-                  <p><b>Q:</b> {item.question?.term || item.question?.definitionText || '(unknown question)'}</p>
+                  <p><b>Q:</b> {active==="term"?item.question?.defReal:item.question?.term}</p>
                   <p className="text-green-400 hover:scale-102 transition-all duration-100 cursor-default">
                     <b>Answer:</b> {item.correctAnswers[0]}
                   </p>
@@ -529,7 +529,7 @@ return (
                     ${isPressed ? (choice.type === 'correct' ? 'choiceCorrect' : 'choiceWrong') : ''}`}
                   onClick={() => { checkAnswer(choice.type); setIsPressed(true) }}
                 >
-                  {active==="term"? choice.term : choice.text}
+                  {active==="term"? choice.text : choice.text}
                 </div>
               ))}
             </div>
