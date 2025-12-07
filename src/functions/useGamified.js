@@ -286,7 +286,7 @@ const handleLengthChange = (e) => {
       triggerNextWithAnimation,
       shuffle,
       findCorrectAnswer,
-      toggleMute,handleLengthChange
+      toggleMute,handleLengthChange,setLength
     },
   }
 }

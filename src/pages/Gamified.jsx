@@ -78,7 +78,7 @@ const Gamified = () => {
     handleStart,
     handleChange,
     checkAcro,setActive,
-    checkAnswer,toggleMute,setIsQuitting,setIsSettingsOpen,handleLengthChange
+    checkAnswer,toggleMute,setIsQuitting,setIsSettingsOpen,handleLengthChange,setLength
   }=actions
 
   const navigate = useNavigate()
@@ -322,6 +322,13 @@ return (
     background: `linear-gradient(to right, #8b5cf6 ${(length / questions.length) * 100}%, #3f3f46 ${(length / questions.length) * 100}%)`,
   }}
 />
+
+<div className='flex gap-[2%] content-center justify-center'>
+  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]' onClick={() => setLength(10)} disabled={questions.length<10}>10</button>
+  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(20)} disabled={questions.length<20}>20</button>
+  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(30)} disabled={questions.length<30}>30</button>
+  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(40)} disabled={questions.length<40}>40</button>
+</div>
 
                     </div>
 
