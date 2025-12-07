@@ -283,11 +283,11 @@ return (
       <AnimatePresence>
         {isSettingsOpen && (
         <motion.div variants={modalVariant} initial="hidden"
-    animate="visible" exit="exit" className='max-w-[30rem] absolute bg-[#0b0b0f] border border-[#47305e7a] p-8 z-10 rounded-2xl flex flex-col gap-10'>
+    animate="visible" exit="exit" className='max-w-[30rem] absolute bg-[#2E2E40] border border-[#B5B5FF] p-8 z-10 rounded-2xl flex flex-col gap-10'>
             <h1 className='text-2xl font-black'>Choose what type of game you want.</h1>
             <p>The choice will be terms or definition?</p>
 
-            <div className="relative w-60 bg-[#47305e7a] rounded-full flex p-1 place-self-center mb-3">
+            <div className="relative w-60 bg-[#B5B5FF] rounded-full flex p-1 place-self-center mb-3">
                       
                       {/* Sliding highlight */}
                        <div className={`absolute inset-y-1 left-1 w-1/2 bg-[#6A558D] rounded-full transition-transform duration-300 ${
@@ -297,8 +297,8 @@ return (
                       {/* Buttons */}
                       <button
                         onClick={() => setActive("term")}
-                        className={`relative z-10 w-1/2 text-center py-2 transition ${
-                          active === "term" ? "text-white" : "text-[#5300da]"
+                        className={`font-bold relative z-10 w-1/2 text-center py-2 transition ${
+                          active === "term" ? "text-[#FFF2AF]" : "text-[#200448]"
                         }`}
                       >
                         Term
@@ -306,8 +306,8 @@ return (
 
                       <button
                         onClick={() => setActive("definition")}
-                        className={`relative z-10 w-1/2 text-center py-2 transition ${
-                          active === "definition" ? "text-white" : "text-[#5300da]"
+                        className={`font-bold relative z-10 w-1/2 text-center py-2 transition ${
+                          active === "definition" ? "text-[#FFF2AF]" : "text-[#200448]"
                         }`}
                       >
                         Definition
@@ -325,11 +325,11 @@ return (
 />
 
 <div className='flex gap-[2%] content-center justify-center'>
-  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]' onClick={() => setLength(10)} disabled={questions.length<10}>10</button>
-  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(20)} disabled={questions.length<20}>20</button>
-  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(30)} disabled={questions.length<30}>30</button>
-  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(40)} disabled={questions.length<40}>40</button>
-  <button className='p-3 border border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(50)} disabled={questions.length<50}>50</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]' onClick={() => setLength(10)} disabled={questions.length<10}>10</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(20)} disabled={questions.length<20}>20</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(30)} disabled={questions.length<30}>30</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(40)} disabled={questions.length<40}>40</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(50)} disabled={questions.length<50}>50</button>
 </div>
 
                     </div>
