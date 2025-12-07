@@ -283,8 +283,9 @@ return (
       <AnimatePresence>
         {isSettingsOpen && (
         <motion.div variants={modalVariant} initial="hidden"
-    animate="visible" exit="exit" className='absolute bg-[#0b0b0f] border border-[#47305e7a] p-8 z-10 rounded-2xl flex flex-col gap-10'>
-            <p>Choose what do you want the answers to be</p>
+    animate="visible" exit="exit" className='max-w-[30rem] absolute bg-[#0b0b0f] border border-[#47305e7a] p-8 z-10 rounded-2xl flex flex-col gap-10'>
+            <h1 className='text-2xl font-black'>Choose what type of game you want.</h1>
+            <p>The choice will be terms or definition?</p>
 
             <div className="relative w-60 bg-[#47305e7a] rounded-full flex p-1 place-self-center mb-3">
                       
@@ -315,7 +316,7 @@ return (
                     </div>
 
                     <div>
-                        <h1>Number of Cards that will be Gamified: {length}</h1>
+                        <h1>Number of Cards: {length}</h1>
 
                         <input type="range" min="1" max={questions.length} step="1" value={length} onChange={handleLengthChange} className="no-drag w-[80%] place-self-center h-2 rounded-lg appearance-none cursor-pointer"
   style={{
