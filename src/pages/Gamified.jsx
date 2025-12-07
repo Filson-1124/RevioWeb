@@ -287,10 +287,10 @@ return (
             <h1 className='text-2xl font-black'>Choose what type of game you want.</h1>
             <p>The choice will be terms or definition?</p>
 
-            <div className="relative w-60 bg-[#B5B5FF] rounded-full flex p-1 place-self-center mb-3">
+            <div className="relative w-60 bg-[#222] rounded-full flex p-1 place-self-center mb-3">
                       
                       {/* Sliding highlight */}
-                       <div className={`absolute inset-y-1 left-1 w-1/2 bg-[#6A558D] rounded-full transition-transform duration-300 ${
+                       <div className={`absolute inset-y-1 left-1 w-1/2 bg-[#B5B5FF] rounded-full transition-transform duration-300 ${
       active === "term" ? "translate-x-0" : "translate-x-[94%]"
     }`}
   />
@@ -298,7 +298,7 @@ return (
                       <button
                         onClick={() => setActive("term")}
                         className={`font-bold relative z-10 w-1/2 text-center py-2 transition ${
-                          active === "term" ? "text-[#FFF2AF]" : "text-[#200448]"
+                          active === "term" ? "text-[#200448]" : "text-[#FFF2AF]"
                         }`}
                       >
                         Term
@@ -307,7 +307,7 @@ return (
                       <button
                         onClick={() => setActive("definition")}
                         className={`font-bold relative z-10 w-1/2 text-center py-2 transition ${
-                          active === "definition" ? "text-[#FFF2AF]" : "text-[#200448]"
+                          active === "definition" ? "text-[#200448]" : "text-[#FFF2AF]"
                         }`}
                       >
                         Definition
@@ -325,11 +325,11 @@ return (
 />
 
 <div className='flex gap-[2%] content-center justify-center'>
-  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]' onClick={() => setLength(10)} disabled={questions.length<10}>10</button>
-  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(20)} disabled={questions.length<20}>20</button>
-  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(30)} disabled={questions.length<30}>30</button>
-  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(40)} disabled={questions.length<40}>40</button>
-  <button className='p-3 border text-[#FFF2AF] font-bold border-[#8b5cf6] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95]  rounded-xl hover:bg-[#ffffff28]'onClick={() => setLength(50)} disabled={questions.length<50}>50</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#B5B5FF] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95] hover:text-[#200448] disabled:hover:text-[#FFF2AF]  rounded-xl hover:bg-[#B5B5FF]' onClick={() => setLength(10)} disabled={questions.length<10}>10</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#B5B5FF] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95] hover:text-[#200448] disabled:hover:text-[#FFF2AF]  rounded-xl hover:bg-[#B5B5FF]'onClick={() => setLength(20)} disabled={questions.length<20}>20</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#B5B5FF] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95] hover:text-[#200448] disabled:hover:text-[#FFF2AF]  rounded-xl hover:bg-[#B5B5FF]'onClick={() => setLength(30)} disabled={questions.length<30}>30</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#B5B5FF] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95] hover:text-[#200448] disabled:hover:text-[#FFF2AF]  rounded-xl hover:bg-[#B5B5FF]'onClick={() => setLength(40)} disabled={questions.length<40}>40</button>
+  <button className='p-3 border text-[#FFF2AF] font-bold border-[#B5B5FF] disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:opacity-20 active:scale-[0.95] hover:text-[#200448] disabled:hover:text-[#FFF2AF]  rounded-xl hover:bg-[#B5B5FF]'onClick={() => setLength(50)} disabled={questions.length<50}>50</button>
 </div>
 
                     </div>
