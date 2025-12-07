@@ -71,14 +71,14 @@ const Gamified = () => {
     answers,
     currentCorrectAnswers,
     timeUp,active,
-    current,trophyDone,isPlus,isMuted,isPerfect,isQuitting,isSettingsOpen}=state
+    current,trophyDone,isPlus,isMuted,isPerfect,isQuitting,isSettingsOpen,length}=state
 
     const{ 
     setIsPressed,
     handleStart,
     handleChange,
     checkAcro,setActive,
-    checkAnswer,toggleMute,setIsQuitting,setIsSettingsOpen
+    checkAnswer,toggleMute,setIsQuitting,setIsSettingsOpen,handleLengthChange
   }=actions
 
   const navigate = useNavigate()
@@ -107,7 +107,7 @@ return (
      {/* Title and summary */}
       <div className="z-10 bg-[#101010] ">
         <h2 className="text-3xl font-bold mt-2">Results</h2>
-        <p className="text-lg">Score: {score} / {questions.length}</p>
+        <p className="text-lg">Score: {score} / {length}</p>
         <p className="text-sm text-gray-400 mb-4">Time spent: {timeDisplay}</p>
       </div>
     {/* Scroll Container */}
@@ -311,13 +311,30 @@ return (
                       >
                         Definition
                       </button>
+
                     </div>
+
+                    <div>
+                        <h1>Number of Cards that will be Gamified: {length}</h1>
+
+                        <input type="range" min="1" max={questions.length} step="1" value={length} onChange={handleLengthChange} className="no-drag w-[80%] place-self-center h-2 rounded-lg appearance-none cursor-pointer"
+  style={{
+    background: `linear-gradient(to right, #8b5cf6 ${(length / questions.length) * 100}%, #3f3f46 ${(length / questions.length) * 100}%)`,
+  }}
+/>
+
+                    </div>
+
+                 
  <button
               onClick={() => setIsSettingsOpen(false)}
               className="  place-self-center transition-all duration-100 active:scale-95 cursor-pointer mt-3 md:left-5 flex items-center gap-2 text-white hover:bg-[#51516B] p-2 md:p-3 rounded-xl text-sm md:text-base font-black"
             >
              <FaXmark/>
             </button>
+
+            
+        
         </motion.div>
 
         )}

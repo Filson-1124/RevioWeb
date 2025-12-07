@@ -5,11 +5,12 @@ import wrongSound from '../assets/quizSounds/wrong.mp3'
 
 
 export const useGamified = ({ questions = [], isAcronym = false }) => {
+   const [length,setLength]=useState(questions.length)
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
-  const tdTime = questions.length * 60
-  const acTime = questions.length * 120
+  const tdTime = length * 60
+  const acTime = length * 120
   const [wrongAnswers, setWrongAnswers] = useState([])
   const [answeredQuestions, setAnsweredQuestions] = useState([]) // ✅ NEW
   const [startTime] = useState(Date.now())
@@ -33,8 +34,9 @@ export const useGamified = ({ questions = [], isAcronym = false }) => {
   const correctTunog = new Audio(correctSound)
   const wrongTunog = new Audio(wrongSound)
   const [isSettingsOpen,setIsSettingsOpen]=useState(false)
+ 
 
-  const current = index < questions.length ? questions[index] : null
+  const current = index < length? questions[index] : null
 
   const shuffle = (array) => {
     let arr = [...array]
@@ -144,8 +146,8 @@ useEffect(() => {
   }
 
   const handleNext = () => {
-    if (index >= questions.length - 1) setShowResults(true)
-    else setIndex((p) => Math.min(p + 1, questions.length - 1))
+    if (index >= length - 1) setShowResults(true)
+    else setIndex((p) => Math.min(p + 1, length - 1))
   }
 
   // ✅ UPDATED — record user’s answers
@@ -210,8 +212,8 @@ useEffect(() => {
 
   console.log("sa function: "+ isPerfect)
   console.log(score)
-  console.log(questions.length)
-  if(score===questions.length){
+  console.log(length)
+  if(score===length){
     setIsPerfect(true)
   }else{
     setIsPerfect(false)
@@ -225,7 +227,14 @@ useEffect(() => {
       setTrophyDone(true)
     },5000)
   }
-}, [score, wrongAnswers, showResults, questions.length])
+}, [score, wrongAnswers, showResults, length])
+
+
+const handleLengthChange = (e) => {
+    const newLength = parseFloat(e.target.value);
+    setLength(newLength);
+  
+  };
 
   return {
     state: {isQuitting,isSettingsOpen,
@@ -248,7 +257,7 @@ useEffect(() => {
       current,
       trophyDone,
       isPlus,
-      isMuted,isPerfect,active
+      isMuted,isPerfect,active,length
     },
     actions: {setIsQuitting,setIsSettingsOpen,
       setActive,
@@ -277,7 +286,7 @@ useEffect(() => {
       triggerNextWithAnimation,
       shuffle,
       findCorrectAnswer,
-      toggleMute,
+      toggleMute,handleLengthChange
     },
   }
 }
