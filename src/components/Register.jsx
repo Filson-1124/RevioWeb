@@ -11,8 +11,8 @@ import { useRegister } from '../functions/useRegister';
 
 const Register = () => {
  const {state, actions}=useRegister();
- const {username,email,iniPassword,rePassword,showPass,isUpCase,isNumber,isLength,isDisabled,isSubmitDisabled,isCreating,isDone,fadeOut}=state;
- const {setUsername,setEmail,setIniPassword,setRePassword,setShowpass,handleSubmit}=actions;
+ const {username,email,iniPassword,rePassword,showPass,isUpCase,isNumber,isLength,isDisabled,isSubmitDisabled,isCreating,isDone,fadeOut,isEmailVerified}=state;
+ const {setUsername,setEmail,setIniPassword,setRePassword,setShowpass,handleSubmit,doesEmailExist}=actions;
 
   // Show loading screen while creating account
   if (isCreating) {
@@ -57,26 +57,35 @@ const Register = () => {
 
             <div className="flex flex-col">
               <label htmlFor="email">Email</label>
+              <div className='flex gap-2 w-full'>
               <input
                 type="email"
                 id="email"
                 placeholder="Enter your Email"
-                className="border border-[#5C5B5B] rounded-lg p-2 bg-[#21212C] text-sm sm:text-base"
+                className="border border-[#5C5B5B] rounded-lg p-2 bg-[#21212C] text-sm sm:text-base w-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+               <button type='button' className='border border-amber-300 px-5 rounded-xl text-center' onClick={() => doesEmailExist()}>Verify</button>
             </div>
-
-            <div className="flex flex-col">
+              
+</div>
+            <div   className={`flex flex-col transition-opacity duration-300 ${
+    isEmailVerified ? "opacity-100" : "opacity-40"
+  }`}>
               <label htmlFor="password">Password</label>
-              <div className="relative">
+             
+              <div className="relative w-full">
+
                 <input
                   type={showPass ? 'text' : 'password'}
                   id="password"
                   placeholder="Password"
                   value={iniPassword}
                   onChange={(e) => setIniPassword(e.target.value)}
-                  className="w-full rounded-lg border border-[#9E9E9E] p-2 pr-10 text-white placeholder:text-[#9E9E9E] bg-transparent text-sm sm:text-base"
+                  disabled={!isEmailVerified}
+                  
+                  className="w-full rounded-lg border disabled:cursor-not-allowed border-[#9E9E9E] p-2 pr-10 text-white placeholder:text-[#9E9E9E] bg-transparent text-sm sm:text-base"
                 />
                 <div className="absolute inset-y-0 right-2 flex items-center">
                   {showPass ? (
@@ -85,6 +94,7 @@ const Register = () => {
                     <FaEyeSlash color="white" size={20} className="cursor-pointer" onClick={() => setShowpass(true)} />
                   )}
                 </div>
+                
               </div>
 
               <ul className="text-[10px] sm:text-xs font-light font-poppins list-disc pl-5 mt-1">
@@ -94,7 +104,9 @@ const Register = () => {
               </ul>
             </div>
 
-            <div className="flex flex-col">
+            <div   className={`flex flex-col transition-opacity duration-300 ${
+    isEmailVerified ? "opacity-100" : "opacity-40"
+  }`}>
               <label htmlFor="reEnterPassword">Re-enter password</label>
               <input
                 disabled={isDisabled}
@@ -118,6 +130,7 @@ const Register = () => {
               Sign up
             </button>
           </form>
+          
 
           <h4 className="text-[#7E7C7C] text-center mt-4 text-sm sm:text-base">
             Already have an account?{' '}

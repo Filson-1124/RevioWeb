@@ -31,6 +31,10 @@ export const useRegister = () =>{
   const [isDone, setIsDone] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
 
+  // Password Field state
+
+  const [isEmailVerified,setIsEmailVerified]=useState(false)
+
   const isUpperCase = (char) => char === char.toUpperCase() && char !== char.toLowerCase();
 
   // Password validation + button enable
@@ -155,8 +159,16 @@ export const useRegister = () =>{
     }
   };
 
+  const doesEmailExist = () =>{
+    //gamitin yung email variable para makuha yung email input
+    //lagay ng function dito for the api
+
+    //iset mo na truet etong function sa baba pag true yung email flase if false okay?
+    setIsEmailVerified(true)
+  }
+
   return{
-    state:{username,email,iniPassword,rePassword,showPass,isUpCase,isNumber,isLength,isDisabled,isSubmitDisabled,isCreating,isDone,fadeOut, isUpperCase},
-    actions:{setUsername,setEmail,setIniPassword,setRePassword,setShowpass,setIsUpperCase,setIsNumber,setIsLength,setIsDisabled,setIsSubmitDisabled,setIsCreating,setIsDone,setFadeOut,handleSubmit}
+    state:{username,email,iniPassword,rePassword,showPass,isUpCase,isNumber,isLength,isDisabled,isSubmitDisabled,isCreating,isDone,fadeOut, isUpperCase, isEmailVerified},
+    actions:{setUsername,setEmail,setIniPassword,setRePassword,setShowpass,setIsUpperCase,setIsNumber,setIsLength,setIsDisabled,setIsSubmitDisabled,setIsCreating,setIsDone,setFadeOut,handleSubmit,doesEmailExist}
   }
 }
