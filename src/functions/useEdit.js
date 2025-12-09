@@ -196,104 +196,165 @@ export const useEdit = () => {
         await deleteDoc(contentRef)
       }
 
+
+//M. starts here here Dec.10. added term distractor api call from backend
       if (isTermDef) {
-        const token = await user.getIdToken()
-        const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id))
-        const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)))
+  const token = await user.getIdToken();
+  const cardRefs = questions.map(q => doc(reviewerRef, "questions", q.id));
+  const snaps = await Promise.all(cardRefs.map(ref => getDoc(ref)));
 
-        const existingById = {}
-        const needingDistractors = []
+  const existingById = {};
+  const needingDefDistractors = [];
+  const needingTermDistractors = [];
 
-        for (let i = 0; i < questions.length; i++) {
-          const q = questions[i]
-          const snap = snaps[i]
-          const data = snap.exists() ? snap.data() : null
-          existingById[q.id] = data
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    const snap = snaps[i];
+    const data = snap.exists() ? snap.data() : null;
+    existingById[q.id] = data;
 
-          const existingDefs = Array.isArray(data?.definition) ? data.definition : (typeof data?.definition === "string" ? [{ text: data.definition, type: "correct" }] : [])
-          const hasWrong = Array.isArray(existingDefs) && existingDefs.some(d => d && d.type === "wrong")
-          if (!hasWrong) {
-            needingDistractors.push({
-              id: q.id,
-              term: q.question,
-              correctDefinition: q.answer,
-            })
-          }
-        }
+    const existingDefs = Array.isArray(data?.definition)
+      ? data.definition
+      : typeof data?.definition === "string"
+        ? [{ text: data.definition, type: "correct" }]
+        : [];
+    const hasWrongDefs = existingDefs.some(d => d && d.type === "wrong");
+    if (!hasWrongDefs) {
+      needingDefDistractors.push({
+        id: q.id,
+        term: q.question,
+        correctDefinition: q.answer,
+      });
+    }
 
-        let distractorMap = {}
-        if (needingDistractors.length > 0) {
-          try {
-            const resp = await fetch(`${API_URL}/api/distractors`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-              },
-              body: JSON.stringify({ items: needingDistractors, count: 3 }),
-            })
-            if (resp.ok) {
-              const body = await resp.json()
-              distractorMap = body?.distractors || {}
-            }
-          } catch (err) {
-            console.error("Failed to call distractor API:", err)
-          }
-        }
-
-        for (const q of questions) {
-  const existing = existingById[q.id] || {}
-  
-  const existingTerms = Array.isArray(existing.terms) ? existing.terms.slice() : []
-
-  // Update the correct term text
-  const correctTermText = q.question.trim()
-  const correctTermIndex = existingTerms.findIndex(t => t.type === "correct")
-  if (correctTermIndex !== -1) {
-    existingTerms[correctTermIndex].text = correctTermText
-  } else {
-    existingTerms.unshift({ text: correctTermText, type: "correct" })
-  }
-
-  // Update definitions
-  let defs = Array.isArray(existing.definition) ? existing.definition.slice() : []
-  // Update correct definition
-  const correctDef = q.answer.trim()
-  const correctDefIndex = defs.findIndex(d => d.type === "correct")
-  if (correctDefIndex !== -1) {
-    defs[correctDefIndex].text = correctDef
-  } else {
-    defs.unshift({ text: correctDef, type: "correct" })
-  }
-
-  const aiWrongs = Array.isArray(distractorMap[q.id]) ? distractorMap[q.id] : []
-  for (const wrong of aiWrongs) {
-    if (!wrong || !wrong.trim()) continue
-    const trimmed = wrong.trim()
-    if (!defs.some(d => d.text.trim() === trimmed)) {
-      defs.push({ text: trimmed, type: "wrong" })
+    const existingTerms = Array.isArray(data?.terms) ? data.terms : [];
+    const hasWrongTerms = existingTerms.some(t => t && t.type === "wrong");
+    if (!hasWrongTerms) {
+      needingTermDistractors.push({
+        id: q.id,
+        term: q.question,
+      });
     }
   }
 
-  const existingWrongs = Array.isArray(existing.definition) ? existing.definition.filter(d => d.type === "wrong") : []
-  for (const w of existingWrongs) {
-    if (!defs.some(d => d.text.trim() === w.text.trim())) {
-      defs.push(w)
+ 
+  let defDistractorMap = {};
+  if (needingDefDistractors.length > 0) {
+    try {
+      const resp = await fetch(`${API_URL}/api/distractors`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ items: needingDefDistractors, count: 3 }),
+      });
+      if (resp.ok) {
+        const body = await resp.json();
+        defDistractorMap = body?.distractors || {};
+      }
+    } catch (err) {
+      console.error("Failed to call definition distractor API:", err);
     }
   }
 
-  const payload = {
-    term: correctTermText,
-    terms: existingTerms,
-    defReal: correctDef,
-    definition: defs,
+
+  let termDistractorMap = {};
+  if (needingTermDistractors.length > 0) {
+    try {
+      const resp = await fetch(`${API_URL}/api/distractors/term`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ items: needingTermDistractors, count: 3 }),
+      });
+      if (resp.ok) {
+        const body = await resp.json();
+        termDistractorMap = body?.distractors || {};
+      }
+    } catch (err) {
+      console.error("Failed to call term distractor API:", err);
+    }
   }
 
-  const qRef = doc(reviewerRef, "questions", q.id)
-  await setDoc(qRef, payload, { merge: true })
+  for (const q of questions) {
+    const existing = existingById[q.id] || {};
+
+    const existingTerms = Array.isArray(existing.terms) ? existing.terms.slice() : [];
+    const correctTermText = q.question.trim();
+    const correctTermIndex = existingTerms.findIndex(t => t.type === "correct");
+    if (correctTermIndex !== -1) {
+      existingTerms[correctTermIndex].text = correctTermText;
+    } else {
+      existingTerms.unshift({ text: correctTermText, type: "correct" });
+    }
+
+    const aiTermWrongs = Array.isArray(termDistractorMap[q.id]) ? termDistractorMap[q.id] : [];
+    for (const wrong of aiTermWrongs) {
+      if (!wrong || !wrong.trim()) continue;
+      const trimmed = wrong.trim();
+      if (!existingTerms.some(t => t.text.trim() === trimmed)) {
+        existingTerms.push({ text: trimmed, type: "wrong" });
+      }
+    }
+
+
+    const existingWrongTerms = Array.isArray(existing.terms)
+      ? existing.terms.filter(t => t.type === "wrong")
+      : [];
+    for (const w of existingWrongTerms) {
+      if (!existingTerms.some(t => t.text.trim() === w.text.trim())) {
+        existingTerms.push(w);
+      }
+    }
+
+
+    let defs = Array.isArray(existing.definition) ? existing.definition.slice() : [];
+    const correctDef = q.answer.trim();
+    const correctDefIndex = defs.findIndex(d => d.type === "correct");
+    if (correctDefIndex !== -1) {
+      defs[correctDefIndex].text = correctDef;
+    } else {
+      defs.unshift({ text: correctDef, type: "correct" });
+    }
+
+    const aiDefWrongs = Array.isArray(defDistractorMap[q.id]) ? defDistractorMap[q.id] : [];
+    for (const wrong of aiDefWrongs) {
+      if (!wrong || !wrong.trim()) continue;
+      const trimmed = wrong.trim();
+      if (!defs.some(d => d.text.trim() === trimmed)) {
+        defs.push({ text: trimmed, type: "wrong" });
+      }
+    }
+
+
+    const existingWrongs = Array.isArray(existing.definition)
+      ? existing.definition.filter(d => d.type === "wrong")
+      : [];
+    for (const w of existingWrongs) {
+      if (!defs.some(d => d.text.trim() === w.text.trim())) {
+        defs.push(w);
+      }
+    }
+
+    const payload = {
+      term: correctTermText,
+      terms: existingTerms,
+      defReal: correctDef,
+      definition: defs,
+    };
+
+    const qRef = doc(reviewerRef, "questions", q.id);
+    await setDoc(qRef, payload, { merge: true });
+  }
 }
 
-      }
+//M. ends here Dec.10
+
+
+
 
       if (isAcronym) {
         for (const c of content) {
