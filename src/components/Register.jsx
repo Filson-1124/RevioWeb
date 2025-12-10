@@ -42,7 +42,7 @@ const Register = () => {
 
   return (
     <>
-      <ToastContainer/>
+     
 
       <div className="p-10 flex place-content-center bg-[#12121A] ">
         <div className="bg-[#1C1C26] w-full max-w-md sm:max-w-lg lg:max-w-xl p-6 sm:p-8 md:p-10 border border-[#5C5B5B] rounded-2xl shadow-lg lg:overflow-auto h-[80vh]">

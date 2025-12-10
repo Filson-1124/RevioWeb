@@ -13,14 +13,14 @@ import {
 
 export const useRegister = () => {
 
-  // Form fields
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [iniPassword, setIniPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [showPass, setShowpass] = useState(false);
 
-  // Password rules
+
   const [isUpCase, setIsUpperCase] = useState(false);
   const [isNumber, setIsNumber] = useState(false);
   const [isLength, setIsLength] = useState(false);
@@ -28,16 +28,19 @@ export const useRegister = () => {
   const [isDisabled, setIsDisabled] = useState(true);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-  // Loading screen states
+
   const [isCreating, setIsCreating] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
+
 
   const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const defaultPassword = "Revio123";
 
-  // Password validation
+
+
+
   useEffect(() => {
     const hasLength = iniPassword.length >= 8;
     let hasUpper = false;
@@ -65,19 +68,26 @@ export const useRegister = () => {
     setIsSubmitDisabled(!allValid);
   }, [iniPassword, rePassword, username, email, isEmailVerified]);
 
+
+
+
   const doesEmailExist = async () => {
     if (!email) return toast.error("Please Enter an email first");
 
     try {
-      await createUserWithEmailAndPassword(
+      const userCred = await createUserWithEmailAndPassword(
         auth,
         email.toLowerCase(),
         defaultPassword
       );
 
-      toast.success("Email available & verified!");
-    } catch (err) {
+      const user = userCred.user;
 
+      await sendEmailVerification(user);
+
+      toast.success("Verification email sent.");
+
+    } catch (err) {
       if (err.code === "auth/email-already-in-use") {
         toast.info("Email already exists.");
       } else {
@@ -85,9 +95,47 @@ export const useRegister = () => {
         return;
       }
     }
-
-    setIsEmailVerified(true);
   };
+
+
+
+
+  const checkRealEmailVerification = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    await user.reload();
+
+    if (user.emailVerified) {
+      setIsEmailVerified(true);
+    }
+  };
+
+
+
+  useEffect(() => {
+    if (!email) return;
+
+    const interval = setInterval(async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      await user.reload();
+
+      if (user.emailVerified) {
+        setIsEmailVerified(true);
+        toast.success("Your email is verified! You may now set your password.");
+        clearInterval(interval);
+      }
+
+    }, 5000); // every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [email]);
+
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -114,6 +162,7 @@ export const useRegister = () => {
         collection(db, 'users'),
         where('username', '==', username.toLowerCase())
       );
+
       const snap = await getDocs(q);
 
       if (!snap.empty) {
@@ -150,9 +199,7 @@ export const useRegister = () => {
         })
       ]);
 
-      await sendEmailVerification(user);
-
-      toast.success("Account created! Verification email sent.");
+      toast.success("Registration complete!");
 
       setIsDone(true);
       setTimeout(() => setFadeOut(true), 1000);
@@ -165,6 +212,9 @@ export const useRegister = () => {
     }
   };
 
+
+
+
   return {
     state: {
       username, email, iniPassword, rePassword, showPass,
@@ -174,7 +224,7 @@ export const useRegister = () => {
     },
     actions: {
       setUsername, setEmail, setIniPassword, setRePassword,
-      setShowpass, handleSubmit, doesEmailExist
+      setShowpass, handleSubmit, doesEmailExist, checkRealEmailVerification
     }
   };
 };
