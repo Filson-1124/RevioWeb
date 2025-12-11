@@ -78,11 +78,11 @@ const ForgotPassword = () => {
         <Link to="/" className="mt-6">
           <p className="text-[#B5B5FF] text-sm font-semibold hover:text-[#200448] transition">
             Back to Login
-          </p>
+    </p>
         </Link>
       </div>
 
-      <ToastContainer position="bottom-center" autoClose={3000} theme="dark" />
+      
     </div>
   )
 }
