@@ -1,11 +1,11 @@
 @font-face {
   font-family: Poppins;
-  src: url("../src/assets/font/Poppins-Regular.ttf")
+  src: url("./assets/font/Poppins-Regular.ttf")
 }
 
 @font-face {
   font-family: Poppins-Bold;
-  src: url("../src/assets/font/Poppins-Bold.ttf")
+  src: url("./assets/font/Poppins-Bold.ttf")
 }
 
 @import "tailwindcss";
@@ -13,10 +13,29 @@
 @theme {
   --font-poppins: Poppins, "sans-serif";
   --font-poppinsbold: Poppins-Bold, "sans-serif";
+  --color-folder: #20202C;
+}
+
+:root {
+  --ion-font-family: var(--font-poppins);
+  --ion-font-family-bold: var(--font-poppinsbold);
+  --ion-background-color: #12121A;
+  --ion-color-secondary: #B5B5FF;
+  --ion-text-color: #FFFFFF;
+  --background: var(--ion-background-color);
+  --ion-color-primary: #B5B5FF;
+  --ion-color-primary-contrast: #200448;
+  --ion-color-primary-shade: #9494e6;
+
+  --ion-color-danger: #E93209;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-shade: #C22507;
+  
 }
 
 body {
-  background-color: #12121A;
+  background-color: var(--ion-background-color);
+  color: var(--ion-text-color);
 }
 
 ::-webkit-scrollbar {
@@ -212,6 +231,7 @@ input:focus {
 html, body, #root {
   height: 100%;
   overflow: hidden; /* prevent double scroll */
+  font-family: var(--ion-font-family) !important;
 }
 
 /* Hide scrollbar visually, still allow scrolling */
