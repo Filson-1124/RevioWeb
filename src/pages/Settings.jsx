@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom'
 import { avatarOptions } from '../assets/3D Avatars/avatars'
 import accountDeleteImage from '../assets/deleteAccount.png'
 import { motion } from 'motion/react'
+import { IonButton, IonContent, IonLabel, IonText } from '@ionic/react'
 
 const Settings = () => {
   const { setIsLoggedIn, isLoggedIn } = useAuth()
@@ -169,14 +170,14 @@ const Settings = () => {
 
   return (
     <div className="flex flex-col mb-10 gap-8 p-6 pb-[45%] sm:pb-[40%] sm:p-10 md:p-16 md:pb-0 lg:p-20">
-      <motion.h1
+      <motion.IonTitle
         variants={titleVariants}
         initial="hidden"
         animate="visible"
         className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold"
       >
         SETTINGS
-      </motion.h1>
+      </motion.IonTitle>
 
       <div className="border border-[#565656] rounded-lg p-6 sm:p-10 flex flex-col lg:flex-row gap-10 bg-[#1E1E2E]">
         <motion.div
@@ -186,19 +187,19 @@ const Settings = () => {
           className="w-full lg:w-[40%] flex flex-col gap-4"
         >
           <div>
-            <label className="text-white font-poppins text-sm sm:text-base">
+            <IonLabel className="text-white font-poppins text-sm sm:text-base">
               Username:
-            </label>
+            </IonLabel>
             <motion.div
               className="bg-[#252533] text-white p-2 rounded-md"
               variants={inputVariants}
             >
               <input value={username} readOnly />
             </motion.div>
-
-            <label className="text-white font-poppins text-sm sm:text-base">
+            <br/>
+            <IonLabel className="text-white font-poppins text-sm sm:text-base">
               Email:
-            </label>
+            </IonLabel>
             <motion.div
               className="bg-[#252533] text-white p-2 rounded-md"
               variants={inputVariants}
@@ -219,9 +220,11 @@ const Settings = () => {
             )}
           </div>
 
-          <p className="text-white font-poppins text-center text-sm sm:text-base">
-            Select a new profile picture:
-          </p>
+          <IonText>
+            <p className="text-white font-poppins text-center text-sm sm:text-base">
+              Select a new profile picture:
+            </p>
+          </IonText>
 
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
             <ul className="flex flex-wrap gap-4 justify-center">
@@ -246,31 +249,34 @@ const Settings = () => {
             </ul>
           </motion.div>
 
-          <button
+          <IonButton
+            color="primary"
+            expand="block"
             onClick={handleConfirmAvatarChange}
-            className="bg-[#B5B5FF] text-[#200448] font-poppins rounded-md py-2 px-4 mt-2 disabled:opacity-50 hover:opacity-90 transition"
             disabled={selectedAvatarId === profilePicId}
           >
             Confirm Change
-          </button>
+          </IonButton>
         </div>
       </div>
 
      
       <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-        <button
+        <IonButton
+          color="primary"
+          expand="block"
           onClick={handleLogout}
-          className="cursor-pointer bg-[#B5B5FF] text-[#200448] font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:bg-[#200448] hover:text-[#B5B5FF] transition"
         >
           Logout
-        </button>
+        </IonButton>
 
-        <button
+        <IonButton
+          color="danger"
+          expand="block"
           onClick={handleDeleteAccount}
-          className="cursor-pointer bg-[#CD3232] text-white font-poppins font-semibold py-2 px-6 rounded-md active:scale-95 hover:bg-[#8B1E1E] transition"
         >
           Delete Account
-        </button>
+        </IonButton>
       </div>
 
     
@@ -280,31 +286,37 @@ const Settings = () => {
 
             <img src={accountDeleteImage} alt="Warning" className="h-50 md:h-80 mx-auto mb-4" />
 
-            <h2 className="text-white text-lg font-bold mb-3">
-              Delete Account
-            </h2>
+            <IonText>
+              <h2 className="text-white text-lg font-bold mb-3">
+                Delete Account
+              </h2>
+            </IonText>
 
-            <p className="text-gray-400 text-sm mb-6">
-              Are you sure you want to permanently delete your account?
-              <br />
-              This action cannot be undone.
-            </p>
+            <IonText>
+              <p className="text-gray-400 text-sm mb-6">
+                Are you sure you want to permanently delete your account?
+                <br />
+                This action cannot be undone.
+              </p>
+            </IonText>
 
             <div className="flex justify-center gap-4">
-              <button
+              <IonButton
+                color="medium"
+                expand="block"
                 onClick={() => setIsDeleting(false)}
-                className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
               >
                 Cancel
-              </button>
+              </IonButton>
 
              
-              <button
+              <IonButton
+                color="danger"
+                expand="block"
                 onClick={openPasswordModal}
-                className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
               >
                 Delete
-              </button>
+              </IonButton>
             </div>
 
           </div>
@@ -316,11 +328,10 @@ const Settings = () => {
         <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
           <div className="bg-[#1E1E2E] p-6 w-[90%] sm:w-[400px] rounded-2xl text-center border border-[#B5B5FF]">
 
-            <h2 className="text-white text-lg font-bold mb-4">
-             Re-enter Password
-            </h2>
-
-           
+            <IonText>
+              <h2 className="text-white text-lg font-bold mb-4">
+              Re-enter Password</h2>
+            </IonText>
 
             <input
               type="password"
@@ -331,19 +342,21 @@ const Settings = () => {
             />
 
             <div className="flex justify-center gap-4">
-              <button
+              <IonButton
+                color="medium"
+                expand="block"
                 onClick={() => setIsPasswordModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-semibold active:scale-95"
               >
                 Cancel
-              </button>
+              </IonButton>
 
-              <button
+              <IonButton
+                color="danger"
+                expand="block"
                 onClick={confirmDeleteAccount}
-                className="px-4 py-2 rounded-xl bg-[#E93209] hover:bg-[#C22507] text-white font-semibold active:scale-95"
               >
                 Confirm Delete
-              </button>
+              </IonButton>
             </div>
 
           </div>

@@ -1,12 +1,12 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
+import { IonContent } from '@ionic/react'
 
 const StudyToolsLayout = () => {
   return (
-    <div>
-       
-      <Outlet/>
-    </div>
+    <IonContent fullscreen className="ion-no-padding">
+      <Outlet />
+    </IonContent>
   )
 }
 

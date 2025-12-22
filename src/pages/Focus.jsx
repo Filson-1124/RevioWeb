@@ -5,6 +5,7 @@ import focusMusic from '../assets/focusMusic'
 import { FaRegCirclePlay } from "react-icons/fa6"
 import { FaPauseCircle } from "react-icons/fa"
 import focusImage from '../assets/focusAssets/REVIO-MUSIC.png'
+import { IonPage, IonText, IonTitle } from '@ionic/react'
 
 const Focus = () => {
   const {
@@ -83,79 +84,79 @@ const Focus = () => {
   }
 
   return (
-    <div className="flex flex-col gap-7 pb-[55%] p-5 md:p-10 md:pb-40">
-      <motion.h1 variants={itemVariants} initial="hidden" animate="visible" className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
+      <div className="flex flex-col gap-7 pb-[55%] p-5 md:p-10 md:pb-40">
+        <motion.h1 variants={itemVariants} initial="hidden" animate="visible" className="text-white text-2xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
 
-          FOCUS
-    
-      </motion.h1>
-      <hr className="border-[#797777]" />
+            FOCUS
+      
+        </motion.h1>
+        <hr className="border-[#797777]" />
 
-      <div className="flex gap-5">
-        <img src={focusImage} alt="" className="w-40 h-40 rounded-2xl" />
-        <div className="flex flex-col place-self-end">
-          <h1 className="text-white font-black">
-            40Hz Focus Music (Binaural Beats)
-          </h1>
-          <p className="text-white">
-            {!extended
-              ? '40Hz binaural beats, which generate gamma brainwave activity,'
-              : text}{' '}
-            <a
-              className="text-[#ae57ff] cursor-pointer"
-              onClick={toggleExpand}
-            >
-              {!extended ? 'see more...' : 'see less...'}
-            </a>
-          </p>
+        <div className="flex gap-5">
+          <img src={focusImage} alt="" className="w-40 h-40 rounded-2xl" />
+          <div className="flex flex-col place-self-end">
+            <IonTitle className="text-white font-black text-3xl py-2 sm:text-sm md:text-md lg:text-5xl font-poppinsbold">
+              40Hz Focus Music (Binaural Beats)
+            </IonTitle>
+            <IonText className="text-white">
+              {!extended
+                ? '40Hz binaural beats, which generate gamma brainwave activity,'
+                : text}{' '}
+              <a
+                className="text-[#ae57ff] cursor-pointer"
+                onClick={toggleExpand}
+              >
+                {!extended ? 'see more...' : 'see less...'}
+              </a>
+            </IonText>
+          </div>
         </div>
+
+        <motion.ol
+          className="flex flex-col gap-2 list-decimal"
+          variants={listVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {focusMusic.map((track, index) => {
+            const isHighlighted = track.id === highlightedTrackId
+            const isCurrent = currentTrack?.id === track.id
+            const playingNow = isCurrent && isPlaying
+
+            return (
+              <motion.li
+                key={track.id}
+                variants={itemVariants}
+                onClick={() => handleTrackClick(track, index)}
+                className={`group flex items-center gap-3 border-y border-[#797777] p-3 text-white cursor-pointer md:gap-4 md:p-4 transition-all duration-150 ${
+                  isHighlighted ? 'bg-[#2a1847]' : 'hover:bg-[#33205e]'
+                }`}
+              >
+                {playingNow ? (
+                  <FaPauseCircle
+                    size={40}
+                    color="yellow"
+                    className="pointer-events-none transition-transform duration-100 group-active:scale-90"
+                  />
+                ) : (
+                  <FaRegCirclePlay
+                    size={40}
+                    color="yellow"
+                    className="pointer-events-none transition-transform duration-100 group-active:scale-90"
+                  />
+                )}
+
+                <div className="group-active:scale-90">
+                  <IonTitle className="text-sm md:text-lg font-semibold">
+                    {track.title}
+                  </IonTitle>
+                  <IonText className="text-[#837f7f]">{track.artist}</IonText>
+                </div>
+              </motion.li>
+            )
+          })}
+        </motion.ol>
       </div>
-
-      <motion.ol
-        className="flex flex-col gap-2 list-decimal"
-        variants={listVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {focusMusic.map((track, index) => {
-          const isHighlighted = track.id === highlightedTrackId
-          const isCurrent = currentTrack?.id === track.id
-          const playingNow = isCurrent && isPlaying
-
-          return (
-            <motion.li
-              key={track.id}
-              variants={itemVariants}
-              onClick={() => handleTrackClick(track, index)}
-              className={`group flex items-center gap-3 border-y border-[#797777] p-3 text-white cursor-pointer md:gap-4 md:p-4 transition-all duration-150 ${
-                isHighlighted ? 'bg-[#2a1847]' : 'hover:bg-[#33205e]'
-              }`}
-            >
-              {playingNow ? (
-                <FaPauseCircle
-                  size={40}
-                  color="yellow"
-                  className="pointer-events-none transition-transform duration-100 group-active:scale-90"
-                />
-              ) : (
-                <FaRegCirclePlay
-                  size={40}
-                  color="yellow"
-                  className="pointer-events-none transition-transform duration-100 group-active:scale-90"
-                />
-              )}
-
-              <div className="group-active:scale-90">
-                <h3 className="text-sm md:text-lg font-semibold">
-                  {track.title}
-                </h3>
-                <p className="text-[#837f7f]">{track.artist}</p>
-              </div>
-            </motion.li>
-          )
-        })}
-      </motion.ol>
-    </div>
   )
 }
 

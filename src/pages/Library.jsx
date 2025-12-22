@@ -5,6 +5,7 @@ import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { auth, db } from '../components/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonText } from '@ionic/react';
 
 const Library = () => {
   const foldersData = useLoaderData();
@@ -15,9 +16,7 @@ const Library = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.15, 
-      },
+      transition: { staggerChildren: 0.15 },
     },
   };
 
@@ -27,86 +26,84 @@ const Library = () => {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 120,
-        damping: 12,
-      },
+      transition: { type: "spring", stiffness: 120, damping: 12 },
     },
   };
-   const titleVariants = {
+
+  const titleVariants = {
     hidden: { opacity: 0, x: 100 },
     visible: {
       opacity: 1,
       x: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 15,
-      },
+      transition: { type: 'spring', stiffness: 300, damping: 15 },
     },
-  }
-
+  };
 
   return (
-    <div className='pb-[30%]'>
-    
-      <div className='flex flex-col gap-7 p-10'>
-         <motion.h1 variants={titleVariants} initial="hidden" animate="visible" className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold">
-           
-                LIBRARY
-         
-              </motion.h1>
-        <hr className='text-white' />
-      </div>
-
-    
-      <motion.div
-        className='px-6 sm:px-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 text-start'
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {foldersData.map(folder => {
-          const isLongTitle = folder.title.length > 25;
-          const textSize = isLongTitle
-            ? 'text-xs sm:text-sm md:text-md'
-            : 'text-sm sm:text-base md:text-lg';
-
-          return (
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>
             <motion.div
-              key={folder.id}
-              variants={itemVariants}
+              variants={titleVariants}
+              initial="hidden"
+              animate="visible"
+              className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-poppinsbold px-10 pt-20"
             >
-              <Link
-                to={folder.id}
-                className='transition-all active:scale-95 group flex justify-start items-center gap-4 bg-[#20202C] p-4 sm:p-5 rounded-2xl duration-100 ease-in hover:scale-105'
-              >
-                <div className="relative flex-shrink-0 w-20 h-20">
-                  <FaFolder
-                    color='white'
-                    size={80}
-                    className='absolute top-0 left-0 opacity-100 group-hover:opacity-0 transition-all duration-200'
-                  />
-                  <FaFolderOpen
-                    color='white'
-                    size={80}
-                    className='absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-all duration-200'
-                  />
-                </div>
-
-                <h4
-                  className={`text-white font-medium leading-snug break-words line-clamp-2 ${textSize}`}
-                  title={folder.title}
-                >
-                  {folder.title}
-                </h4>
-              </Link>
+              LIBRARY
             </motion.div>
-          );
-        })}
-      </motion.div>
-    </div>
+          </IonTitle>
+        </IonToolbar>
+      </IonHeader>
+
+      <IonContent className="ion-padding pb-[30%] bg-[#12121A]">
+        <hr className='text-white mb-6' />
+
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {foldersData.map(folder => {
+            const isLongTitle = folder.title.length > 25;
+            const textSize = isLongTitle
+              ? 'text-xs sm:text-sm md:text-md'
+              : 'text-sm sm:text-base md:text-lg';
+
+            return (
+              <motion.div key={folder.id} variants={itemVariants}>
+                <Link
+                  to={folder.id}
+                  className='transition-all active:scale-95 group flex justify-start items-center gap-4 p-4 sm:p-5 rounded-2xl duration-100 ease-in hover:scale-105'
+                  style={{ backgroundColor: '#20202C' }}
+                >
+                  <div className="relative flex-shrink-0 w-20 h-20">
+                    <FaFolder
+                      color='white'
+                      size={80}
+                      className='absolute top-0 left-0 opacity-100 group-hover:opacity-0 transition-all duration-200'
+                    />
+                    <FaFolderOpen
+                      color='white'
+                      size={80}
+                      className='absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-all duration-200'
+                    />
+                  </div>
+
+                  <IonText
+                    className={`!text-white !font-medium !leading-snug break-words line-clamp-2 ${textSize}`}
+                    title={folder.title}
+                  >
+                    {folder.title}
+                  </IonText>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </IonContent>
+    </IonPage>
   );
 };
 

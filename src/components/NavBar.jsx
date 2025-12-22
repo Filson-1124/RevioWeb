@@ -7,26 +7,23 @@ import { NavLink } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import { FaMobileAlt } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom'
+import { IonFooter, IonToolbar, IonImg } from '@ionic/react'
 
 const NavBar = () => {
  const navigate=useNavigate()
   return (
-   <div
-  className="
-    fixed bottom-0 left-0 w-full h-[11%] bg-[#0B0B0F] p-1
-    flex justify-center items-center z-50
-    md:static md:flex-col md:w-[6rem] md:h-screen md:justify-start md:py-10
-    overflow-hidden
-  "
->
-  <img
-    src={logo}
-    alt="Logo"
-    className="hidden md:block size-20 mb-10 cursor-pointer hover:scale-110 transition-transform duration-300"
-    onClick={() => navigate('/Main/Library')}
-  />
+   <IonFooter className="fixed bottom-0 left-0 w-full h-[11%] bg-[#0B0B0F] p-1 flex justify-center items-center z-50 md:static md:flex-col md:w-[6rem] md:h-screen md:justify-start md:py-10 overflow-hidden">
+     <IonToolbar className="p-0 bg-transparent">
 
-  <ul className="flex flex-row gap-4 px-4 p-5 sm:gap-5 items-center md:flex-col md:gap-10 lg:gap-6">
+      <div className="w-full">
+        <IonImg
+          src={logo}
+          alt="Logo"
+          className="hidden md:block size-20 mb-10 cursor-pointer hover:scale-110 transition-transform duration-300"
+          onClick={() => navigate('/Main/Library')}
+        />
+
+        <ul className="flex flex-row gap-4 px-4 p-5 sm:gap-5 items-center md:flex-col md:gap-10 lg:gap-6">
 
    
     <NavLink to="/Main/Library" className="group">
@@ -82,9 +79,11 @@ const NavBar = () => {
       </li>
     </NavLink>
 
-  </ul>
-</div>
+        </ul>
+      </div>
 
+     </IonToolbar>
+   </IonFooter>
   )
 }
 

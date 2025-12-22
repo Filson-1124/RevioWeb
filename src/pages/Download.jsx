@@ -1,6 +1,7 @@
 import React from 'react';
 import mobileIcon from '../assets/phoneIcon.png'
-import qr from '../assets/QRNEW.png'
+import { IonText, IonTitle, IonButton } from '@ionic/react';
+// import qr from '../assets/QRNEW.png'
 
 const Download = () => {
   return (
@@ -11,22 +12,26 @@ const Download = () => {
        
           <img src={mobileIcon} alt="" />
        
+        <IonTitle>
+          <h1 className="text-white text-2xl font-bold mb-4">Get the Revio App!</h1>
+        </IonTitle>
 
-        <h1 className="text-white text-2xl font-bold mb-4">Get the Revio App!</h1>
-
-      
-        <p className="text-white mb-6">
-          Enjoy a smoother, faster, and more engaging experience. Download our mobile app today!
-        </p>
+        <IonText>
+          <p className="text-white mb-6">
+            Enjoy a smoother, faster, and more engaging experience. Download our mobile app today!
+          </p>
+        </IonText>
 
         {/*popopop booom booom*/}
         <div className="flex flex-col gap-3">
-            <button
+        <IonButton
           onClick={() => window.open('https://expo.dev/artifacts/eas/bi6ADTfJDkiL4wth43Ru7W.apk', '_blank')}
-          className=" cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-        > 
-  Download Revio Mobile
-</button>
+          // className=" cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          color="primary"
+          expand="block"
+        >
+          <IonText>Download Revio Mobile</IonText>
+      </IonButton>
         </div>
      
       </div>
