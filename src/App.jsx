@@ -41,6 +41,25 @@ import Download from './pages/Download'
 // ✅ Import ProtectedRoute
 import ProtectedRoute from './components/ProtectedRoute'
 
+import { IonApp, setupIonicReact } from '@ionic/react';
+
+/* Core CSS required for Ionic components to work properly */
+import '@ionic/react/css/core.css';
+
+/* Basic CSS for apps built with Ionic */
+import '@ionic/react/css/normalize.css';
+import '@ionic/react/css/structure.css';
+import '@ionic/react/css/typography.css';
+
+/* Optional CSS utils that can be commented out */
+import '@ionic/react/css/padding.css';
+import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/text-alignment.css';
+import '@ionic/react/css/text-transformation.css';
+import '@ionic/react/css/flex-utils.css';
+import '@ionic/react/css/display.css';
+
+setupIonicReact();
 // ✅ Simple fallback for app errors (prevents the “💿 Hey developer 👋” crash)
 const ErrorFallback = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[#12121A] text-white text-center p-6">
@@ -63,7 +82,15 @@ const PomodoroWrapper = () => {
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<PomodoroWrapper />} errorElement={<ErrorFallback />}>
+    <Route
+      element={<PomodoroWrapper />}
+      errorElement={<ErrorFallback />}
+      hydrateFallbackElement={
+        <div className="min-h-screen flex items-center justify-center bg-[#12121A] text-white">
+          Loading...
+        </div>
+      }
+    >
       {/* PUBLIC ROUTES */}
       <Route path="/" element={<Login />} />
       <Route path="/Register" element={<Register />} />
