@@ -12,28 +12,37 @@ const RootLayout = () => {
   return (
     <IonPage>
       <AudioProvider>
-        <div className="flex flex-col md:flex-row h-full bg-[#12121A] relative">
-          
-          {showNav && (
-            <div className="flex-shrink-0">
-              <NavBar />
-            </div>
-          )}
-
-          {/* Ionic controls scrolling here */}
-          <IonContent fullscreen className="relative">
-            <main className="flex-1 relative z-0">
-              <Outlet context={{ setShowNav }} />
-            </main>
-          </IonContent>
-
-          <div className="fixed inset-0 pointer-events-none z-[9999]">
-            <div className="pointer-events-auto">
-              <MusicPlayer />
-            </div>
+        {/* Desktop Sidebar / Mobile Bottom Nav */}
+        {showNav && (
+          <div
+            className={`
+              fixed z-50
+              bottom-0 left-0 w-full h-16
+              md:w-28 md:h-full md:top-0 md:left-0
+              bg-[#1E1E2E]
+              flex md:flex-col
+              justify-center md:justify-start
+              items-center
+            `}
+          >
+            <NavBar />
           </div>
+        )}
 
+        {/* Main Content */}
+        <IonContent fullscreen className="relative">
+          <div className="pb-16 md:pl-28">
+            <Outlet context={{ setShowNav }} />
+          </div>
+        </IonContent>
+
+        {/* Floating MusicPlayer */}
+        <div className="fixed bottom-24 right-4 z-[9999] pointer-events-auto">
+          <MusicPlayer />
         </div>
+
+        {/* Example Floating Pomodoro button */}
+      
       </AudioProvider>
     </IonPage>
   )
